@@ -1,0 +1,8 @@
+---
+- name: Test SSH and File Copy
+  hosts: targets
+  tasks:
+    - name: Copy a file to the remote machine
+      copy:
+        src: "{{ lookup('env', 'FILE_TO_COPY') }}"
+        dest: "{{ lookup('env', 'DESTINATION_PATH') }}"

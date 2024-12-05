@@ -1,0 +1,15 @@
+version: "3.8"
+services:
+  ansible:
+    build:
+      context: .
+    container_name: ansible
+    volumes:
+      - ./ansible:/ansible
+      - ${SSH_KEY_PATH}:/root/.ssh/id_rsa:ro # Mount private key
+      - ${SSH_KEY_PATH}.pub:/root/.ssh/id_rsa.pub:ro # Optional: Public key
+    env_file:
+      - .env
+    network_mode: "host" # Use host network for SSH
+    stdin_open: true
+    tty: true
