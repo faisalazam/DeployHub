@@ -15,6 +15,9 @@ VAGRANT_BOX_NAME = "StefanScherer/windows_2019"
 RDP_PORT = 3390
 WINRM_HTTP_PORT = 55985
 WINRM_HTTPS_PORT = 55986
+VM_COMMUNICATOR = "winrm"
+WINRM_USERNAME = "vagrant"
+WINRM_PASSWORD = "vagrant"
 
 Vagrant.configure("2") do |config|
   config.vm.box = VAGRANT_BOX_NAME
@@ -40,15 +43,15 @@ Vagrant.configure("2") do |config|
     vb.memory = VM_MEMORY
   end
 
+  config.vm.guest = :windows
+  config.winrm.transport = :negotiate
+  config.winrm.port = WINRM_HTTP_PORT
+  config.winrm.username = WINRM_USERNAME
+  config.winrm.password = WINRM_PASSWORD
+  config.vm.communicator = VM_COMMUNICATOR
+
   # Provision WinRM configuration
-  config.vm.provision "shell", inline: <<-SHELL
-    powershell -Command "Enable-PSRemoting -Force"
-    powershell -Command "Set-Service -Name WinRM -StartupType Automatic"
-    powershell -Command "Start-Service -Name WinRM"
-    powershell -Command "Set-Item WSMan:\\localhost\\Client\\TrustedHosts -Value '*' -Force"
-    powershell -Command "New-NetFirewallRule -Name 'Allow WinRM HTTP' -Protocol TCP -LocalPort 5985 -Action Allow"
-    powershell -Command "New-NetFirewallRule -Name 'Allow WinRM HTTPS' -Protocol TCP -LocalPort 5986 -Action Allow"
-  SHELL
+  config.vm.provision "shell", path: "scripts/winrm_setup.ps1"
 
   # Additional provisioning steps (if needed) can be added here
 end
