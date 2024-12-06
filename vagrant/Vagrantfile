@@ -1,14 +1,44 @@
+# Constants for configuration
+
+VM_CPUS = 2
+VM_GUI = false
+VM_MEMORY = "4096"
+VM_IP = "192.168.100.10"
+VM_NAME = "WINDOWS_SERVER"
+VM_HOSTNAME = "windows-2019-vagrant"
+
+BOOT_TIMEOUT = 600
+VAGRANT_PROVIDER = "virtualbox"
+VAGRANT_BOX_VERSION = "2021.05.15"
+VAGRANT_BOX_NAME = "StefanScherer/windows_2019"
+
+RDP_PORT = 3390
+WINRM_HTTP_PORT = 55985
+WINRM_HTTPS_PORT = 55986
+
 Vagrant.configure("2") do |config|
-  config.vm.box = "StefanScherer/windows_2019"
-  config.vm.box_version = "2021.05.15"
+  config.vm.box = VAGRANT_BOX_NAME
+  config.vm.box_version = VAGRANT_BOX_VERSION
+
+  # Set up VM hostname
+  config.vm.hostname = VM_HOSTNAME
 
   # Increase WinRM timeout to allow VM more time to boot
-  config.vm.boot_timeout = 600
+  config.vm.boot_timeout = BOOT_TIMEOUT
+
+  # Set up the VM to use a private network
+  config.vm.network "private_network", type: "static", ip: VM_IP
 
   # Forward RDP and WinRM ports
-  config.vm.network "forwarded_port", guest: 3389, host: 3390
-  config.vm.network "forwarded_port", guest: 5985, host: 55985
-  config.vm.network "forwarded_port", guest: 5986, host: 55986
+  config.vm.network "forwarded_port", guest: 3389, host: RDP_PORT
+  config.vm.network "forwarded_port", guest: 5985, host: WINRM_HTTP_PORT
+
+  config.vm.provider VAGRANT_PROVIDER do |vb|
+    vb.gui = VM_GUI
+    vb.cpus = VM_CPUS
+    vb.name = VM_NAME
+    vb.memory = VM_MEMORY
+  end
 
   # Provision WinRM configuration
   config.vm.provision "shell", inline: <<-SHELL
@@ -19,4 +49,6 @@ Vagrant.configure("2") do |config|
     powershell -Command "New-NetFirewallRule -Name 'Allow WinRM HTTP' -Protocol TCP -LocalPort 5985 -Action Allow"
     powershell -Command "New-NetFirewallRule -Name 'Allow WinRM HTTPS' -Protocol TCP -LocalPort 5986 -Action Allow"
   SHELL
+
+  # Additional provisioning steps (if needed) can be added here
 end
