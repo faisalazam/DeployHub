@@ -1,28 +1,22 @@
-VM_CPUS = "4"
-VM_MEMORY = "8192"
-SHOW_VM_GUI = false
-VM_NAME = "WINDOWS_SERVER"
-VAGRANT_BOX_VERSION = "1.0.2"
-VAGRANT_PROVIDER = "virtualbox"
-VAGRANT_BOX_NAME = "rconde/windows2019"
-VM_HOSTNAME = "windowsremote" # Ensure it complies with hostname rules
-VM_NETWORK_IP = "192.168.100.10"
-
 Vagrant.configure("2") do |config|
-  config.vm.box = VAGRANT_BOX_NAME
-  config.vm.box_version = VAGRANT_BOX_VERSION
+  config.vm.box = "StefanScherer/windows_2019"
+  config.vm.box_version = "2021.05.15"
 
-  # Network Configuration (Static IP)
-  config.vm.network "private_network", ip: VM_NETWORK_IP
+  # Increase WinRM timeout to allow VM more time to boot
+  config.vm.boot_timeout = 600
 
-  # VM Provider Configuration (VirtualBox)
-  config.vm.provider VAGRANT_PROVIDER do |vb|
-    vb.cpus = VM_CPUS
-    vb.name = VM_NAME
-    vb.gui = SHOW_VM_GUI
-    vb.memory = VM_MEMORY
-  end
+  # Forward RDP and WinRM ports
+  config.vm.network "forwarded_port", guest: 3389, host: 3390
+  config.vm.network "forwarded_port", guest: 5985, host: 55985
+  config.vm.network "forwarded_port", guest: 5986, host: 55986
 
-  # Hostname
-  config.vm.hostname = VM_HOSTNAME
+  # Provision WinRM configuration
+  config.vm.provision "shell", inline: <<-SHELL
+    powershell -Command "Enable-PSRemoting -Force"
+    powershell -Command "Set-Service -Name WinRM -StartupType Automatic"
+    powershell -Command "Start-Service -Name WinRM"
+    powershell -Command "Set-Item WSMan:\\localhost\\Client\\TrustedHosts -Value '*' -Force"
+    powershell -Command "New-NetFirewallRule -Name 'Allow WinRM HTTP' -Protocol TCP -LocalPort 5985 -Action Allow"
+    powershell -Command "New-NetFirewallRule -Name 'Allow WinRM HTTPS' -Protocol TCP -LocalPort 5986 -Action Allow"
+  SHELL
 end
