@@ -1,1 +1,47 @@
-.env
+# Ignore Vagrant-related files
+.vagrant/
+*.vbox
+*.vbox-prev
+*.vmx
+*.vmsd
+*.vmdk
+
+# Ignore Ansible-related files
+*.retry
+*.yml~
+*.ansible-lint
+
+# Ignore Docker-related files
+docker-compose.override.yml
+.docker/
+*.log
+*.pid
+*.swp
+
+# Ignore the winrm folder
+winrm/
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Ignore virtual environments and Python-related files (if using Python in the project)
+venv/
+*.pyc
+*.pyo
+__pycache__/
+
+# Ignore editor-specific files
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# Ignore system-specific files
+*.bak
+*.swo
+
+# Ignore any lock files (e.g., from Ansible or Docker)
+*.lock
