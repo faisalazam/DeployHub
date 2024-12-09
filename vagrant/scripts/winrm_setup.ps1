@@ -1,48 +1,75 @@
-$httpPort = 5985
-$httpsPort = 5986
-$httpRuleName = 'Allow WinRM HTTP'
-$httpsRuleName = 'Allow WinRM HTTPS'
-$trustedHostsPath = "WSMan:\\localhost\\Client\\TrustedHosts"
-$trustedHosts = "*"  # Set "*" for all hosts, or specify specific IPs/hosts
+param (
+    [int]$httpPort = 5985,
+    [int]$httpsPort = 5986,
+# TODO: use specific ip instead of *
+    [string]$trustedHosts = "*", # Set "*" for all hosts, or specify specific IPs/hosts
+    [string]$httpRuleName = "Allow WinRM HTTP",
+    [string]$httpsRuleName = "Allow WinRM HTTPS",
+    [string]$trustedHostsPath = "WSMan:\\localhost\\Client\\TrustedHosts"
+)
 
-# Function to check and create firewall rule
-function Check-CreateFirewallRule {
+function Write-Log
+{
+    param ([string]$message)
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    Write-Host "[$timestamp] $message"
+}
+
+function Check-CreateFirewallRule
+{
     param (
         [string]$ruleName,
         [int]$port
     )
-
-    Write-Host "Checking if firewall rule for $ruleName exists..."
+    Write-Log "Checking if firewall rule for $ruleName exists..."
     $rule = Get-NetFirewallRule -Name $ruleName -ErrorAction SilentlyContinue
-    if (-not $rule) {
-        Write-Host "Creating firewall rule for $ruleName on port $port..."
+    if (-not $rule)
+    {
+        Write-Log "Creating firewall rule for $ruleName on port $port..."
         New-NetFirewallRule -Name $ruleName -Protocol TCP -LocalPort $port -Action Allow -DisplayName $ruleName
-    } else {
-        Write-Host "Firewall rule for $ruleName already exists."
+    }
+    else
+    {
+        Write-Log "Firewall rule for $ruleName already exists."
     }
 }
+
 
 # Add the vagrant user to the Administrators group (if needed)
 # $vagrantUser = "vagrant"
 # Add-LocalGroupMember -Group "Administrators" -Member $vagrantUser
 # Write-Output "$vagrantUser user added to Administrators"
+#
+# Admin Check (Optional: Uncomment if necessary)
+# if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+#     Write-Log "Script must be run as Administrator."
+#     exit 1
+# }
 
-# Enable and configure WinRM
-Write-Host "Enabling PowerShell Remoting..."
+# Enable and Configure WinRM
+Write-Log "Enabling PowerShell Remoting..."
 Enable-PSRemoting -Force
 
-Write-Host "Setting WinRM service startup type to Automatic..."
+Write-Log "Setting WinRM service startup type to Automatic..."
 Set-Service -Name WinRM -StartupType Automatic
 
-Write-Host "Starting WinRM service..."
+Write-Log "Starting WinRM service..."
 Start-Service -Name WinRM
 
-Write-Host "Configuring TrustedHosts..."
+Write-Log "Configuring TrustedHosts..."
 Set-Item $trustedHostsPath -Value $trustedHosts -Force
 
-# Check and create firewall rules for WinRM HTTP and HTTPS
+# Configure Firewall Rules
+Write-Log "Configuring HTTP firewall rule..."
 Check-CreateFirewallRule -ruleName $httpRuleName -port $httpPort
+
+Write-Log "Configuring HTTPS firewall rule..."
 Check-CreateFirewallRule -ruleName $httpsRuleName -port $httpsPort
 
-# Output confirmation
-Write-Output "WinRM configured"
+# Output Summary
+Write-Log "Configuration Summary:"
+Write-Log "TrustedHosts: $(Get-Item -Path $trustedHostsPath | Select-Object -ExpandProperty Value)"
+Write-Log "Firewall Rules:"
+Get-NetFirewallRule -Name $httpRuleName, $httpsRuleName -ErrorAction SilentlyContinue | Format-Table -Property Name, Enabled, Direction, LocalPort
+
+Write-Log "WinRM configuration complete."
