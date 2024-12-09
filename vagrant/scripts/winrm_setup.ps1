@@ -22,7 +22,7 @@ param (
     [int]$httpPort = 5985,
     [int]$httpsPort = 5986,
 # TODO: use specific ip instead of *
-    [string]$trustedHosts = "*", # Set "*" for all hosts, or specify specific IPs/hosts
+    [string]$trustedHosts = "192.168.56.189", # Set "*" for all hosts, or specify specific IPs/hosts
     [string]$httpRuleName = "Allow WinRM HTTP",
     [string]$httpsRuleName = "Allow WinRM HTTPS",
     [string]$trustedHostsPath = "WSMan:\\localhost\\Client\\TrustedHosts"
