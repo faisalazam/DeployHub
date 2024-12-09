@@ -99,8 +99,6 @@ else
 }
 
 # Output the final status
-Write-Log "Ansible service account ('$UserName') creation and configuration process completed."
-Write-Log "Account '$UserName' added to the '$GroupName' group."
-Write-Log "Service account setup is complete."
+Write-Log "Service account setup is complete for '$UserName'."
 
 exit 0
