@@ -31,28 +31,6 @@ Vagrant.configure("2") do |config|
     # Set up the VM to use a private network
     config.vm.network "private_network", type: "static", ip: VM_IP
 
-    config.vm.provision "shell", inline: <<-SHELL
-        # Define the log file path
-        $logFilePath = "C:\temp\vm_ip_log.txt"
-
-        # Find the network adapter with the specific static IP
-        $networkAdapter = Get-NetIPAddress -AddressFamily IPv4 | Where-Object { $_.IPAddress -eq "#{VM_IP}" }
-
-        if ($networkAdapter) {
-            # Notify the user on the console and write to the log file
-            Write-Host "Static IP is correctly set to #{VM_IP}"
-            "Static IP is correctly set to #{VM_IP}" | Out-File -Append $logFilePath
-        } else {
-            # Get the current IP
-            $currentIP = (Get-NetIPAddress -AddressFamily IPv4).IPAddress
-            # Notify the user on the console and write to the log file
-            Write-Host "Warning: Static IP is not set to #{VM_IP}. Current IP is $currentIP"
-            "Warning: Static IP is not set to #{VM_IP}. Current IP is $currentIP" | Out-File -Append $logFilePath
-        }
-
-        Remove-Item -Path $logFilePath -Force
-    SHELL
-
     config.vm.provider VAGRANT_PROVIDER do |vb|
         vb.gui = VM_GUI
         vb.cpus = VM_CPUS
@@ -71,6 +49,14 @@ Vagrant.configure("2") do |config|
 
     # Set the communicator for VM
     config.vm.communicator = VM_COMMUNICATOR
+
+    # Sync the scripts folder
+    config.vm.synced_folder "./scripts", "/vagrant/scripts", type: "virtualbox"
+
+    # Verify IP configuration
+    config.vm.provision "shell", inline: <<-SHELL
+        powershell.exe -ExecutionPolicy Bypass -File "/vagrant/scripts/check_ip.ps1" -VM_IP "#{VM_IP}"
+    SHELL
 
     # Configuring Service Account for Ansible
     config.vm.provision "shell", path: "scripts/setup_ansible_user.ps1"
