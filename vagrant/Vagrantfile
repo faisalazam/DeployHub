@@ -72,6 +72,9 @@ Vagrant.configure("2") do |config|
     # Set the communicator for VM
     config.vm.communicator = VM_COMMUNICATOR
 
+    # Configuring Service Account for Ansible
+    config.vm.provision "shell", path: "scripts/setup_ansible_user.ps1"
+
     # Provision WinRM configuration
     config.vm.provision "shell", path: "scripts/winrm_setup.ps1"
 
