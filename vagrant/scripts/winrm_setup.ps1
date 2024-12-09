@@ -1,3 +1,23 @@
+<#
+    .SYNOPSIS
+        Configures WinRM and firewall rules for a Windows system.
+    .DESCRIPTION
+        This script enables PowerShell remoting, configures TrustedHosts,
+        and sets up HTTP/HTTPS firewall rules for WinRM.
+    .PARAMETER httpPort
+        Port number for WinRM HTTP (default: 5985).
+    .PARAMETER httpsPort
+        Port number for WinRM HTTPS (default: 5986).
+    .PARAMETER trustedHostsPath
+        Path to configure TrustedHosts (default: WSMan:\localhost\Client\TrustedHosts).
+    .PARAMETER trustedHosts
+        A list of hosts to add to the TrustedHosts configuration. Use "*" to allow all hosts
+        or specify a comma-separated list of specific hosts:
+        (e.g., "192.168.1.1,server1.example.com").
+    .NOTES
+        Author: M. Faisal
+#>
+
 param (
     [int]$httpPort = 5985,
     [int]$httpsPort = 5986,
@@ -68,7 +88,7 @@ Check-CreateFirewallRule -ruleName $httpsRuleName -port $httpsPort
 
 # Output Summary
 Write-Log "Configuration Summary:"
-Write-Log "TrustedHosts: $(Get-Item -Path $trustedHostsPath | Select-Object -ExpandProperty Value)"
+Write-Log "TrustedHosts: $( Get-Item -Path $trustedHostsPath | Select-Object -ExpandProperty Value )"
 Write-Log "Firewall Rules:"
 Get-NetFirewallRule -Name $httpRuleName, $httpsRuleName -ErrorAction SilentlyContinue | Format-Table -Property Name, Enabled, Direction, LocalPort
 
