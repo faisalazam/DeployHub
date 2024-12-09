@@ -35,7 +35,7 @@ param(
     [string]$Password = "ANS1BLE_P@sS!", # Ideally, get this from a secure source
     [string]$FullName = "Ansible Service Account",
     [string]$Description = "Service account for Ansible",
-    [string]$GroupName = "Remote Desktop Users"  # Or 'Administrators' if you need admin access
+    [string]$GroupName = "Remote Management Users"  # Or 'Administrators' if you need admin access
 )
 
 function Write-Log
