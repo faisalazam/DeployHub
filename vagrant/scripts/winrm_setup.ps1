@@ -1,6 +1,31 @@
+$httpPort = 5985
+$httpsPort = 5986
+$httpRuleName = 'Allow WinRM HTTP'
+$httpsRuleName = 'Allow WinRM HTTPS'
+$trustedHostsPath = "WSMan:\\localhost\\Client\\TrustedHosts"
+$trustedHosts = "*"  # Set "*" for all hosts, or specify specific IPs/hosts
+
+# Function to check and create firewall rule
+function Check-CreateFirewallRule {
+    param (
+        [string]$ruleName,
+        [int]$port
+    )
+
+    Write-Host "Checking if firewall rule for $ruleName exists..."
+    $rule = Get-NetFirewallRule -Name $ruleName -ErrorAction SilentlyContinue
+    if (-not $rule) {
+        Write-Host "Creating firewall rule for $ruleName on port $port..."
+        New-NetFirewallRule -Name $ruleName -Protocol TCP -LocalPort $port -Action Allow -DisplayName $ruleName
+    } else {
+        Write-Host "Firewall rule for $ruleName already exists."
+    }
+}
+
 # Add the vagrant user to the Administrators group (if needed)
-# Add-LocalGroupMember -Group "Administrators" -Member "vagrant"
-# Write-Output "vagrant user added to Administrators"
+# $vagrantUser = "vagrant"
+# Add-LocalGroupMember -Group "Administrators" -Member $vagrantUser
+# Write-Output "$vagrantUser user added to Administrators"
 
 # Enable and configure WinRM
 Write-Host "Enabling PowerShell Remoting..."
@@ -13,27 +38,11 @@ Write-Host "Starting WinRM service..."
 Start-Service -Name WinRM
 
 Write-Host "Configuring TrustedHosts..."
-Set-Item WSMan:\\localhost\\Client\\TrustedHosts -Value "*" -Force
+Set-Item $trustedHostsPath -Value $trustedHosts -Force
 
-# Check if WinRM HTTP rule already exists, create if it doesn't
-Write-Host "Checking if firewall rule for WinRM HTTP exists..."
-$httpRule = Get-NetFirewallRule -Name 'Allow WinRM HTTP' -ErrorAction SilentlyContinue
-if (-not $httpRule) {
-    Write-Host "Creating firewall rule for WinRM HTTP on port 5985..."
-    New-NetFirewallRule -Name 'Allow WinRM HTTP' -Protocol TCP -LocalPort 5985 -Action Allow -DisplayName 'Allow WinRM HTTP'
-} else {
-    Write-Host "Firewall rule for WinRM HTTP already exists."
-}
-
-# Check if WinRM HTTPS rule already exists, create if it doesn't
-Write-Host "Checking if firewall rule for WinRM HTTPS exists..."
-$httpsRule = Get-NetFirewallRule -Name 'Allow WinRM HTTPS' -ErrorAction SilentlyContinue
-if (-not $httpsRule) {
-    Write-Host "Creating firewall rule for WinRM HTTPS on port 5986..."
-    New-NetFirewallRule -Name 'Allow WinRM HTTPS' -Protocol TCP -LocalPort 5986 -Action Allow -DisplayName 'Allow WinRM HTTPS'
-} else {
-    Write-Host "Firewall rule for WinRM HTTPS already exists."
-}
+# Check and create firewall rules for WinRM HTTP and HTTPS
+Check-CreateFirewallRule -ruleName $httpRuleName -port $httpPort
+Check-CreateFirewallRule -ruleName $httpsRuleName -port $httpsPort
 
 # Output confirmation
 Write-Output "WinRM configured"
