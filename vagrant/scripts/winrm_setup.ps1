@@ -35,7 +35,7 @@ function Write-Log {
     Write-Host "[$timestamp] [$machineName] $message"
 }
 
-function Check-CreateFirewallRule
+function CreateFirewallRule
 {
     param (
         [string]$ruleName,
@@ -53,7 +53,6 @@ function Check-CreateFirewallRule
         Write-Log "Firewall rule for $ruleName already exists."
     }
 }
-
 
 # Add the vagrant user to the Administrators group (if needed)
 # $vagrantUser = "vagrant"
@@ -81,10 +80,10 @@ Set-Item $trustedHostsPath -Value $trustedHosts -Force
 
 # Configure Firewall Rules
 Write-Log "Configuring HTTP firewall rule..."
-Check-CreateFirewallRule -ruleName $httpRuleName -port $httpPort
+CreateFirewallRule -ruleName $httpRuleName -port $httpPort
 
 Write-Log "Configuring HTTPS firewall rule..."
-Check-CreateFirewallRule -ruleName $httpsRuleName -port $httpsPort
+CreateFirewallRule -ruleName $httpsRuleName -port $httpsPort
 
 # Output Summary
 Write-Log "Configuration Summary:"
