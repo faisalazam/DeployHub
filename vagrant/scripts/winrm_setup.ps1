@@ -28,11 +28,11 @@ param (
     [string]$trustedHostsPath = "WSMan:\\localhost\\Client\\TrustedHosts"
 )
 
-function Write-Log
-{
+function Write-Log {
     param ([string]$message)
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    Write-Host "[$timestamp] $message"
+    $machineName = $env:COMPUTERNAME
+    Write-Host "[$timestamp] [$machineName] $message"
 }
 
 function Check-CreateFirewallRule
