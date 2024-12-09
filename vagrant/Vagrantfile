@@ -29,9 +29,7 @@ Vagrant.configure("2") do |config|
     config.vm.boot_timeout = BOOT_TIMEOUT
 
     # Set up the VM to use a private network
-    # Explicitly specifying the network adapter to ensure the static IP is set on the correct interface,
-    # i.e. 'hostonly' for internal, isolated network communication.
-    config.vm.network "private_network", type: "static", ip: VM_IP, adapter: 2
+    config.vm.network "private_network", type: "static", ip: VM_IP
 
     config.vm.provider VAGRANT_PROVIDER do |vb|
         vb.gui = VM_GUI
