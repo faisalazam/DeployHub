@@ -51,41 +51,7 @@ Vagrant.configure("2") do |config|
     config.vm.communicator = VM_COMMUNICATOR
 
     # Provision WinRM configuration
-    config.vm.provision "shell", inline: <<-SHELL
-        Write-Host "Enabling PowerShell Remoting..."
-        powershell -Command "Enable-PSRemoting -Force"
-
-        Write-Host "Setting WinRM service startup type to Automatic..."
-        powershell -Command "Set-Service -Name WinRM -StartupType Automatic"
-
-        Write-Host "Starting WinRM service..."
-        powershell -Command "Start-Service -Name WinRM"
-
-        Write-Host "Configuring TrustedHosts..."
-        powershell -Command "Set-Item WSMan:\\localhost\\Client\\TrustedHosts -Value '*' -Force"
-
-        # Check if WinRM HTTP rule already exists, create if it doesn't
-        Write-Host "Checking if firewall rule for WinRM HTTP exists..."
-        $httpRule = powershell -Command "Get-NetFirewallRule -Name 'Allow WinRM HTTP' -ErrorAction SilentlyContinue"
-        if (-not $httpRule) {
-            Write-Host "Creating firewall rule for WinRM HTTP on port 5985..."
-            powershell -Command "New-NetFirewallRule -Name 'Allow WinRM HTTP' -Protocol TCP -LocalPort 5985 -Action Allow -DisplayName 'Allow WinRM HTTP'"
-        } else {
-            Write-Host "Firewall rule for WinRM HTTP already exists."
-        }
-
-        # Check if WinRM HTTPS rule already exists, create if it doesn't
-        Write-Host "Checking if firewall rule for WinRM HTTPS exists..."
-        $httpsRule = powershell -Command "Get-NetFirewallRule -Name 'Allow WinRM HTTPS' -ErrorAction SilentlyContinue"
-        if (-not $httpsRule) {
-            Write-Host "Creating firewall rule for WinRM HTTPS on port 5986..."
-            powershell -Command "New-NetFirewallRule -Name 'Allow WinRM HTTPS' -Protocol TCP -LocalPort 5986 -Action Allow -DisplayName 'Allow WinRM HTTPS'"
-        } else {
-            Write-Host "Firewall rule for WinRM HTTPS already exists."
-        }
-
-        Write-Host "Provisioning complete."
-    SHELL
+    config.vm.provision "shell", path: "scripts/winrm_setup.ps1"
 
     # Additional provisioning steps (if needed) can be added here
 end
