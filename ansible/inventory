@@ -1,2 +1,0 @@
-[targets]
-target ansible_host={{ lookup('env', 'REMOTE_IP') }} ansible_user={{ lookup('env', 'REMOTE_USER') }}
