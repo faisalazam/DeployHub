@@ -43,8 +43,7 @@ function Write-Log
 {
     param ([string]$message)
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $machineName = $env:COMPUTERNAME
-    Write-Host "[$timestamp] [$machineName] $message"
+    Write-Host "[$timestamp] $message"
 }
 
 # Log the start of account creation process
