@@ -1,8 +1,12 @@
----
-- name: Test SSH and File Copy
-  hosts: targets
+- name: Test File Copy with WinRM
+  hosts: local_windows
   tasks:
-    - name: Copy a file to the remote machine
-      copy:
+    - name: Ensure the destination directory exists
+      win_file:
+        path: "{{ lookup('env', 'DESTINATION_PATH') | dirname}}"
+        state: directory
+
+    - name: Copy a file to the remote Windows machine
+      win_copy:
         src: "{{ lookup('env', 'FILE_TO_COPY') }}"
         dest: "{{ lookup('env', 'DESTINATION_PATH') }}"
