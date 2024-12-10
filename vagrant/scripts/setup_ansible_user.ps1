@@ -23,7 +23,7 @@
 
     .EXAMPLE
     PS C:\> .\CreateAnsibleUser.ps1
-    Creates a service account 'ANSIBLE_USER' and adds it to the 'Remote Desktop Users' group.
+    Creates a service account 'ansible-agent' and adds it to the 'Remote Desktop Users' group.
 
     .NOTES
     Author: M. Faisal
@@ -31,11 +31,12 @@
 
 # Variables for the service account
 param(
-    [string]$UserName = "ANSIBLE_USER",
+    [string]$UserName = "ansible-agent",
     [string]$Password = "ANS1BLE_P@sS!", # Ideally, get this from a secure source
     [string]$FullName = "Ansible Service Account",
     [string]$Description = "Service account for Ansible",
-    [string]$GroupName = "Remote Management Users"  # Or 'Administrators' if you need admin access
+    [string]$GroupName = "Administrators"  # Or 'Administrators' if you need admin access
+#    [string]$GroupName = "Remote Management Users"  # Or 'Administrators' if you need admin access
 )
 
 function Write-Log
@@ -73,11 +74,15 @@ else
     }
 }
 
+# Set the password to never expire
+Set-LocalUser -Name $UserName -PasswordNeverExpires $true
+Write-Log "Password for user '$UserName' has been set to never expire."
+
 # Now, proceed to add the user to the group only if user creation was successful
 Write-Log "Checking if '$UserName' is already in the '$GroupName' group..."
 
 # Get all members of the group and check if the user exists
-$userInGroup = Get-LocalGroupMember -Group $GroupName | Where-Object { $_.Name -eq $UserName -or $_.PrincipalSource -eq 'Local' }
+$userInGroup = Get-LocalGroupMember -Group $GroupName | Where-Object { $_.Name -eq $UserName }
 
 if ($userInGroup) {
     Write-Log "User '$UserName' is already a member of the '$GroupName' group. Skipping group addition."
