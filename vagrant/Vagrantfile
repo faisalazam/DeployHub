@@ -26,7 +26,7 @@ Vagrant.configure("2") do |config|
     config.vm.box_version = VAGRANT_BOX_VERSION
 
     # Set up VM hostname
-    config.vm.define VM_HOSTNAME
+    config.vm.define VM_NAME
     config.vm.hostname = VM_HOSTNAME
 
     # Increase WinRM timeout to allow VM more time to boot
