@@ -43,11 +43,11 @@ services:
         tail -f /dev/null
       "
 
-    depends_on:
-      linux_ssh_pass_host:
-        condition: service_healthy
-      linux_ssh_keys_host:
-        condition: service_healthy
+#    depends_on:
+#      linux_ssh_pass_host:
+#        condition: service_healthy
+#      linux_ssh_keys_host:
+#        condition: service_healthy
 
   linux_ssh_pass_host:
     # To rebuild the image, run either of the two:
@@ -67,6 +67,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    profiles: ["default"]
 
   linux_ssh_keys_host:
     # To rebuild the image, run either of the two:
@@ -86,6 +87,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    profiles: ["default"]
 
 networks:
   ansible_network:
