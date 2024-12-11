@@ -1,7 +1,7 @@
 - name: Test File Copy with WinRM
   hosts: local_windows
   vars_files:
-    - ../inventory/local/group_vars/windows.yml
+    - ../inventory/{{ ENVIRONMENT }}/group_vars/windows.yml
   tasks:
     - name: Ensure the destination directory exists
       win_file:
