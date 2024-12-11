@@ -1,1 +1,2 @@
-# Placeholder for linux.yml
+FILE_TO_COPY: /ansible/test_file.txt
+DESTINATION_PATH: /tmp/test_file.txt
