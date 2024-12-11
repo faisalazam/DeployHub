@@ -1,5 +1,5 @@
 # Use official Ubuntu 22.04 as the base image
-# docker build -f ./Dockerfile -t ansible-automation ..
+# docker build -f ./Dockerfile.ansible -t ansible-automation ..
 FROM ubuntu:22.04
 
 # Set environment variable to prevent interactive prompts
