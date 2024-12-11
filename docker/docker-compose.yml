@@ -1,12 +1,16 @@
 services:
   ansible:
+    # To rebuild the image, run either of the two:
+    # docker-compose up --build
+    # docker build -f ./Dockerfile -t ansible-automation ..
     build:
-      context: .
+      context: ..
+      dockerfile: docker/Dockerfile
     container_name: ansible
     image: ansible-automation:latest
     volumes:
-      - ./ansible:/ansible
-      - ./ansible.cfg:/etc/ansible/ansible.cfg
+      - ../ansible:/ansible
+      - ../ansible/ansible.cfg:/etc/ansible/ansible.cfg
     env_file:
       - .env
     network_mode: "host" # Use host network for SSH
