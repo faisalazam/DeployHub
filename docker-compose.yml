@@ -6,6 +6,7 @@ services:
     image: ansible-automation:latest
     volumes:
       - ./ansible:/ansible
+      - ./ansible.cfg:/etc/ansible/ansible.cfg
     env_file:
       - .env
     network_mode: "host" # Use host network for SSH
