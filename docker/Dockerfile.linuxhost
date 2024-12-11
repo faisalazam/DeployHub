@@ -1,5 +1,5 @@
 # Use Ubuntu 22.04 as the base image
-# docker build -f ./Dockerfile.linuxhost -t linux_host ..
+# docker build -f ./Dockerfile.linuxhost -t linux_ssh_pass_host ..
 FROM ubuntu:22.04
 
 # Install SSH server and required dependencies
