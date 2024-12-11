@@ -26,18 +26,18 @@ services:
         tail -f /dev/null
       "
     depends_on:
-      linux_ssh_host:
+      linux_ssh_pass_host:
         condition: service_healthy
 
-  linux_ssh_host:
+  linux_ssh_pass_host:
     # To rebuild the image, run either of the two:
     # docker-compose up --build
-    # docker build -f ./Dockerfile.linuxhost -t linux_host ..
+    # docker build -f ./Dockerfile.linuxhost -t linux_ssh_pass_host ..
     build:
       context: ..
       dockerfile: docker/Dockerfile.linuxhost
-    container_name: linux_ssh_host
-    image: linux_host:latest
+    container_name: linux_ssh_pass_host
+    image: linux_ssh_pass_host:latest
     tty: true
     stdin_open: true
     networks:
