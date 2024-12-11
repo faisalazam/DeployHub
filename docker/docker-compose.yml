@@ -13,11 +13,13 @@ services:
       - ../ansible/ansible.cfg:/etc/ansible/ansible.cfg
     env_file:
       - .env
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-local}
     network_mode: "host" # Use host network for SSH
     stdin_open: true
     tty: true
     entrypoint: >
       sh -c "
-        ansible -i ansible-playbook /ansible/playbooks/deploy_windows.yml -i /ansible/inventory/local/hosts.yml;
+        ansible -i /ansible/inventory/${ENVIRONMENT}/hosts.yml /ansible/playbooks/deploy_windows.yml -e ENVIRONMENT=${ENVIRONMENT};
         tail -f /dev/null
       "
