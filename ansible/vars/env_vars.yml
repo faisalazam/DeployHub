@@ -1,2 +1,0 @@
-FILE_TO_COPY: /ansible/test_file.txt
-DESTINATION_PATH: C:\tmp\ansible-automation\test_file.txt
