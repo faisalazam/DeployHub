@@ -16,7 +16,8 @@ services:
       - .env
     environment:
       - ENVIRONMENT=${ENVIRONMENT:-local}
-#    network_mode: "host" #TODO: Use host network for SSH for Windows running on vagrant
+    extra_hosts:
+      - local_windows_vm:127.0.0.1
     networks:
       - ansible_network
     stdin_open: true
