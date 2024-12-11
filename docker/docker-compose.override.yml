@@ -1,0 +1,4 @@
+services:
+  ansible:
+    depends_on: !reset []
+    profiles: ["CI"]

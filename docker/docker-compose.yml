@@ -28,26 +28,27 @@ services:
         if [ -f /root/.ssh/known_hosts ]; then
           ssh-keygen -f /root/.ssh/known_hosts -R 'linux_ssh_pass_host'
         fi
-        
+
         # Ensure proper permissions for the .ssh directory and private key
         chmod 700 /root/.ssh &&
         chmod 600 /root/.ssh/id_rsa &&
         chown root:root /root/.ssh/id_rsa
-
+      
         # mv /root/.ssh/id_rsa /root/.ssh/authorized_keys
-        
+
         # Run the Ansible playbook
         ansible-playbook -i /ansible/inventory/${ENVIRONMENT}/hosts.yml /ansible/playbooks/deploy_linux.yml -e ENVIRONMENT=${ENVIRONMENT}
-        
+
         # Keep the container running (necessary for Docker to keep the container alive)
         tail -f /dev/null
       "
 
-#    depends_on:
-#      linux_ssh_pass_host:
-#        condition: service_healthy
-#      linux_ssh_keys_host:
-#        condition: service_healthy
+    depends_on:
+      linux_ssh_pass_host:
+        condition: service_healthy
+      linux_ssh_keys_host:
+        condition: service_healthy
+    profiles: ["default"]
 
   linux_ssh_pass_host:
     # To rebuild the image, run either of the two:
