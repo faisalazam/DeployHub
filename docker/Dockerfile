@@ -1,5 +1,5 @@
 # Use official Ubuntu 22.04 as the base image
-# docker build -t ansible-automation .
+# docker build -f ./Dockerfile -t ansible-automation ..
 FROM ubuntu:22.04
 
 # Set environment variable to prevent interactive prompts
@@ -26,7 +26,7 @@ ENV DEBIAN_FRONTEND=
 WORKDIR /ansible
 
 # Copy Ansible playbooks and other necessary files into the container
-COPY ansible /ansible
+COPY ../ansible /ansible
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s CMD ansible --version || exit 1
