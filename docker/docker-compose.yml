@@ -10,23 +10,42 @@ services:
     image: ansible-automation:latest
     volumes:
       - ../ansible:/ansible
+      - ../docker/.ssh:/root/.ssh
       - ../ansible/ansible.cfg:/etc/ansible/ansible.cfg
     env_file:
       - .env
     environment:
       - ENVIRONMENT=${ENVIRONMENT:-local}
-#    network_mode: "host" # Use host network for SSH for Windows running on vagrant
+#    network_mode: "host" #TODO: Use host network for SSH for Windows running on vagrant
     networks:
       - ansible_network
     stdin_open: true
     tty: true
     entrypoint: >
       sh -c "
+        # Remove any existing known hosts entry for linux_ssh_pass_host to avoid key mismatch
+        if [ -f /root/.ssh/known_hosts ]; then
+          ssh-keygen -f /root/.ssh/known_hosts -R 'linux_ssh_pass_host'
+        fi
+        
+        # Ensure proper permissions for the .ssh directory and private key
+        chmod 700 /root/.ssh &&
+        chmod 600 /root/.ssh/id_rsa &&
+        chown root:root /root/.ssh/id_rsa
+
+        # mv /root/.ssh/id_rsa /root/.ssh/authorized_keys
+        
+        # Run the Ansible playbook
         ansible-playbook -i /ansible/inventory/${ENVIRONMENT}/hosts.yml /ansible/playbooks/deploy_linux.yml -e ENVIRONMENT=${ENVIRONMENT}
+        
+        # Keep the container running (necessary for Docker to keep the container alive)
         tail -f /dev/null
       "
+
     depends_on:
       linux_ssh_pass_host:
+        condition: service_healthy
+      linux_ssh_keys_host:
         condition: service_healthy
 
   linux_ssh_pass_host:
@@ -47,8 +66,25 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    ports:
-      - "2222:22"
+
+  linux_ssh_keys_host:
+    # To rebuild the image, run either of the two:
+    # docker-compose up --build
+    # docker build -f ./Dockerfile.linuxSshKeysHost -t linux_ssh_keys_host ..
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.linuxSshKeysHost
+    container_name: linux_ssh_keys_host
+    image: linux_ssh_keys_host:latest
+    tty: true
+    stdin_open: true
+    networks:
+      - ansible_network
+    healthcheck:
+      test: [ "CMD", "sshd", "-t" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 networks:
   ansible_network:
