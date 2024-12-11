@@ -1,1 +1,14 @@
-# Placeholder for deploy_windows.yml
+- name: Test File Copy with WinRM
+  hosts: local_windows
+  vars_files:
+    - vars/env_vars.yml
+  tasks:
+    - name: Ensure the destination directory exists
+      win_file:
+        path: "{{ DESTINATION_PATH | dirname}}"
+        state: directory
+
+    - name: Copy a file to the remote Windows machine
+      win_copy:
+        src: "{{ FILE_TO_COPY }}"
+        dest: "{{ DESTINATION_PATH }}"
