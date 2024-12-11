@@ -33,8 +33,6 @@ services:
         chmod 700 /root/.ssh &&
         chmod 600 /root/.ssh/id_rsa &&
         chown root:root /root/.ssh/id_rsa
-      
-        # mv /root/.ssh/id_rsa /root/.ssh/authorized_keys
 
         # Run the Ansible playbook
         ansible-playbook -i /ansible/inventory/${ENVIRONMENT}/hosts.yml /ansible/playbooks/deploy_linux.yml -e ENVIRONMENT=${ENVIRONMENT}
@@ -78,6 +76,8 @@ services:
       dockerfile: docker/Dockerfile.linuxSshKeysHost
     container_name: linux_ssh_keys_host
     image: linux_ssh_keys_host:latest
+    volumes:
+      - ../.ssh_keys/${ENVIRONMENT}/id_rsa.pub:/root/.ssh/authorized_keys
     tty: true
     stdin_open: true
     networks:

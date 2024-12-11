@@ -15,3 +15,7 @@ To start only the ansible service (e.g. CI):
 `COMPOSE_PROFILES=CI docker-compose up`
 
 This setup ensures flexibility for local development and CI pipelines without duplicating configuration.
+
+Testing the SSH Connection
+From the ansible service, verify the SSH connection manually using the private key:
+`docker exec -it ansible ssh -i /root/.ssh/id_rsa root@linux_ssh_keys_host -o StrictHostKeyChecking=no`
