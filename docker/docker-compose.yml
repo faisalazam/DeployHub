@@ -9,9 +9,10 @@ services:
     container_name: ansible
     image: ansible-automation:latest
     volumes:
+      # TODO: ./ansible will contain .ssh for every environment, can we exclude that from copying over to the container?
       - ../ansible:/ansible
-      - ../docker/.ssh:/root/.ssh
       - ../ansible/ansible.cfg:/etc/ansible/ansible.cfg
+      - ../ansible/inventory/${ENVIRONMENT}/.ssh:/root/.ssh
     env_file:
       - .env
     environment:
@@ -42,7 +43,6 @@ services:
         # Keep the container running (necessary for Docker to keep the container alive)
         tail -f /dev/null
       "
-
     depends_on:
       linux_ssh_pass_host:
         condition: service_healthy
