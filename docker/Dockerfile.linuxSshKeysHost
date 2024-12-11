@@ -11,7 +11,7 @@ RUN apt-get update && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Copy the public key from the host to the container's authorized_keys
-COPY docker/.ssh/id_rsa.pub /root/.ssh/authorized_keys
+COPY .ssh_keys/local/id_rsa.pub /root/.ssh/authorized_keys
 
 # Set the appropriate permissions for the .ssh folder and authorized_keys file
 RUN chmod 700 /root/.ssh && \
