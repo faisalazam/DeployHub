@@ -32,10 +32,10 @@ services:
   linux_ssh_pass_host:
     # To rebuild the image, run either of the two:
     # docker-compose up --build
-    # docker build -f ./Dockerfile.linuxhost -t linux_ssh_pass_host ..
+    # docker build -f ./Dockerfile.linuxSshPassHost -t linux_ssh_pass_host ..
     build:
       context: ..
-      dockerfile: docker/Dockerfile.linuxhost
+      dockerfile: docker/Dockerfile.linuxSshPassHost
     container_name: linux_ssh_pass_host
     image: linux_ssh_pass_host:latest
     tty: true
