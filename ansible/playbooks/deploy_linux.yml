@@ -1,1 +1,32 @@
-# Placeholder for deploy_linux.yml
+- name: Deploy to Linux host
+  hosts: linux_ssh_host
+  vars_files:
+    - ../inventory/{{ ENVIRONMENT }}/group_vars/linux.yml
+  tasks:
+    - name: Print available hosts
+      debug:
+        msg: "Available hosts: {{ ansible_play_hosts }}"
+
+    - name: Debug hosts
+      debug:
+        var: inventory_hostname
+
+    - name: Ensure the destination directory exists
+      file:
+        path: "{{ DESTINATION_PATH | dirname}}"
+        state: directory
+
+    - name: Copy a file to the remote linux machine
+      copy:
+        src: "{{ FILE_TO_COPY }}"
+        dest: "{{ DESTINATION_PATH }}"
+
+    - name: Install curl
+      apt:
+        name: "curl"
+        state: present
+      become: yes
+
+    - name: Print a message
+      debug:
+        msg: "Hello, Linux Host!"
