@@ -25,9 +25,6 @@ ENV DEBIAN_FRONTEND=
 # Set the working directory
 WORKDIR /ansible
 
-# Copy Ansible playbooks and other necessary files into the container
-COPY ../ansible /ansible
-
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s CMD ansible --version || exit 1
 
