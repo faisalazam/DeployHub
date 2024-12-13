@@ -69,4 +69,20 @@ Vagrant.configure("2") do |config|
     # config.vm.provision "shell", path: "scripts/winrm_setup.ps1"
 
     # Additional provisioning steps (if needed) can be added here
+
+    config.trigger.before :up do |trigger|
+        trigger.name = "Log Start"
+        trigger.run = { inline: <<-SCRIPT
+                Write-Host "[INFO] Vagrant is starting at: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
+            SCRIPT
+        }
+    end
+
+    config.trigger.after :up do |trigger|
+        trigger.name = "Log End"
+        trigger.run = { inline: <<-SCRIPT
+                Write-Host "[INFO] Vagrant has finished at $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
+            SCRIPT
+        }
+    end
 end
