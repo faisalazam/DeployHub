@@ -81,7 +81,7 @@ Write-Log "Password for user '$UserName' has been set to never expire."
 Write-Log "Checking if '$UserName' is already in the '$GroupName' group..."
 
 # Get all members of the group and check if the user exists
-$userInGroup = Get-LocalGroupMember -Group $GroupName | Where-Object { $_.Name -eq $UserName }
+$userInGroup = Get-LocalGroupMember -Group $GroupName | Where-Object { $_.Name.Split('\')[-1] -eq $UserName }
 
 if ($userInGroup) {
     Write-Log "User '$UserName' is already a member of the '$GroupName' group. Skipping group addition."
