@@ -106,6 +106,7 @@ Rollback script:
 
 Invoke-Command -ComputerName <VM_IP_OR_HOSTNAME> -Port 55985 -FilePath "C:\path\to\rollback.ps1" -Credential (New-Object System.Management.Automation.PSCredential ("vagrant", (ConvertTo-SecureString "vagrant" -AsPlainText -Force)))
 Invoke-Command -ComputerName 127.0.0.1 -Port 55985 -FilePath ".\scripts\winrm_rollback.ps1" -Credential (New-Object System.Management.Automation.PSCredential ("vagrant", (ConvertTo-SecureString "vagrant" -AsPlainText -Force)))
+Invoke-Command -ComputerName 127.0.0.1 -Port 55985 -FilePath ".\scripts\rollback_ansible_user.ps1" -Credential (New-Object System.Management.Automation.PSCredential ("vagrant", (ConvertTo-SecureString "vagrant" -AsPlainText -Force)))
 Invoke-Command -ComputerName 127.0.0.1 -Port 55985 -FilePath ".\scripts\setup_ansible_user.ps1" -Credential (New-Object System.Management.Automation.PSCredential ("vagrant", (ConvertTo-SecureString "vagrant" -AsPlainText -Force)))
 Invoke-Command -ComputerName 127.0.0.1 -Port 55985 -ArgumentList 192.168.56.189 -FilePath ".\scripts\check_ip.ps1" -Credential (New-Object System.Management.Automation.PSCredential ("vagrant", (ConvertTo-SecureString "vagrant" -AsPlainText -Force)))
 
