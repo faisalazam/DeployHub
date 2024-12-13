@@ -1,37 +1,74 @@
-# Define paths for certificate and password
-$certPath = ".\certs"
-$certPass = "YourCertPassword"
-$certFile = "$certPath\winrm-cert.pfx"
-$certCN = "FAISAL - WinRM Self Signed Root Certificate For Windows Vagrant VM"
+param (
+    [int]$KeyLength = 2048,
+    [int]$CertValidityYears = 1,
+    [string]$CertPath = ".\certs",
+    [string]$CertPass = "YourCertPassword",
+    [string[]]$DnsNames = @("localhost", "127.0.0.1"),
+    [string]$CertExportFileName = "winrm-cert.pfx",
+    [string]$CertStoreLocation = "Cert:\LocalMachine\My",
+    [string]$TrustedRootStoreLocation = "Cert:\LocalMachine\Root",
+    [string]$CertCN = "FAISAL - WinRM Self Signed Root Certificate For Windows Vagrant VM"
+)
 
-# Create the directory to store the certificates if it doesn't exist
-if (-not (Test-Path -Path $certPath))
-{
-    New-Item -ItemType Directory -Path $certPath
+function Write-Log {
+    param (
+        [string]$message,
+        [string]$logLevel = "INFO"
+    )
+    $timestamp = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
+    Write-Host "$timestamp [$logLevel] $message"
 }
 
-# Generate a self-signed certificate with a unique CN (e.g., "My-WinRM-Cert")
-Write-Host "[INFO] Generating self-signed certificate for $certCN..."
-$cert = New-SelfSignedCertificate -CertStoreLocation "Cert:\LocalMachine\My" `
-    -DnsName $certCN, "localhost", "127.0.0.1" `
-    -KeyAlgorithm RSA -KeyLength 2048 `
-    -NotAfter (Get-Date).AddYears(1) `
-    -KeyExportPolicy Exportable `
-    -KeyUsage DigitalSignature, KeyEncipherment `
-    -Type SSLServerAuthentication
+# Error handling function
+function Handle-Error {
+    param (
+        [string]$errorMessage
+    )
+    Write-Log -message $errorMessage -logLevel "ERROR"
+    exit 1
+}
 
-# Export the certificate to a PFX file
-Write-Host "[INFO] Exporting certificate to PFX..."
-Export-PfxCertificate -Cert $cert -FilePath $certFile -Password (ConvertTo-SecureString -String $certPass -AsPlainText -Force)
+try {
+    # Step 1: Create the directory to store the certificates if it doesn't exist
+    if (-not (Test-Path -Path $CertPath)) {
+        Write-Log -message "Creating certificate directory: $CertPath"
+        New-Item -ItemType Directory -Path $CertPath | Out-Null
+    }
 
-Write-Host "[INFO] Certificate exported successfully. Transfer the PFX file to the VM."
+    # Step 2: Generate a self-signed certificate with a unique CN and DNS names
+    Write-Log -message "Generating self-signed certificate for $CertCN with DNS names: $($DnsNames -join ', ')..."
+    $dnsNamesString = $DnsNames -join ','  # Join the DNS names into a single string
+    $cert = New-SelfSignedCertificate -CertStoreLocation $CertStoreLocation `
+        -DnsName $CertCN, $dnsNamesString `
+        -KeyAlgorithm RSA -KeyLength $KeyLength `
+        -NotAfter (Get-Date).AddYears($CertValidityYears) `
+        -KeyExportPolicy Exportable `
+        -KeyUsage DigitalSignature, KeyEncipherment `
+        -Type SSLServerAuthentication
 
-# Import the certificate into the Trusted Root Certification Authorities store
-Write-Host "[INFO] Installing certificate into the Trusted Root Certification Authorities store..."
-Import-PfxCertificate -FilePath $certFile -CertStoreLocation "Cert:\LocalMachine\Root" -Password (ConvertTo-SecureString -String $certPass -AsPlainText -Force)
+    if (-not $cert) {
+        Handle-Error -errorMessage "Failed to generate certificate."
+    }
 
-# Verify the installation by listing certificates in the Trusted Root store
-Write-Host "[INFO] Verifying certificate installation in Trusted Root store..."
-Get-ChildItem -Path "Cert:\LocalMachine\Root" | Where-Object { $_.Subject -match "CN=$certCN" }
+    # Step 3: Export the certificate to a PFX file
+    $CertFile = Join-Path $CertPath $CertExportFileName
+    Write-Log -message "Exporting certificate to PFX file: $CertFile"
+    Export-PfxCertificate -Cert $cert -FilePath $CertFile -Password (ConvertTo-SecureString -String $CertPass -AsPlainText -Force)
+    Write-Log -message "Certificate exported successfully to: $CertFile"
 
-Write-Host "[INFO] Certificate installation completed."
+    # Step 4: Import the certificate into the Trusted Root Certification Authorities store
+    Write-Log -message "Importing certificate into Trusted Root Certification Authorities store..."
+    Import-PfxCertificate -FilePath $CertFile -CertStoreLocation $TrustedRootStoreLocation -Password (ConvertTo-SecureString -String $CertPass -AsPlainText -Force)
+    Write-Log -message "Certificate imported successfully into Trusted Root store."
+
+    # Step 5: Verify the installation by listing certificates in the Trusted Root store
+    Write-Log -message "Verifying certificate installation in Trusted Root store..."
+    $installedCert = Get-ChildItem -Path $TrustedRootStoreLocation | Where-Object { $_.Subject -match "CN=$CertCN" }
+    if (-not $installedCert) {
+        Handle-Error -errorMessage "Certificate not found in Trusted Root store."
+    }
+
+    Write-Log -message "Certificate successfully installed and verified in Trusted Root store."
+} catch {
+    Handle-Error -errorMessage "An error occurred: $_"
+}
