@@ -1,27 +1,17 @@
 # Define paths for certificate and password
 $certPath = "C:\certs"
+$certPass = "YourCertPassword"
 $certFile = "$certPath\winrm-cert.pfx"
-$privateKey = "$certPath\winrm-cert.key"
-$certPass = "YourCertPassword"  # Password for the PFX file
 
-# Create the directory to store the certificates if it doesn't exist
-if (-not (Test-Path -Path $certPath)) {
-    New-Item -ItemType Directory -Path $certPath
+# Ensure the certificate exists on the VM
+if (-not (Test-Path -Path $certFile)) {
+    Write-Host "[ERROR] Certificate file not found. Ensure the certificate is transferred to the VM."
+    exit
 }
 
-# Generate a self-signed certificate with CN=localhost
-Write-Host "[INFO] Generating self-signed certificate for localhost..."
-$cert = New-SelfSignedCertificate -CertStoreLocation "Cert:\LocalMachine\My" `
-    -DnsName "localhost", "127.0.0.1" `
-    -KeyAlgorithm RSA -KeyLength 2048 `
-    -NotAfter (Get-Date).AddYears(1) `
-    -KeyExportPolicy Exportable `
-    -KeyUsage DigitalSignature, KeyEncipherment `
-    -Type SSLServerAuthentication
-
-# Export the certificate to a PFX file
-Write-Host "[INFO] Exporting certificate to PFX..."
-Export-PfxCertificate -Cert $cert -FilePath $certFile -Password (ConvertTo-SecureString -String $certPass -AsPlainText -Force)
+# Install the certificate in the Windows certificate store
+Write-Host "[INFO] Installing certificate in the Windows certificate store..."
+Import-PfxCertificate -FilePath $certFile -CertStoreLocation "Cert:\LocalMachine\My" -Password (ConvertTo-SecureString -String $certPass -AsPlainText -Force)
 
 # Ensure WinRM service is running
 if ((Get-Service -Name WinRM).Status -ne 'Running') {
@@ -32,12 +22,7 @@ if ((Get-Service -Name WinRM).Status -ne 'Running') {
 Write-Host "[INFO] Configuring WinRM..."
 winrm quickconfig -q
 
-# Install the certificate in the Windows certificate store
-Write-Host "[INFO] Installing certificate in the Windows certificate store..."
-Import-PfxCertificate -FilePath $certFile -CertStoreLocation "Cert:\LocalMachine\My" -Password (ConvertTo-SecureString -String $certPass -AsPlainText -Force)
-
-# Configure WinRM to use HTTPS
-Write-Host "[INFO] Configuring WinRM to use HTTPS..."
+# Retrieve the thumbprint of the certificate
 $thumbprint = (Get-ChildItem -Path Cert:\LocalMachine\My | Where-Object { $_.Subject -match 'CN=localhost' }).Thumbprint
 
 # Set trusted hosts to allow remote connections
@@ -58,7 +43,7 @@ $listenerConfig = '@{Hostname="";CertificateThumbprint="' + $thumbprint + '";Por
 $command = "winrm create winrm/config/Listener?Address=*+Transport=HTTPS '$listenerConfig'"
 Invoke-Expression $command
 
-Write-Host "[INFO] Validate the Listener"
+Write-Host "[INFO] Validating the Listener..."
 winrm enumerate winrm/config/Listener
 
 # Check and add firewall rule for HTTPS
