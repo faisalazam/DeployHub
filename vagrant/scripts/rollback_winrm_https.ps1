@@ -1,3 +1,6 @@
+# BETTER TO RUN THIS FROM WITHIN THE MACHINE INSTEAD OF REMOTE COMMAND
+# AS THE CONNECTION WILL BREAK DUE TO THE RESTART OF THE WINRM SERVICE.
+
 # Define variables for hardcoded values
 $certCN = "winrm-https"
 $winrmServiceName = "WinRM"
