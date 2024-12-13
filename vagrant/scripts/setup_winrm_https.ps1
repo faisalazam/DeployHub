@@ -9,9 +9,15 @@ if (-not (Test-Path -Path $certPath)) {
     New-Item -ItemType Directory -Path $certPath
 }
 
-# Generate a self-signed certificate
-Write-Host "[INFO] Generating self-signed certificate..."
-$cert = New-SelfSignedCertificate -CertStoreLocation "Cert:\LocalMachine\My" -DnsName "winrm-https" -KeyAlgorithm RSA -KeyLength 2048 -NotAfter (Get-Date).AddYears(1) -KeyExportPolicy Exportable
+# Generate a self-signed certificate with CN=localhost
+Write-Host "[INFO] Generating self-signed certificate for localhost..."
+$cert = New-SelfSignedCertificate -CertStoreLocation "Cert:\LocalMachine\My" `
+    -DnsName "localhost", "127.0.0.1" `
+    -KeyAlgorithm RSA -KeyLength 2048 `
+    -NotAfter (Get-Date).AddYears(1) `
+    -KeyExportPolicy Exportable `
+    -KeyUsage DigitalSignature, KeyEncipherment `
+    -Type SSLServerAuthentication
 
 # Export the certificate to a PFX file
 Write-Host "[INFO] Exporting certificate to PFX..."
@@ -32,7 +38,7 @@ Import-PfxCertificate -FilePath $certFile -CertStoreLocation "Cert:\LocalMachine
 
 # Configure WinRM to use HTTPS
 Write-Host "[INFO] Configuring WinRM to use HTTPS..."
-$thumbprint = (Get-ChildItem -Path Cert:\LocalMachine\My | Where-Object { $_.Subject -match 'CN=winrm-https' }).Thumbprint
+$thumbprint = (Get-ChildItem -Path Cert:\LocalMachine\My | Where-Object { $_.Subject -match 'CN=localhost' }).Thumbprint
 
 # Set trusted hosts to allow remote connections
 Set-Item -Path WSMan:\localhost\Client\TrustedHosts -Value "*" -Force
@@ -52,11 +58,13 @@ $listenerConfig = '@{Hostname="";CertificateThumbprint="' + $thumbprint + '";Por
 $command = "winrm create winrm/config/Listener?Address=*+Transport=HTTPS '$listenerConfig'"
 Invoke-Expression $command
 
+Write-Host "[INFO] Validate the Listener"
+winrm enumerate winrm/config/Listener
+
 # Check and add firewall rule for HTTPS
 if (-not (Get-NetFirewallRule -Name "WinRM-HTTPS" -ErrorAction SilentlyContinue)) {
     Write-Host "[INFO] Adding firewall rule for WinRM over HTTPS..."
     New-NetFirewallRule -DisplayName "Allow WinRM over HTTPS" -Name "WinRM-HTTPS" -Protocol TCP -LocalPort 5986 -Action Allow
-#    New-NetFirewallRule -DisplayName "Allow WinRM over HTTPS" -Name "WinRM-HTTPS" -Profile Any -Protocol TCP -LocalPort 5986 -Action Allow
 } else {
     Write-Host "[INFO] Firewall rule for WinRM over HTTPS already exists."
 }
