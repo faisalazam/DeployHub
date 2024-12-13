@@ -134,4 +134,10 @@ winrs -r:http://localhost:55985 -u:vagrant -p:vagrant echo 'hello world'
 winrs -r:https://localhost:55986 -u:vagrant -p:vagrant echo 'hello world'
 
 
+Get-ChildItem -Path Cert:\LocalMachine\My | Where-Object { $_.FriendlyName -like "FAISAL*" }
+Get-ChildItem -Path Cert:\LocalMachine\Root | Where-Object { $_.FriendlyName -like "FAISAL*" }
+
+Remove-Item -Path "Cert:\LocalMachine\My\{THUMB_PRINT}" -Force
+Remove-Item -Path "Cert:\LocalMachine\Root\{THUMB_PRINT}" -Force
+
 [Vagrant Cleanup](CLEANUP_README.md)
