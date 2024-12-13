@@ -1,4 +1,5 @@
 # Define paths for certificate and password
+$CertCN = "localhost"
 $certPath = "C:\certs"
 $certPass = "YourCertPassword"
 $certFile = "$certPath\winrm-cert.pfx"
@@ -23,7 +24,7 @@ Write-Host "[INFO] Configuring WinRM..."
 winrm quickconfig -q
 
 # Retrieve the thumbprint of the certificate
-$thumbprint = (Get-ChildItem -Path Cert:\LocalMachine\My | Where-Object { $_.Subject -match 'CN=localhost' }).Thumbprint
+$thumbprint = (Get-ChildItem -Path Cert:\LocalMachine\My | Where-Object { $_.Subject -match "CN=$CertCN" }).Thumbprint
 
 # Set trusted hosts to allow remote connections
 Set-Item -Path WSMan:\localhost\Client\TrustedHosts -Value "*" -Force
