@@ -40,7 +40,8 @@ try {
     $dnsNamesString = $DnsNames -join ','  # Join the DNS names into a single string
     $cert = New-SelfSignedCertificate -CertStoreLocation $CertStoreLocation `
         -DnsName $CertCN, $dnsNamesString `
-        -KeyAlgorithm RSA -KeyLength $KeyLength `
+        -KeyAlgorithm RSA `
+        -KeyLength $KeyLength `
         -NotAfter (Get-Date).AddYears($CertValidityYears) `
         -KeyExportPolicy Exportable `
         -KeyUsage DigitalSignature, KeyEncipherment `
@@ -53,17 +54,28 @@ try {
     # Step 3: Export the certificate to a PFX file
     $CertFile = Join-Path $CertPath $CertExportFileName
     Write-Log -message "Exporting certificate to PFX file: $CertFile"
-    Export-PfxCertificate -Cert $cert -FilePath $CertFile -Password (ConvertTo-SecureString -String $CertPass -AsPlainText -Force)
+
+    Export-PfxCertificate -Cert $cert `
+        -FilePath $CertFile `
+        -Password (ConvertTo-SecureString -String $CertPass -AsPlainText -Force)
+
     Write-Log -message "Certificate exported successfully to: $CertFile"
 
     # Step 4: Import the certificate into the Trusted Root Certification Authorities store
     Write-Log -message "Importing certificate into Trusted Root Certification Authorities store..."
-    Import-PfxCertificate -FilePath $CertFile -CertStoreLocation $TrustedRootStoreLocation -Password (ConvertTo-SecureString -String $CertPass -AsPlainText -Force)
+
+    Import-PfxCertificate -FilePath $CertFile `
+        -CertStoreLocation $TrustedRootStoreLocation `
+        -Password (ConvertTo-SecureString -String $CertPass -AsPlainText -Force)
+
     Write-Log -message "Certificate imported successfully into Trusted Root store."
 
     # Step 5: Verify the installation by listing certificates in the Trusted Root store
     Write-Log -message "Verifying certificate installation in Trusted Root store..."
-    $installedCert = Get-ChildItem -Path $TrustedRootStoreLocation | Where-Object { $_.Subject -match "CN=$CertCN" }
+
+    $installedCert = Get-ChildItem -Path $TrustedRootStoreLocation `
+        | Where-Object { $_.Subject -match "CN=$CertCN" }
+
     if (-not $installedCert) {
         Handle-Error -errorMessage "Certificate not found in Trusted Root store."
     }
