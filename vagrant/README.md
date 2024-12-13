@@ -106,6 +106,8 @@ Rollback script:
 
 Invoke-Command -ComputerName <VM_IP_OR_HOSTNAME> -Port 55985 -FilePath "C:\path\to\rollback.ps1" -Credential (New-Object System.Management.Automation.PSCredential ("vagrant", (ConvertTo-SecureString "vagrant" -AsPlainText -Force)))
 Invoke-Command -ComputerName 127.0.0.1 -Port 55985 -FilePath ".\scripts\winrm_rollback.ps1" -Credential (New-Object System.Management.Automation.PSCredential ("vagrant", (ConvertTo-SecureString "vagrant" -AsPlainText -Force)))
+Invoke-Command -ComputerName 127.0.0.1 -Port 55985 -FilePath ".\scripts\setup_winrm_https.ps1" -Credential (New-Object System.Management.Automation.PSCredential ("vagrant", (ConvertTo-SecureString "vagrant" -AsPlainText -Force)))
+Invoke-Command -ComputerName 127.0.0.1 -Port 55985 -FilePath ".\scripts\rollback_winrm_https.ps1" -Credential (New-Object System.Management.Automation.PSCredential ("vagrant", (ConvertTo-SecureString "vagrant" -AsPlainText -Force)))
 Invoke-Command -ComputerName 127.0.0.1 -Port 55985 -FilePath ".\scripts\rollback_ansible_user.ps1" -Credential (New-Object System.Management.Automation.PSCredential ("vagrant", (ConvertTo-SecureString "vagrant" -AsPlainText -Force)))
 Invoke-Command -ComputerName 127.0.0.1 -Port 55985 -FilePath ".\scripts\setup_ansible_user.ps1" -Credential (New-Object System.Management.Automation.PSCredential ("vagrant", (ConvertTo-SecureString "vagrant" -AsPlainText -Force)))
 Invoke-Command -ComputerName 127.0.0.1 -Port 55985 -ArgumentList 192.168.56.189 -FilePath ".\scripts\check_ip.ps1" -Credential (New-Object System.Management.Automation.PSCredential ("vagrant", (ConvertTo-SecureString "vagrant" -AsPlainText -Force)))
@@ -127,6 +129,9 @@ When running commands like Test-WSMan or Enter-PSSession from the host to the VM
 
 Test-WSMan -ComputerName 127.0.0.1 -Port 55985 -Authentication Default
 Test-WSMan -ComputerName 127.0.0.1 -Port 55986 -Authentication Default -UseSSL
+
+winrs -r:http://localhost:55985 -u:vagrant -p:vagrant echo 'hello world'
+winrs -r:https://localhost:55986 -u:vagrant -p:vagrant echo 'hello world'
 
 
 [Vagrant Cleanup](CLEANUP_README.md)
