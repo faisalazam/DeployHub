@@ -20,6 +20,17 @@ function Write-Log {
     Write-Host "$timestamp [$logLevel] $message"
 }
 
+# Check if the directory exists and is empty
+if (Test-Path -Path $CertPath) {
+    $certFiles = Get-ChildItem -Path $CertPath
+    if ($certFiles.Count -gt 0) {
+        Write-Log -message "Certificate directory already exists and is not empty. Skipping certificate generation."
+        exit 0
+    }
+} else {
+    Write-Log -message "Certificate directory does not exist. Proceeding with certificate generation..."
+}
+
 # Error handling function
 function Handle-Error {
     param (
