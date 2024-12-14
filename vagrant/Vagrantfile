@@ -21,14 +21,10 @@ WINRM_HTTPS_PORT = 55986
 VM_COMMUNICATOR = "winrm"
 WINRM_USERNAME = "vagrant"
 WINRM_PASSWORD = "vagrant"
-SYNCED_FOLDER_SRC = "./certs"
-SYNCED_FOLDER_DEST = "C:/certs"
 
-# Ensure the synced folder exists on the host machine
-host_synced_folder_path = File.expand_path(SYNCED_FOLDER_SRC)
-unless File.directory?(host_synced_folder_path)
-  Dir.mkdir(host_synced_folder_path)
-end
+CERT_EXPORT_FILE_NAME = "winrm-cert.pfx"
+SRC_CERT_FILE_PATH = "./certs/" + CERT_EXPORT_FILE_NAME
+DEST_CERT_FILE_PATH = "C:/certs/" + CERT_EXPORT_FILE_NAME
 
 Vagrant.configure("2") do |config|
     config.trigger.before :up do |trigger|
@@ -89,8 +85,8 @@ Vagrant.configure("2") do |config|
         trigger.run = { inline: "powershell -ExecutionPolicy Bypass -File scripts/generate_ssl_cert_on_host.ps1" }
     end
 
-    # Shared folder configuration
-    config.vm.synced_folder SYNCED_FOLDER_SRC, SYNCED_FOLDER_DEST, SharedFoldersEnableSymlinksCreate: false
+    # (OPTIONAL) - Copy certificate from host to guest (Not required for simple HTTP)
+    config.vm.provision "file", source: SRC_CERT_FILE_PATH, destination: DEST_CERT_FILE_PATH
 
     # Provision WinRM configuration
     # config.vm.provision "shell", path: "scripts/winrm_setup.ps1"
