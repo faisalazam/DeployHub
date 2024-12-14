@@ -4,6 +4,23 @@ $certPath = "C:\certs"
 $certPass = "YourCertPassword"
 $certFile = "$certPath\winrm-cert.pfx"
 
+# Wait for the synced folder to be ready
+$elapsed = 0
+$timeout = 30
+while (-not (Test-Path $certPath) -and $elapsed -lt $timeout) {
+    Write-Host "[INFO] Waiting for $certPath to become available..."
+    Start-Sleep -Seconds 1
+    $elapsed++
+}
+
+if (-not (Test-Path $certPath)) {
+    Write-Error "[ERROR] $certPath is still not available after $timeout seconds."
+    exit 1
+}
+
+# Proceed with your script
+Write-Host "[INFO] Found $certPath. Proceeding with setup..."
+
 # Ensure the certificate exists on the VM
 if (-not (Test-Path -Path $certFile)) {
     Write-Host "[ERROR] Certificate file not found. Ensure the certificate is transferred to the VM."
