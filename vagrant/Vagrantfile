@@ -75,6 +75,72 @@ module LocalCommand
   end
 end
 
+class GuestAdditionsProvisioner
+  ISO_MOUNT_DRIVE = "E:"
+  ISO_DESTINATION_VM = "C:/VBoxGuestAdditions.iso"
+  GUEST_ADDITIONS_EXECUTABLE = "VBoxWindowsAdditions.exe"
+  GUEST_ADDITIONS_ISO = "C:/Program Files/Oracle/VirtualBox/VBoxGuestAdditions.iso"
+  GUEST_ADDITIONS_FLAG_FILE = ".vagrant/machines/#{VM_NAME}/virtualbox/guest_additions_updated.flag"
+
+  def initialize(config)
+    @config = config
+    ensure_flag_directory
+  end
+
+  # Public method to provision Guest Additions
+  def provision
+    # Check if the flag file to indicate that Guest Additions have been updated exists
+    # And only proceed if it does not exist
+    if guest_additions_updated?
+      puts "[Vagrant] VBoxGuestAdditions already updated, skipping installation."
+    else
+      copy_guest_additions_iso
+      install_guest_additions
+      create_flag_file
+    end
+  end
+
+  private
+
+  # Ensure the flag file directory exists
+  def ensure_flag_directory
+    FileUtils.mkdir_p(File.dirname(GUEST_ADDITIONS_FLAG_FILE))
+  end
+
+  # Check if Guest Additions have already been updated
+  def guest_additions_updated?
+    File.exist?(GUEST_ADDITIONS_FLAG_FILE)
+  end
+
+  # Copy the VBoxGuestAdditions ISO to the VM
+  def copy_guest_additions_iso
+    @config.vm.provision "file", source: GUEST_ADDITIONS_ISO, destination: ISO_DESTINATION_VM
+  end
+
+  # Mount and install the Guest Additions ISO
+  def install_guest_additions
+    @config.vm.provision "shell", inline: <<-SHELL
+        Mount-DiskImage -ImagePath "#{ISO_DESTINATION_VM}"
+        Start-Sleep -Seconds 10
+        if (Test-Path "#{ISO_MOUNT_DRIVE}\\#{GUEST_ADDITIONS_EXECUTABLE}") {
+            Start-Process "#{ISO_MOUNT_DRIVE}\\#{GUEST_ADDITIONS_EXECUTABLE}" -ArgumentList "/S" -NoNewWindow -Wait
+        }
+        Dismount-DiskImage -ImagePath "#{ISO_DESTINATION_VM}"
+        puts "[Vagrant] Guest Additions have been updated successfully."
+    SHELL
+  end
+
+  # Create a flag file on the host
+  def create_flag_file
+    @config.vm.provision "guest_additions_updated_marker",
+      type: "local_shell",
+      command: <<-SHELL
+        echo 'Guest Additions updated on #{Time.now}' > "#{GUEST_ADDITIONS_FLAG_FILE}"
+        echo '[Vagrant] Guest Additions updation flag created on host.'
+      SHELL
+  end
+end
+
 Vagrant.configure("2") do |config|
     config.trigger.before :up do |trigger|
         trigger.name = "Log Start"
@@ -127,52 +193,7 @@ Vagrant.configure("2") do |config|
     # Set the communicator for VM
     config.vm.communicator = VM_COMMUNICATOR
 
-    ISO_MOUNT_DRIVE = "E:"
-    ISO_DESTINATION_VM = "C:/VBoxGuestAdditions.iso"
-    GUEST_ADDITIONS_EXECUTABLE = "VBoxWindowsAdditions.exe"
-    GUEST_ADDITIONS_ISO = "C:/Program Files/Oracle/VirtualBox/VBoxGuestAdditions.iso"
-    GUEST_ADDITIONS_FLAG_FILE = ".vagrant/machines/#{VM_NAME}/virtualbox/guest_additions_updated.flag"
-
-    # Ensure the flag file directory exists
-    FileUtils.mkdir_p(File.dirname(GUEST_ADDITIONS_FLAG_FILE))
-
-    # Check if the flag file to indicate that Guest Additions have been updated exists
-    # And only proceed if it does not exist
-    if !File.exist?(GUEST_ADDITIONS_FLAG_FILE)
-        # Provision file - Copy VBoxGuestAdditions ISO to the VM
-        config.vm.provision "file", source: GUEST_ADDITIONS_ISO, destination: ISO_DESTINATION_VM
-
-        # Provision shell - Install Guest Additions
-        config.vm.provision "shell", inline: <<-SHELL
-            # Mount the Guest Additions ISO
-            Write-Host "[Vagrant] Mounting VirtualBox Guest Additions ISO..."
-            Mount-DiskImage -ImagePath "#{ISO_DESTINATION_VM}"
-
-            # Wait for the disk image to be mounted
-            Start-Sleep -Seconds 10
-
-            # Install Guest Additions if necessary
-            if (Test-Path "#{ISO_MOUNT_DRIVE}\\#{GUEST_ADDITIONS_EXECUTABLE}") {
-                Write-Host "[Vagrant] Installing Guest Additions..."
-                Start-Process "#{ISO_MOUNT_DRIVE}\\#{GUEST_ADDITIONS_EXECUTABLE}" -ArgumentList "/S" -NoNewWindow -Wait
-            }
-
-            # Dismount the ISO after installation
-            Dismount-DiskImage -ImagePath "#{ISO_DESTINATION_VM}"
-            Write-Host "[Vagrant] Guest Additions have been updated successfully."
-        SHELL
-
-        # Provisioner to run a shell command on the host instead of the VM
-        config.vm.provision "guest_additions_updated_marker",
-            type: "local_shell",
-            # Create the flag file on the host to indicate that Guest Additions have been updated
-            command: <<-SHELL
-                echo 'Guest Additions updated on #{Time.now}' > "#{GUEST_ADDITIONS_FLAG_FILE}"
-                echo '[Vagrant] Guest Additions updation flag created on host.'
-            SHELL
-    else
-        puts "[Vagrant] VBoxGuestAdditions already updated, skipping installation."
-    end
+    GuestAdditionsProvisioner.new(config).provision
 
     # Verify IP configuration
     config.vm.provision :shell, :path => 'scripts/check_ip.ps1', :args => [VM_IP]
