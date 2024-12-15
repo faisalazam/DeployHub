@@ -59,10 +59,15 @@ Vagrant.configure("2") do |config|
     # Set the guest OS type
     config.vm.guest = :windows
 
-    # Setup WinRM HTTP communication
-    config.winrm.transport = :plaintext
-    config.winrm.client.basic_auth_only = true
-    config.winrm.port = WINRM_HTTP_PORT
+    if HTTPS_ENABLED
+        config.winrm.transport = :ssl
+        config.winrm.port = WINRM_HTTPS_PORT
+        config.winrm.ssl_peer_verification = false
+    else
+        config.winrm.transport = :plaintext
+        config.winrm.client.basic_auth_only = true
+        config.winrm.port = WINRM_HTTP_PORT
+    end
 
     # Set WinRM transport, username, password, and port
     config.winrm.timeout = WINRM_TIMEOUT
@@ -88,12 +93,10 @@ Vagrant.configure("2") do |config|
         end
         # Copy certificate from host to guest (Not required for simple HTTP)
         config.vm.provision "file", source: SRC_CERT_FILE_PATH, destination: DEST_CERT_FILE_PATH
-    else
-        puts "[INFO] HTTPS is disabled. Skipping SSL and WinRM HTTPS configuration."
-    end
 
-    # (OPTIONAL) - Copy certificate from host to guest (Not required for simple HTTP)
-    config.vm.provision "file", source: SRC_CERT_FILE_PATH, destination: DEST_CERT_FILE_PATH
+        # Provision WinRM HTTPS configuration (Not required for simple HTTP)
+        config.vm.provision "shell", path: "scripts/setup_winrm_https.ps1"
+    end
 
     # Provision WinRM configuration
     # config.vm.provision "shell", path: "scripts/winrm_setup.ps1"
