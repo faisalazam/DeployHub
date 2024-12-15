@@ -26,7 +26,18 @@ VM_COMMUNICATOR = "winrm"
 WINRM_USERNAME = "vagrant"
 WINRM_PASSWORD = "vagrant"
 
+#####################################################################################
+# NOTE: Both of the HTTPS_ENABLED and CONFIGURE_HTTPS cannot be true simultaneously
+# If you want to enable HTTPS, the first run `vagrant up --provision` with:
+# HTTPS_ENABLED = false
+# CONFIGURE_HTTPS = true
+#
+# Finally run `vagrant up --provision` again with:
+# HTTPS_ENABLED = true
+# CONFIGURE_HTTPS = false
+#####################################################################################
 HTTPS_ENABLED = false
+CONFIGURE_HTTPS = false
 CERT_EXPORT_FILE_NAME = "winrm-cert.pfx"
 SRC_CERT_FILE_PATH = "./certs/" + CERT_EXPORT_FILE_NAME
 DEST_CERT_FILE_PATH = "C:/certs/" + CERT_EXPORT_FILE_NAME
@@ -89,7 +100,7 @@ Vagrant.configure("2") do |config|
     # Configuring Service Account for Ansible
     config.vm.provision "shell", path: "scripts/setup_ansible_user.ps1"
 
-    if HTTPS_ENABLED
+    if CONFIGURE_HTTPS
         # Run the PowerShell script on the host to generate and import ssl certificate on HOST if not yet done
         config.trigger.before :up do |trigger|
             trigger.name = "Generate SSL Cert on Host"
@@ -98,12 +109,22 @@ Vagrant.configure("2") do |config|
         # Copy certificate from host to guest (Not required for simple HTTP)
         config.vm.provision "file", source: SRC_CERT_FILE_PATH, destination: DEST_CERT_FILE_PATH
 
-        # Provision WinRM HTTPS configuration (Not required for simple HTTP)
-        config.vm.provision "shell", path: "scripts/setup_winrm_https.ps1"
+        # Provision WinRM HTTPS configuration
+        # Running this through trigger from host as it has troubles running from config.vm.provision "shell".
+        config.trigger.after :up do |trigger|
+            trigger.name = "Configure WinRM HTTPS"
+            trigger.run = {
+                inline: <<-SHELL
+                    $SecurePassword = ConvertTo-SecureString '#{WINRM_PASSWORD}' -AsPlainText -Force
+                    $Credential = New-Object System.Management.Automation.PSCredential `
+                                                              ('#{WINRM_USERNAME}', $SecurePassword)
+                    Invoke-Command -ComputerName 127.0.0.1 -Port #{WINRM_HTTP_PORT} `
+                        -FilePath './scripts/setup_winrm_https.ps1' `
+                        -Credential $Credential
+                SHELL
+            }
+          end
     end
-
-    # Provision WinRM configuration
-    # config.vm.provision "shell", path: "scripts/winrm_setup.ps1"
 
     # Additional provisioning steps (if needed) can be added here
 
