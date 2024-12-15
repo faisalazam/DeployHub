@@ -22,6 +22,7 @@ VM_COMMUNICATOR = "winrm"
 WINRM_USERNAME = "vagrant"
 WINRM_PASSWORD = "vagrant"
 
+HTTPS_ENABLED = false
 CERT_EXPORT_FILE_NAME = "winrm-cert.pfx"
 SRC_CERT_FILE_PATH = "./certs/" + CERT_EXPORT_FILE_NAME
 DEST_CERT_FILE_PATH = "C:/certs/" + CERT_EXPORT_FILE_NAME
@@ -79,10 +80,16 @@ Vagrant.configure("2") do |config|
     # Configuring Service Account for Ansible
     config.vm.provision "shell", path: "scripts/setup_ansible_user.ps1"
 
-    # Run the PowerShell script on the host to generate and import ssl certificate on HOST if not yet done
-    config.trigger.before :up do |trigger|
-        trigger.name = "Generate SSL Cert on Host"
-        trigger.run = { inline: "powershell -ExecutionPolicy Bypass -File scripts/generate_ssl_cert_on_host.ps1" }
+    if HTTPS_ENABLED
+        # Run the PowerShell script on the host to generate and import ssl certificate on HOST if not yet done
+        config.trigger.before :up do |trigger|
+            trigger.name = "Generate SSL Cert on Host"
+            trigger.run = { inline: "powershell -ExecutionPolicy Bypass -File scripts/generate_ssl_cert_on_host.ps1" }
+        end
+        # Copy certificate from host to guest (Not required for simple HTTP)
+        config.vm.provision "file", source: SRC_CERT_FILE_PATH, destination: DEST_CERT_FILE_PATH
+    else
+        puts "[INFO] HTTPS is disabled. Skipping SSL and WinRM HTTPS configuration."
     end
 
     # (OPTIONAL) - Copy certificate from host to guest (Not required for simple HTTP)
