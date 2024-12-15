@@ -1,28 +1,38 @@
 # Define configurable parameters
-$WinRMGuestPort = 5986
 $CertCN = "localhost"
 $certPath = "C:\certs"
+$WinRMGuestPort = 5986
 $RoleName = "Administrator"
 $certPass = "YourCertPassword"
 $certFile = "$certPath\winrm-cert.pfx"
 $FirewallRuleName = "WinRM-HTTPS"
 
+# Function for error handling
+function Handle-Error {
+    param([string]$ErrorMessage)
+    Write-Host "[ERROR] $ErrorMessage"
+    exit 1
+}
+
 # Check if script is running as Administrator
 Write-Host "[INFO] Checking if script is running as $RoleName..."
-if (-not ([Security.Principal.WindowsPrincipal] `
-    [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(`
-    [Security.Principal.WindowsBuiltInRole] "$RoleName")) {
+try {
+    if (-not ([Security.Principal.WindowsPrincipal] `
+        [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(`
+        [Security.Principal.WindowsBuiltInRole] "$RoleName")) {
 
-    Write-Host "[INFO] Restarting script as $RoleName..."
-    Start-Process powershell.exe -ArgumentList `
-        "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" `
-        -Verb RunAs
-    exit
+        Write-Host "[INFO] Restarting script as $RoleName..."
+        Start-Process powershell.exe -ArgumentList `
+            "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" `
+            -Verb RunAs
+        exit
+    }
+} catch {
+    Handle-Error "Failed to check for Administrator role."
 }
 
 if (-not (Test-Path $certPath)) {
-    Write-Error "[ERROR] No certificate found at $certPath"
-    exit 1
+    Handle-Error "No certificate found at $certPath"
 }
 
 # Proceed with your script
@@ -30,61 +40,103 @@ Write-Host "[INFO] Found $certPath. Proceeding with setup..."
 
 # Ensure the certificate exists on the VM
 if (-not (Test-Path -Path $certFile)) {
-    Write-Host "[ERROR] Certificate file not found. Ensure the certificate is transferred to the VM."
-    exit
+    Handle-Error "Certificate file not found. Ensure the certificate is transferred to the VM."
 }
 
 # Install the certificate in the Windows certificate store
 Write-Host "[INFO] Installing certificate in the Windows certificate store..."
-$secureCertPass = ConvertTo-SecureString -String $certPass -AsPlainText -Force
-Import-PfxCertificate -FilePath $certFile -CertStoreLocation "Cert:\LocalMachine\My" -Password $secureCertPass
+try {
+    $secureCertPass = ConvertTo-SecureString -String $certPass -AsPlainText -Force
+    Import-PfxCertificate -FilePath $certFile -CertStoreLocation "Cert:\LocalMachine\My" -Password $secureCertPass
+} catch {
+    Handle-Error "Failed to install the certificate."
+}
 
 # Ensure WinRM service is running
-if ((Get-Service -Name WinRM).Status -ne 'Running') {
-    Start-Service -Name WinRM
+try {
+    if ((Get-Service -Name WinRM).Status -ne 'Running') {
+        Start-Service -Name WinRM
+    }
+} catch {
+    Handle-Error "Failed to start the WinRM service."
 }
 
 # Check if WinRM is already configured
-$winrmConfig = winrm get winrm/config
-if ($winrmConfig -match "Enabled\s*=\s*true") {
-    Write-Host "[INFO] WinRM is already configured."
-} else {
-    Write-Host "[INFO] Configuring WinRM..."
-    winrm quickconfig -q
+try {
+    $winrmConfig = winrm get winrm/config
+    if ($winrmConfig -match "Enabled\s*=\s*true") {
+        Write-Host "[INFO] WinRM is already configured."
+    } else {
+        Write-Host "[INFO] Configuring WinRM..."
+        winrm quickconfig -q
+    }
+} catch {
+    Handle-Error "Failed to get or configure WinRM."
 }
 
 # Retrieve the thumbprint of the certificate
-$thumbprint = (Get-ChildItem -Path Cert:\LocalMachine\My `
+$thumbprint = ""
+try {
+    $thumbprint = (Get-ChildItem -Path Cert:\LocalMachine\My `
                     | Where-Object { $_.Subject -match "CN=$CertCN" }).Thumbprint
+    if (-not $thumbprint) {
+        Handle-Error "Certificate thumbprint not found."
+    }
+} catch {
+    Handle-Error "Failed to retrieve certificate thumbprint."
+}
 
 # Set trusted hosts to allow remote connections
-Set-Item -Path WSMan:\localhost\Client\TrustedHosts -Value "*" -Force
+try {
+    Set-Item -Path WSMan:\localhost\Client\TrustedHosts -Value "*" -Force
+} catch {
+    Handle-Error "Failed to set TrustedHosts."
+}
 
 # Configure the WinRM service for SSL
 $winrmPath = "WSMan:\localhost\Service"
 
 # Ensure AllowUnencrypted is set to false
-Set-Item -Path "$winrmPath\AllowUnencrypted" -Value $false
+try {
+    Set-Item -Path "$winrmPath\AllowUnencrypted" -Value $false
+} catch {
+    Handle-Error "Failed to set AllowUnencrypted."
+}
 
 # Configure the CertificateThumbprint for HTTPS
-Set-Item -Path "$winrmPath\CertificateThumbprint" -Value $thumbprint
-
+try {
+    Set-Item -Path "$winrmPath\CertificateThumbprint" -Value $thumbprint
+} catch {
+    Handle-Error "Failed to set CertificateThumbprint."
+}
 # Configure the WinRM listener for HTTPS
 Write-Host "[INFO] Configuring WinRM listener for HTTPS..."
 $listenerConfig = '@{Hostname="";CertificateThumbprint="' + $thumbprint + '";Port="' + $WinRMGuestPort + '"}'
-$command = "winrm create winrm/config/Listener?Address=*+Transport=HTTPS '$listenerConfig'"
-Invoke-Expression $command
+try {
+    $command = "winrm create winrm/config/Listener?Address=*+Transport=HTTPS '$listenerConfig'"
+    Invoke-Expression $command
+} catch {
+    Handle-Error "Failed to configure WinRM listener for HTTPS."
+}
 
 Write-Host "[INFO] Validating the Listener..."
-winrm enumerate winrm/config/Listener
+try {
+    winrm enumerate winrm/config/Listener
+} catch {
+    Handle-Error "Failed to validate WinRM listener configuration."
+}
 
 # Check and add firewall rule for HTTPS
-if (-not (Get-NetFirewallRule -Name $FirewallRuleName -ErrorAction SilentlyContinue)) {
-    Write-Host "[INFO] Adding firewall rule for WinRM over HTTPS..."
-    New-NetFirewallRule -DisplayName "Allow WinRM over HTTPS" -Name $FirewallRuleName `
-                        -Protocol TCP -LocalPort $WinRMGuestPort -Action Allow
-} else {
-    Write-Host "[INFO] Firewall rule for WinRM over HTTPS already exists."
+try {
+    if (-not (Get-NetFirewallRule -Name $FirewallRuleName -ErrorAction SilentlyContinue)) {
+        Write-Host "[INFO] Adding firewall rule for WinRM over HTTPS..."
+        New-NetFirewallRule -DisplayName "Allow WinRM over HTTPS" -Name $FirewallRuleName `
+                            -Protocol TCP -LocalPort $WinRMGuestPort -Action Allow
+    } else {
+        Write-Host "[INFO] Firewall rule for WinRM over HTTPS already exists."
+    }
+} catch {
+    Handle-Error "Failed to add or check the firewall rule."
 }
 #
 ## Restart the WinRM service to apply changes
