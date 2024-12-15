@@ -214,6 +214,8 @@ Vagrant.configure("2") do |config|
         # Running this through trigger from host as it has troubles running from config.vm.provision "shell".
         config.trigger.after :up do |trigger|
             trigger.name = "Configure WinRM HTTPS"
+            HTTPS_CONFIGURED_FLAG_FILE = ".vagrant/machines/#{VM_NAME}/virtualbox/https_configured.flag"
+
             trigger.run = {
                 inline: <<-SHELL
                     $SecurePassword = ConvertTo-SecureString '#{WINRM_PASSWORD}' -AsPlainText -Force
@@ -222,9 +224,17 @@ Vagrant.configure("2") do |config|
                     Invoke-Command -ComputerName 127.0.0.1 -Port #{WINRM_HTTP_PORT} `
                         -FilePath './scripts/setup_winrm_https.ps1' `
                         -Credential $Credential
+
+                    # Check if the Invoke-Command was successful
+                    if ($?) {
+                        echo 'HTTPS configuration completed on #{Time.now}' > "#{HTTPS_CONFIGURED_FLAG_FILE}"
+                        config.vm.post_up_message = "HTTPS configuration completed."
+                    } else {
+                        echo 'HTTPS configuration failed.'
+                    }
                 SHELL
             }
-          end
+        end
     end
 
     # Additional provisioning steps (if needed) can be added here
