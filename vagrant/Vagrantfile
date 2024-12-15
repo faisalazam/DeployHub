@@ -127,19 +127,21 @@ Vagrant.configure("2") do |config|
     # Set the communicator for VM
     config.vm.communicator = VM_COMMUNICATOR
 
-    # Define the path for the flag file that will indicate if Guest Additions are updated
-    flag_file_host = ".vagrant/machines/#{VM_NAME}/virtualbox/guest_additions_updated.flag"
+    ISO_MOUNT_DRIVE = "E:"
+    ISO_DESTINATION_VM = "C:/VBoxGuestAdditions.iso"
+    GUEST_ADDITIONS_EXECUTABLE = "VBoxWindowsAdditions.exe"
+    GUEST_ADDITIONS_ISO = "C:/Program Files/Oracle/VirtualBox/VBoxGuestAdditions.iso"
+    GUEST_ADDITIONS_FLAG_FILE = ".vagrant/machines/#{VM_NAME}/virtualbox/guest_additions_updated.flag"
 
-    # Check if the flag file to indicate that Guest Additions have been updated exists
-    # And only proceed if it does not exist
-    if !File.exist?(flag_file_host)
-        config.vm.provision "file",
-            source: "C:/Program Files/Oracle/VirtualBox/VBoxGuestAdditions.iso",
-            destination: "C:/VBoxGuestAdditions.iso"
+    # Only proceed if the flag file does not exist
+    if !File.exist?(GUEST_ADDITIONS_FLAG_FILE)
+        # Provision file - Copy VBoxGuestAdditions ISO to the VM
+        config.vm.provision "file", source: GUEST_ADDITIONS_ISO, destination: ISO_DESTINATION_VM
 
+        # Provision shell - Install Guest Additions
         config.vm.provision "shell", inline: <<-SHELL
             # Define paths
-            $isoDest = "C:\\VBoxGuestAdditions.iso"
+            $isoDest = "#{ISO_DESTINATION_VM}"
 
             # Mount the Guest Additions ISO
             Write-Host "Mounting VirtualBox Guest Additions ISO..."
@@ -149,10 +151,10 @@ Vagrant.configure("2") do |config|
             Start-Sleep -Seconds 10
 
             # Install Guest Additions if necessary
-            $isoDrive = "E:"
-            if (Test-Path "$isoDrive\\VBoxWindowsAdditions.exe") {
-                Write-Host "Installing VBoxWindowsAdditions..."
-                Start-Process "$isoDrive\\VBoxWindowsAdditions.exe" -ArgumentList "/S" -NoNewWindow -Wait
+            $isoDrive = "#{ISO_MOUNT_DRIVE}"
+            if (Test-Path "$isoDrive\\#{GUEST_ADDITIONS_EXECUTABLE}") {
+                Write-Host "Installing #{GUEST_ADDITIONS_EXECUTABLE}..."
+                Start-Process "$isoDrive\\#{GUEST_ADDITIONS_EXECUTABLE}" -ArgumentList "/S" -NoNewWindow -Wait
             }
 
             # Dismount the ISO after installation
@@ -160,16 +162,16 @@ Vagrant.configure("2") do |config|
             Write-Host "Guest Additions have been updated."
         SHELL
 
-         # Provisioner to run a shell command on the host instead of VM
+        # Provisioner to run a shell command on the host instead of the VM
         config.vm.provision "guest_additions_updated_marker",
             type: "local_shell",
             # Create the flag file on the host to indicate that Guest Additions have been updated
             command: <<-SHELL
-                echo 'Guest Additions updated on #{Time.now}' > #{flag_file_host}
+                echo 'Guest Additions updated on #{Time.now}' > #{GUEST_ADDITIONS_FLAG_FILE}
                 echo 'Guest Additions updation flag created on host.'
             SHELL
     else
-      puts "VBoxGuestAdditions already updated, skipping installation."
+        puts "VBoxGuestAdditions already updated, skipping installation."
     end
 
     # Verify IP configuration
