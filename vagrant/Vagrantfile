@@ -9,8 +9,12 @@ VM_HOSTNAME = "windows-2019-vagrant"
 
 BOOT_TIMEOUT = 1200
 VAGRANT_PROVIDER = "virtualbox"
-VAGRANT_BOX_VERSION = "2021.05.15"
-VAGRANT_BOX_NAME = "StefanScherer/windows_2019"
+
+# VAGRANT_BOX_VERSION = "2021.05.15"
+# VAGRANT_BOX_NAME = "StefanScherer/windows_2019"
+
+VAGRANT_BOX_VERSION = "2021.08.23"
+VAGRANT_BOX_NAME = "StefanScherer/windows_2022"
 
 # TODO: enable https communication only
 WINRM_TIMEOUT = 1200
