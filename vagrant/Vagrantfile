@@ -42,6 +42,39 @@ CERT_EXPORT_FILE_NAME = "winrm-cert.pfx"
 SRC_CERT_FILE_PATH = "./certs/" + CERT_EXPORT_FILE_NAME
 DEST_CERT_FILE_PATH = "C:/certs/" + CERT_EXPORT_FILE_NAME
 
+# Define the custom provisioner module to run commands on host
+# Example usage: config.vm.provision "list-files", type: "local_shell", command: "ls"
+module LocalCommand
+  class Config < Vagrant.plugin("2", :config)
+    attr_accessor :command
+  end
+
+  class Plugin < Vagrant.plugin("2")
+    name "local_shell"
+
+    config(:local_shell, :provisioner) do
+      Config
+    end
+
+    provisioner(:local_shell) do
+      Provisioner
+    end
+  end
+
+  class Provisioner < Vagrant.plugin("2", :provisioner)
+    def provision
+      # Split the multi-line command into individual commands
+      commands = config.command.split("\n").map(&:strip).reject(&:empty?)
+
+      # Execute each command in sequence
+      commands.each do |command|
+        result = system(command)
+        raise "Command failed: #{command}" unless result
+      end
+    end
+  end
+end
+
 Vagrant.configure("2") do |config|
     config.trigger.before :up do |trigger|
         trigger.name = "Log Start"
@@ -93,6 +126,51 @@ Vagrant.configure("2") do |config|
 
     # Set the communicator for VM
     config.vm.communicator = VM_COMMUNICATOR
+
+    # Define the path for the flag file that will indicate if Guest Additions are updated
+    flag_file_host = ".vagrant/machines/#{VM_NAME}/virtualbox/guest_additions_updated.flag"
+
+    # Check if the flag file to indicate that Guest Additions have been updated exists
+    # And only proceed if it does not exist
+    if !File.exist?(flag_file_host)
+        config.vm.provision "file",
+            source: "C:/Program Files/Oracle/VirtualBox/VBoxGuestAdditions.iso",
+            destination: "C:/VBoxGuestAdditions.iso"
+
+        config.vm.provision "shell", inline: <<-SHELL
+            # Define paths
+            $isoDest = "C:\\VBoxGuestAdditions.iso"
+
+            # Mount the Guest Additions ISO
+            Write-Host "Mounting VirtualBox Guest Additions ISO..."
+            Mount-DiskImage -ImagePath $isoDest
+
+            # Wait for the disk image to be mounted
+            Start-Sleep -Seconds 10
+
+            # Install Guest Additions if necessary
+            $isoDrive = "E:"
+            if (Test-Path "$isoDrive\\VBoxWindowsAdditions.exe") {
+                Write-Host "Installing VBoxWindowsAdditions..."
+                Start-Process "$isoDrive\\VBoxWindowsAdditions.exe" -ArgumentList "/S" -NoNewWindow -Wait
+            }
+
+            # Dismount the ISO after installation
+            Dismount-DiskImage -ImagePath $isoDest
+            Write-Host "Guest Additions have been updated."
+        SHELL
+
+         # Provisioner to run a shell command on the host instead of VM
+        config.vm.provision "guest_additions_updated_marker",
+            type: "local_shell",
+            # Create the flag file on the host to indicate that Guest Additions have been updated
+            command: <<-SHELL
+                echo 'Guest Additions updated on #{Time.now}' > #{flag_file_host}
+                echo 'Guest Additions updation flag created on host.'
+            SHELL
+    else
+      puts "VBoxGuestAdditions already updated, skipping installation."
+    end
 
     # Verify IP configuration
     config.vm.provision :shell, :path => 'scripts/check_ip.ps1', :args => [VM_IP]
