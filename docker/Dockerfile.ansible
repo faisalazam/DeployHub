@@ -29,5 +29,9 @@ WORKDIR /ansible
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s CMD ansible --version || exit 1
 
 # Set the default command to keep the container running
-CMD ["sh", "-c", "ansible-playbook --version && tail -f /dev/null"]
-
+CMD sh -c "\
+    python3 --version && \
+    pip3 show pywinrm && \
+    ansible --version && \
+    ansible-playbook --version && \
+    tail -f /dev/null"
