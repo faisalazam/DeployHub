@@ -238,6 +238,11 @@ end
 ####################              ACTUAL VAGRANT FILE              ####################
 #######################################################################################
 
+# TODO: make the scripts use .env file or pass the values from vagrantfile.
+
+# For ssl setup:
+# https://stackoverflow.com/questions/47475154/ansible-for-windows-winrm-https-setup
+
 Vagrant.configure("2") do |config|
     config.trigger.before :up do |trigger|
         trigger.name = "Log Start"
