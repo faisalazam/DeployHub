@@ -17,7 +17,7 @@ services:
     environment:
       - ENVIRONMENT=${ENVIRONMENT:-local}
     extra_hosts:
-      - local_windows_vm:127.0.0.1
+      - local_windows_vm:host-gateway # The host-gateway keyword resolves to the host's IP address on the bridge network.
     networks:
       - ansible_network
     stdin_open: true
