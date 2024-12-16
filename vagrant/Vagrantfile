@@ -113,7 +113,7 @@ class GuestAdditionsProvisioner
 
   # Mount and install the Guest Additions ISO
   def install_guest_additions
-    @config.vm.provision "shell", inline: <<-SHELL
+    @config.vm.provision "shell", inline: <<-POWERSHELL
         Mount-DiskImage -ImagePath "#{ISO_DESTINATION_VM}"
         Start-Sleep -Seconds 10
         if (Test-Path "#{ISO_MOUNT_DRIVE}\\#{GUEST_ADDITIONS_EXECUTABLE}") {
@@ -121,7 +121,7 @@ class GuestAdditionsProvisioner
         }
         Dismount-DiskImage -ImagePath "#{ISO_DESTINATION_VM}"
         Write-Host "[Vagrant] Guest Additions have been updated successfully."
-    SHELL
+    POWERSHELL
   end
 
   # Create a flag file on the host
@@ -167,7 +167,7 @@ Vagrant.configure("2") do |config|
     # Set the guest OS type
     config.vm.guest = :windows
 
-    if !File.exist?(HTTPS_CONFIGURED_FLAG_FILE)
+    if !HTTPS_ENABLED || !File.exist?(HTTPS_CONFIGURED_FLAG_FILE)
         config.winrm.transport = :plaintext
         config.winrm.client.basic_auth_only = true
         config.winrm.port = WINRM_HTTP_PORT
@@ -213,7 +213,7 @@ Vagrant.configure("2") do |config|
                     $SecurePassword = ConvertTo-SecureString '#{WINRM_PASSWORD}' -AsPlainText -Force
                     $Credential = New-Object System.Management.Automation.PSCredential `
                                                               ('#{WINRM_USERNAME}', $SecurePassword)
-                    Invoke-Command -ComputerName 127.0.0.1 -Port #{WINRM_HTTP_PORT} `
+                    Invoke-Command -ComputerName 127.0.0.1 -Port '#{WINRM_HTTP_PORT}' `
                         -FilePath './scripts/setup_winrm_https.ps1' `
                         -Credential $Credential
 
