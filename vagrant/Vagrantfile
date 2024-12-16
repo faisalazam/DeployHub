@@ -83,7 +83,10 @@ class GuestAdditionsProvisioner
     # Check if the flag file to indicate that Guest Additions have been updated exists
     # And only proceed if it does not exist
     if guest_additions_updated?
-      puts "[Vagrant] VBoxGuestAdditions already updated, skipping installation."
+      @config.trigger.after :up do |trigger|
+        trigger.name = "Skipping VBoxGuestAdditions installation"
+        trigger.run = { inline: "Write-Host '[Vagrant] VBoxGuestAdditions already updated, skipping installation.'" }
+      end
     else
       copy_guest_additions_iso
       install_guest_additions
