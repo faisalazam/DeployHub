@@ -229,7 +229,7 @@ Vagrant.configure("2") do |config|
                         # The runnable command: `winrs -r:http://localhost:55985 -u:vagrant -p:vagrant powershell -Command "Set-Item -Path 'WSMan:\localhost\Service\AllowUnencrypted' -Value $true"`
 # It doesn't like spaces, so has to be in the beginning of the line
 $setItemCommand = @'
-`winrs -r:http://localhost:55985 -u:vagrant -p:vagrant powershell -Command "Set-Item -Path 'WSMan:\\localhost\\Service\\AllowUnencrypted' -Value $true"`
+`winrs -r:http://localhost:'#{WINRM_HTTP_PORT}' -u:'#{WINRM_USERNAME}' -p:'#{WINRM_PASSWORD}' powershell -Command "Set-Item -Path 'WSMan:\\localhost\\Service\\AllowUnencrypted' -Value $true"`
 '@
                         Write-Host $setItemCommand
                         Write-Host "*****************************************************************************************"
