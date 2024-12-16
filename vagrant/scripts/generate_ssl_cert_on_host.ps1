@@ -5,7 +5,8 @@ param (
     [string]$CertCN = "localhost",
     [string]$CertPass = "YourCertPassword",
     [string[]]$DnsNames = @("localhost", "127.0.0.1", "local_windows_vm"),
-    [string]$CertExportFileName = "winrm-cert.pfx",
+    [string]$CertPfxExportFileName = "winrm-cert.pfx",
+    [string]$CertCrtExportFileName = "winrm-cert.crt",
     [string]$CertStoreLocation = "Cert:\LocalMachine\My",
     [string]$TrustedRootStoreLocation = "Cert:\LocalMachine\Root",
     [string]$FriendlyName = "FAISAL - WinRM Self Signed Root Certificate For Windows Vagrant VM"
@@ -77,7 +78,7 @@ try {
     $cert.FriendlyName = $FriendlyName
 
     # Step 5: Export the certificate to a PFX file
-    $CertFile = Join-Path $CertPath $CertExportFileName
+    $CertFile = Join-Path $CertPath $CertPfxExportFileName
     Write-Log -message "Exporting certificate to PFX file: $CertFile"
 
     Export-PfxCertificate -Cert $cert `
@@ -86,7 +87,16 @@ try {
 
     Write-Log -message "Certificate exported successfully to: $CertFile"
 
-    # Step 6: Import the certificate into the Trusted Root Certification Authorities store
+    # Step 6: Export the public certificate to a .crt file (for Ansible Container)
+    $CertCrFile = Join-Path $CertPath "$CertCrtExportFileName"
+    Write-Log -message "Exporting the certificate to CRT file: $CertCrFile"
+
+    # Export the public certificate to CRT format
+    Export-Certificate -Cert $cert -FilePath $CertCrFile
+
+    Write-Log -message "Certificate exported successfully to: $CertCrFile"
+
+    # Step 7: Import the certificate into the Trusted Root Certification Authorities store
     Write-Log -message "Importing certificate into Trusted Root Certification Authorities store..."
 
     Import-PfxCertificate -FilePath $CertFile `
@@ -95,7 +105,7 @@ try {
 
     Write-Log -message "Certificate imported successfully into Trusted Root store."
 
-    # Step 7: Verify the installation by listing certificates in the Trusted Root store
+    # Step 8: Verify the installation by listing certificates in the Trusted Root store
     Write-Log -message "Verifying certificate installation in Trusted Root store..."
 
     # Step 8: Check if certificate with CN exists in the Trusted Root store
