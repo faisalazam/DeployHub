@@ -1,4 +1,6 @@
 services:
   ansible:
+    network_mode: host
+    networks: !reset []
     depends_on: !reset []
     profiles: ["CI"]
