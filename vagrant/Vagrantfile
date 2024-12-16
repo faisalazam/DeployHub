@@ -239,6 +239,7 @@ end
 #######################################################################################
 
 # TODO: make the scripts use .env file or pass the values from vagrantfile.
+# TODO: make the vagrantfile and the scripts running on host, OS independent.
 
 # For ssl setup:
 # https://stackoverflow.com/questions/47475154/ansible-for-windows-winrm-https-setup
