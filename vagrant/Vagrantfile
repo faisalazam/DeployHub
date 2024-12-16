@@ -160,64 +160,82 @@ class WinRMHTTPSConfigurator
   def self.configure(config)
     if HTTPS_ENABLED && !File.exist?(HTTPS_CONFIGURED_FLAG_FILE)
       # Generate SSL certificate on the host if not already done
-      config.trigger.before :up do |trigger|
-        trigger.name = "Generate SSL Cert on Host"
-        trigger.run = { inline: "powershell -ExecutionPolicy Bypass -File scripts/generate_ssl_cert_on_host.ps1" }
-      end
+      configure_ssl_certificate_generation(config)
 
       # Copy certificate from host to guest
-      config.vm.provision "file", source: SRC_CERT_FILE_PATH, destination: DEST_CERT_FILE_PATH
+      copy_certificate_to_guest(config)
 
       # Provision WinRM HTTPS configuration
-      config.trigger.after :up do |trigger|
-        trigger.name = "Configure WinRM HTTPS"
-        trigger.run = {
-          inline: <<-POWERSHELL
-            $SecurePassword = ConvertTo-SecureString '#{WINRM_PASSWORD}' -AsPlainText -Force
-              $Credential = New-Object System.Management.Automation.PSCredential `
-                                                        ('#{WINRM_USERNAME}', $SecurePassword)
-              Invoke-Command -ComputerName 127.0.0.1 -Port '#{WINRM_HTTP_PORT}' `
-                  -FilePath './scripts/setup_winrm_https.ps1' `
-                  -Credential $Credential
+      configure_winrm_https(config)
+    else
+      skip_winrm_https_configuration(config)
+    end
+  end
 
-              # Check if the Invoke-Command was successful
-              if ($?) {
-                echo "[INFO] HTTPS configuration completed on #{Time.now}" > "#{HTTPS_CONFIGURED_FLAG_FILE}"
-                Write-Host "*****************************************************************************************"
-                Write-Host "[INFO] Run ``vagrant up --provision`` to make winrm on vagrant run with SSL."
-                Write-Host "[INFO] If you want to switch back to HTTP after enabling HTTPS"
-                Write-Host "[INFO] you need to first run ``vagrant destroy -f` and then ``vagrant up --provision``."
-                Write-Host "[INFO] OR if you do not want to run ``destroy` and then ``provision`` commands for HTTP switch"
-                Write-Host "[INFO] THEN run:"
-                # The runnable command: `winrs -r:http://localhost:55985 -u:vagrant -p:vagrant powershell -Command "Set-Item -Path 'WSMan:\localhost\Service\AllowUnencrypted' -Value $true"`
+  private
+
+  def self.configure_ssl_certificate_generation(config)
+    config.trigger.before :up do |trigger|
+      trigger.name = "Generate SSL Cert on Host"
+      trigger.run = { inline: "powershell -ExecutionPolicy Bypass -File scripts/generate_ssl_cert_on_host.ps1" }
+    end
+  end
+
+  def self.copy_certificate_to_guest(config)
+    config.vm.provision "file", source: SRC_CERT_FILE_PATH, destination: DEST_CERT_FILE_PATH
+  end
+
+  def self.configure_winrm_https(config)
+    config.trigger.after :up do |trigger|
+      trigger.name = "Configure WinRM HTTPS"
+      trigger.run = {
+        inline: <<-POWERSHELL
+            $SecurePassword = ConvertTo-SecureString '#{WINRM_PASSWORD}' -AsPlainText -Force
+            $Credential = New-Object System.Management.Automation.PSCredential `
+                                                      ('#{WINRM_USERNAME}', $SecurePassword)
+            Invoke-Command -ComputerName 127.0.0.1 -Port '#{WINRM_HTTP_PORT}' `
+                -FilePath './scripts/setup_winrm_https.ps1' `
+                -Credential $Credential
+
+            # Check if the Invoke-Command was successful
+            if ($?) {
+              echo "[INFO] HTTPS configuration completed on #{Time.now}" > "#{HTTPS_CONFIGURED_FLAG_FILE}"
+              Write-Host "*****************************************************************************************"
+              Write-Host "[INFO] Run ``vagrant up --provision`` to make winrm on vagrant run with SSL."
+              Write-Host "[INFO] If you want to switch back to HTTP after enabling HTTPS"
+              Write-Host "[INFO] you need to first run ``vagrant destroy -f` and then ``vagrant up --provision``."
+              Write-Host "[INFO] OR if you do not want to run ``destroy` and then ``provision`` commands for HTTP switch"
+              Write-Host "[INFO] THEN run:"
+              # The runnable command: `winrs -r:http://localhost:55985 -u:vagrant -p:vagrant powershell -Command "Set-Item -Path 'WSMan:\localhost\Service\AllowUnencrypted' -Value $true"`
 # It doesn't like spaces, so has to be in the beginning of the line
 $setItemCommand = @'
 `winrs -r:http://localhost:'#{WINRM_HTTP_PORT}' -u:'#{WINRM_USERNAME}' -p:'#{WINRM_PASSWORD}' powershell -Command "Set-Item -Path 'WSMan:\\localhost\\Service\\AllowUnencrypted' -Value $true"`
 '@
-                Write-Host $setItemCommand
-                Write-Host "*****************************************************************************************"
-              } else {
-                Write-Host '[ERROR] HTTPS configuration failed.'
-              }
-          POWERSHELL
-        }
-      end
-    else
-      config.trigger.after :up do |trigger|
-        trigger.name = "Skipping WinRM HTTPS Configuration"
-        script = if HTTPS_ENABLED && File.exist?(HTTPS_CONFIGURED_FLAG_FILE)
-                  'Write-Host "[INFO] Skipping HTTPS configuration as it is already configured."'
-                 else
-                  'Write-Host "[INFO] Skipping HTTPS configuration as it is not required."'
-                 end
-        trigger.run = { inline: script }
-      end
+              Write-Host $setItemCommand
+              Write-Host "*****************************************************************************************"
+            } else {
+              Write-Host '[ERROR] HTTPS configuration failed.'
+            }
+        POWERSHELL
+      }
+    end
+  end
+
+  def self.skip_winrm_https_configuration(config)
+    config.trigger.after :up do |trigger|
+      trigger.name = "Skipping WinRM HTTPS Configuration"
+      script = if HTTPS_ENABLED && File.exist?(HTTPS_CONFIGURED_FLAG_FILE)
+                'Write-Host "[INFO] Skipping HTTPS configuration as it is already configured."'
+               else
+                'Write-Host "[INFO] Skipping HTTPS configuration as it is not required."'
+               end
+      trigger.run = { inline: script }
     end
   end
 end
 
 #######################################################################################
-##########                        ACTUAL VAGRANT FILE                        ##########
+####################              ACTUAL VAGRANT FILE              ####################
 #######################################################################################
 
 Vagrant.configure("2") do |config|
