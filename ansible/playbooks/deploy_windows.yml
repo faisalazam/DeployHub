@@ -1,7 +1,7 @@
 - name: Test File Copy with WinRM
   hosts: local_windows
   vars_files:
-    - ../inventory/{{ ENVIRONMENT }}/group_vars/windows.yml
+    - "../inventory/{{ ENVIRONMENT }}/group_vars/windows.yml"
   tasks:
 
     - name: Debug FILE_TO_COPY, DESTINATION_PATH and dirname
