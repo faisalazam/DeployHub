@@ -1,0 +1,4 @@
+id_rsa binary
+*.rsa binary
+*.pub binary
+*.sh text eol=lf
