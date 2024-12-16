@@ -45,3 +45,4 @@ __pycache__/
 
 # Ignore any lock files (e.g., from Ansible or Docker)
 *.lock
+/vagrant/certs

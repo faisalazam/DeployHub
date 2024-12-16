@@ -4,7 +4,7 @@ param (
     [string]$CertPath = ".\certs",
     [string]$CertCN = "localhost",
     [string]$CertPass = "YourCertPassword",
-    [string[]]$DnsNames = @("localhost", "127.0.0.1"),
+    [string[]]$DnsNames = @("localhost", "127.0.0.1", "local_windows_vm"),
     [string]$CertExportFileName = "winrm-cert.pfx",
     [string]$CertStoreLocation = "Cert:\LocalMachine\My",
     [string]$TrustedRootStoreLocation = "Cert:\LocalMachine\Root",
