@@ -3,9 +3,17 @@
   vars_files:
     - ../inventory/{{ ENVIRONMENT }}/group_vars/windows.yml
   tasks:
+
+    - name: Debug FILE_TO_COPY, DESTINATION_PATH and dirname
+      debug:
+        msg:
+          - "FILE_TO_COPY: {{ FILE_TO_COPY }}"
+          - "DESTINATION_PATH: {{ DESTINATION_PATH }}"
+          - "Directory Path (win_dirname): {{ DESTINATION_PATH | win_dirname }}"
+
     - name: Ensure the destination directory exists
       win_file:
-        path: "{{ DESTINATION_PATH | dirname}}"
+        path: "{{ DESTINATION_PATH | win_dirname}}"
         state: directory
 
     - name: Copy a file to the remote Windows machine
