@@ -104,9 +104,6 @@ if ($trustedHosts -ne "*") {
     Write-Host "[INFO] TrustedHosts already set to '*'."
 }
 
-# Configure the WinRM service for SSL
-$winrmPath = "WSMan:\localhost\Service"
-
 # Ensure AllowUnencrypted is set to false
 try {
     Set-Item -Path "$winrmPath\AllowUnencrypted" -Value $false
