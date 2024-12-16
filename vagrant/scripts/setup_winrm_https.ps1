@@ -7,6 +7,7 @@ $certPass = "YourCertPassword"
 $certFile = "$certPath\winrm-cert.pfx"
 $FirewallRuleName = "WinRM-HTTPS"
 $winrmPath = "WSMan:\localhost\Service"
+$trustedHosts = "127.0.0.1,local_windows_vm"
 $trustedHostsLocation = "WSMan:\localhost\Client\TrustedHosts"
 
 # Function for error handling
@@ -94,14 +95,14 @@ try {
 }
 
 # Set trusted hosts to allow remote connections
-if ($trustedHosts -ne "*") {
+if ($trustedHosts -ne $trustedHosts) {
     try {
-        Set-Item -Path $trustedHostsLocation -Value "*" -Force
+        Set-Item -Path $trustedHostsLocation -Value $trustedHosts -Force
     } catch {
         Handle-Error "Failed to set TrustedHosts."
     }
 } else {
-    Write-Host "[INFO] TrustedHosts already set to '*'."
+    Write-Host "[INFO] TrustedHosts already set to $trustedHosts."
 }
 
 # Ensure AllowUnencrypted is set to false
