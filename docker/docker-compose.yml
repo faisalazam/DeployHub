@@ -11,6 +11,7 @@ services:
     volumes:
       - ../ansible:/ansible:ro
       - ../ansible/ansible.cfg:/etc/ansible/ansible.cfg
+      - ../certs/${ENVIRONMENT}/:/certs:ro
       - ../.ssh_keys/${ENVIRONMENT}:/root/.ssh
     env_file:
       - .env
@@ -33,6 +34,14 @@ services:
         chmod 700 /root/.ssh
         chmod 600 /root/.ssh/id_rsa
         chown root:root /root/.ssh/id_rsa
+
+        # Run the custom certificate installation if RUN_WITH_CERTIFICATE is true
+        if [ "${RUN_WITH_CERTIFICATE}" = "true" ]; then
+          echo "RUN_WITH_CERTIFICATE is true. Installing custom certificate..."
+          /usr/local/bin/install-cert.sh
+        else
+          echo "RUN_WITH_CERTIFICATE is not set to true. Skipping certificate installation."
+        fi
 
         # Run the Ansible playbooks
         if [ "${COMPOSE_PROFILES}" = "CI" ]; then
