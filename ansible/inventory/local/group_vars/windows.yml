@@ -1,2 +1,12 @@
+# Working variables with valid certs
+ansible_port: 55986
+ansible_connection: winrm
+ansible_winrm_scheme: https
+ansible_user: ansible-agent
+ansible_password: ANS1BLE_P@sS!
+ansible_winrm_transport: basic
+ansible_winrm_server_cert_validation: validate
+ansible_winrm_ca_trust_path: /etc/ssl/certs/ca-certificates.crt
+
 FILE_TO_COPY: /ansible/test_file.txt
 DESTINATION_PATH: C:\tmp\ansible-automation\test_file.txt

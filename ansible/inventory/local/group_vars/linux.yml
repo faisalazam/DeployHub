@@ -1,2 +1,6 @@
+ansible_connection: ssh
+ansible_ssh_user: root
+ansible_port: 22
+
 FILE_TO_COPY: /ansible/test_file.txt
 DESTINATION_PATH: /tmp/test_file.txt
