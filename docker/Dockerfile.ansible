@@ -25,13 +25,19 @@ ENV DEBIAN_FRONTEND=
 # Set the working directory
 WORKDIR /ansible
 
+COPY docker/scripts/install-cert.sh /usr/local/bin/install-cert.sh
+
+RUN chmod +x /usr/local/bin/install-cert.sh
+
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s CMD ansible --version || exit 1
 
 # Set the default command to keep the container running
-CMD sh -c "\
-    python3 --version && \
+CMD [ \
+    "/bin/sh", "-c", \
+    "python3 --version && \
     pip3 show pywinrm && \
     ansible --version && \
     ansible-playbook --version && \
-    tail -f /dev/null"
+    tail -f /dev/null" \
+]
