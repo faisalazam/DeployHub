@@ -17,6 +17,8 @@ services:
       - .env
     environment:
       - ENVIRONMENT=${ENVIRONMENT:-local}
+      - COMPOSE_PROFILES=${COMPOSE_PROFILES:-default}
+      - RUN_WITH_CERTIFICATE=${RUN_WITH_CERTIFICATE}
     extra_hosts:
       - local_windows_vm:host-gateway # The host-gateway keyword resolves to the host's IP address on the bridge network.
     networks:
