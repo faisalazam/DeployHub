@@ -1,5 +1,9 @@
 #!/bin/sh
 
+echo "ENVIRONMENT=${ENVIRONMENT}"
+echo "COMPOSE_PROFILES=${COMPOSE_PROFILES}"
+echo "RUN_WITH_CERTIFICATE=${RUN_WITH_CERTIFICATE}"
+
 # Remove any existing known hosts entry for linux_ssh_pass_host to avoid key mismatch
 if [ -f /root/.ssh/known_hosts ]; then
   ssh-keygen -f /root/.ssh/known_hosts -R "linux_ssh_pass_host"
