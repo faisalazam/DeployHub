@@ -4,9 +4,9 @@ param (
     [string]$CertPath = ".\certs",
     [string]$CertCN = "localhost",
     [string]$CertPass = "YourCertPassword",
-    [string[]]$DnsNames = @("localhost", "127.0.0.1", "local_windows_vm"),
+    [string[]]$DnsNames = @($CertCN, "127.0.0.1", "local_windows_vm"),
     [string]$CertPfxExportFileName = "winrm-cert.pfx",
-    [string]$CertCrtExportFileName = "winrm-cert.crt",
+    [string]$CertPemExportFileName = "certificate.pem",
     [string]$CertStoreLocation = "Cert:\LocalMachine\My",
     [string]$TrustedRootStoreLocation = "Cert:\LocalMachine\Root",
     [string]$FriendlyName = "FAISAL - WinRM Self Signed Root Certificate For Windows Vagrant VM"
@@ -87,14 +87,18 @@ try {
 
     Write-Log -message "Certificate exported successfully to: $CertFile"
 
-    # Step 6: Export the public certificate to a .crt file (for Ansible Container)
-    $CertCrFile = Join-Path $CertPath "$CertCrtExportFileName"
-    Write-Log -message "Exporting the certificate to CRT file: $CertCrFile"
+    # Step 6: Export the public certificate to a .pem file (for Ansible Container)
+    $CertPemFile = Join-Path $CertPath "$CertPemExportFileName"
+    Write-Log -message "Exporting the certificate to PEM file: $CertPemFile"
 
-    # Export the public certificate to CRT format
-    Export-Certificate -Cert $cert -FilePath $CertCrFile
+    # Export the public certificate to PEM format
+    Set-Content -Path $CertPemFile -Value @(
+        "-----BEGIN CERTIFICATE-----"
+        [Convert]::ToBase64String($cert.RawData) -replace ".{64}", "$&`n"
+        "-----END CERTIFICATE-----"
+    )
 
-    Write-Log -message "Certificate exported successfully to: $CertCrFile"
+    Write-Log -message "Certificate exported successfully to PEM file: $CertPemFile"
 
     # Step 7: Import the certificate into the Trusted Root Certification Authorities store
     Write-Log -message "Importing certificate into Trusted Root Certification Authorities store..."
