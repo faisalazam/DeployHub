@@ -24,6 +24,9 @@ all:
 To connect to the vm with https via host on forwarded port 55986 and regardless of whether the  `network_mode` set to
 `host` or not.
 
+Note the use of `ansible_winrm_server_cert_validation: ignore`, it helps if ansible container does not have
+the certificate or or its invalid.
+
 ```yaml
 all:
   hosts:
@@ -36,6 +39,32 @@ all:
       ansible_password: ANS1BLE_P@sS!
       ansible_winrm_transport: basic
       ansible_winrm_server_cert_validation: ignore
+```
+
+Once the proper certificate is installed in the ansible container, then to connect to the vm with https via host on
+forwarded port 55986 and regardless of whether the  `network_mode` set to `host` or not.
+
+Note the use of `ansible_winrm_server_cert_validation: validate`, it'll validate the certificate and proceed only if it'
+s valid.
+
+And `ansible_winrm_ca_trust_path: /etc/ssl/certs/ca-certificates.crt` to specify the path to the trusted root
+certificate for secure communication.
+
+```yaml
+all:
+  hosts:
+    local_windows:
+      ansible_port: 55986
+      # You can either use `local_windows_vm` by defining `extra_hosts` in docker-compose.yml,
+      # or use `host.docker.internal` to access host from within the container - Should work out of the box.
+      ansible_host: local_windows_vm
+      ansible_connection: winrm
+      ansible_winrm_scheme: https
+      ansible_user: ansible-agent
+      ansible_password: ANS1BLE_P@sS!
+      ansible_winrm_transport: basic
+      ansible_winrm_server_cert_validation: validate
+      ansible_winrm_ca_trust_path: /etc/ssl/certs/ca-certificates.crt
 ```
 
 Host Gateway on Bridge:
