@@ -6,13 +6,14 @@
 *.vmsd
 *.vmdk
 
+/certs
+
 # Ignore Ansible-related files
 *.retry
 *.yml~
 *.ansible-lint
 
 # Ignore Docker-related files
-docker-compose.override.yml
 .docker/
 *.log
 *.pid
@@ -45,4 +46,6 @@ __pycache__/
 
 # Ignore any lock files (e.g., from Ansible or Docker)
 *.lock
-/vagrant/certs
+
+.ssh_keys/*/known_hosts*
+.ssh_keys/*/authorized_keys

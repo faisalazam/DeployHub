@@ -29,9 +29,10 @@ WINRM_PASSWORD = "vagrant"
 HTTPS_ENABLED = true
 HTTPS_CONFIGURED_FLAG_FILE = ".vagrant/machines/#{VM_NAME}/virtualbox/https_configured.flag"
 
-CERT_EXPORT_FILE_NAME = "winrm-cert.pfx"
-SRC_CERT_FILE_PATH = "./certs/" + CERT_EXPORT_FILE_NAME
-DEST_CERT_FILE_PATH = "C:/certs/" + CERT_EXPORT_FILE_NAME
+ENVIRONMENT = "local"
+CERT_EXPORT_FILE_NAME = "certificate.pfx"
+SRC_CERT_FILE_PATH = "../certs/#{ENVIRONMENT}/#{CERT_EXPORT_FILE_NAME}"
+DEST_CERT_FILE_PATH = "C:/certs/#{CERT_EXPORT_FILE_NAME}"
 
 # Define the custom provisioner module to run commands on host
 # Example usage: config.vm.provision "list-files", type: "local_shell", command: "ls"

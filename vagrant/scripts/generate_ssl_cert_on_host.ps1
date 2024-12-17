@@ -1,11 +1,11 @@
 param (
     [int]$KeyLength = 2048,
     [int]$CertValidityYears = 1,
-    [string]$CertPath = ".\certs",
+    [string]$CertPath = "..\certs\local",
     [string]$CertCN = "localhost",
     [string]$CertPass = "YourCertPassword",
     [string[]]$DnsNames = @($CertCN, "127.0.0.1", "local_windows_vm"),
-    [string]$CertPfxExportFileName = "winrm-cert.pfx",
+    [string]$CertPfxExportFileName = "certificate.pfx",
     [string]$CertPemExportFileName = "certificate.pem",
     [string]$CertStoreLocation = "Cert:\LocalMachine\My",
     [string]$TrustedRootStoreLocation = "Cert:\LocalMachine\Root",
