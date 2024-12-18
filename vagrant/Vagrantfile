@@ -27,12 +27,12 @@ WINRM_USERNAME = "vagrant"
 WINRM_PASSWORD = "vagrant"
 
 HTTPS_ENABLED = true
-HTTPS_CONFIGURED_FLAG_FILE = ".vagrant/machines/#{VM_NAME}/virtualbox/https_configured.flag"
+HTTPS_CONFIGURED_FLAG_FILE = File.join(Dir.pwd, ".vagrant", "machines", VM_NAME, VAGRANT_PROVIDER, "https_configured.flag")
 
 ENVIRONMENT = "local"
 CERT_EXPORT_FILE_NAME = "certificate.pfx"
-SRC_CERT_FILE_PATH = "../certs/#{ENVIRONMENT}/#{CERT_EXPORT_FILE_NAME}"
-DEST_CERT_FILE_PATH = "C:/certs/#{CERT_EXPORT_FILE_NAME}"
+SRC_CERT_FILE_PATH = File.join(Dir.pwd, "..", "certs", ENVIRONMENT, CERT_EXPORT_FILE_NAME)
+DEST_CERT_FILE_PATH = File.join("C:", "certs", CERT_EXPORT_FILE_NAME)
 
 # Define the custom provisioner module to run commands on host
 # Example usage: config.vm.provision "list-files", type: "local_shell", command: "ls"
@@ -69,14 +69,23 @@ end
 
 class GuestAdditionsProvisioner
   ISO_MOUNT_DRIVE = "E:"
-  ISO_DESTINATION_VM = "C:/VBoxGuestAdditions.iso"
+  ISO_FILE_NAME = "VBoxGuestAdditions.iso"
+  ISO_DESTINATION_VM = File.join("C:", ISO_FILE_NAME)
   GUEST_ADDITIONS_EXECUTABLE = "VBoxWindowsAdditions.exe"
-  GUEST_ADDITIONS_ISO = "C:/Program Files/Oracle/VirtualBox/VBoxGuestAdditions.iso"
-  GUEST_ADDITIONS_FLAG_FILE = ".vagrant/machines/#{VM_NAME}/virtualbox/guest_additions_updated.flag"
+  GUEST_ADDITIONS_FLAG_FILE = File.join(Dir.pwd, ".vagrant", "machines", VM_NAME, VAGRANT_PROVIDER, "guest_additions_updated.flag")
 
   def initialize(config)
     @config = config
     ensure_flag_directory
+
+    # Set the appropriate path based on the platform
+    if RUBY_PLATFORM =~ /mswin|win32|cygwin|mingw32|x64-mingw32/
+      # Windows-specific paths
+      @guest_additions_iso = File.join("C:", "Program Files", "Oracle", "VirtualBox", ISO_FILE_NAME)
+    else
+      # Unix-like systems (Linux/macOS) paths
+      @guest_additions_iso = File.join("/", "usr", "local", "VirtualBox", ISO_FILE_NAME)
+    end
   end
 
   # Public method to provision Guest Additions
@@ -107,21 +116,25 @@ class GuestAdditionsProvisioner
     File.exist?(GUEST_ADDITIONS_FLAG_FILE)
   end
 
+  def guest_additions_iso
+    @guest_additions_iso
+  end
+
   # Copy the VBoxGuestAdditions ISO to the VM
   def copy_guest_additions_iso
-    @config.vm.provision "file", source: GUEST_ADDITIONS_ISO, destination: ISO_DESTINATION_VM
+    @config.vm.provision "file", source: guest_additions_iso, destination: ISO_DESTINATION_VM
   end
 
   # Mount and install the Guest Additions ISO
   def install_guest_additions
     @config.vm.provision "shell", inline: <<-POWERSHELL
-        Mount-DiskImage -ImagePath "#{ISO_DESTINATION_VM}"
-        Start-Sleep -Seconds 10
-        if (Test-Path "#{ISO_MOUNT_DRIVE}\\#{GUEST_ADDITIONS_EXECUTABLE}") {
-            Start-Process "#{ISO_MOUNT_DRIVE}\\#{GUEST_ADDITIONS_EXECUTABLE}" -ArgumentList "/S" -NoNewWindow -Wait
-        }
-        Dismount-DiskImage -ImagePath "#{ISO_DESTINATION_VM}"
-        Write-Host "[Vagrant] Guest Additions have been updated successfully."
+      Mount-DiskImage -ImagePath "#{ISO_DESTINATION_VM}"
+      Start-Sleep -Seconds 10
+      if (Test-Path "#{ISO_MOUNT_DRIVE}\\#{GUEST_ADDITIONS_EXECUTABLE}") {
+          Start-Process "#{ISO_MOUNT_DRIVE}\\#{GUEST_ADDITIONS_EXECUTABLE}" -ArgumentList "/S" -NoNewWindow -Wait
+      }
+      Dismount-DiskImage -ImagePath "#{ISO_DESTINATION_VM}"
+      Write-Host "[Vagrant] Guest Additions have been updated successfully."
     POWERSHELL
   end
 
