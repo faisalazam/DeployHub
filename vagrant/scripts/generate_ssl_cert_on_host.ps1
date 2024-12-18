@@ -9,7 +9,7 @@ param (
     [string]$CertPemExportFileName = "certificate.pem",
     [string]$CertStoreLocation = "Cert:\LocalMachine\My",
     [string]$TrustedRootStoreLocation = "Cert:\LocalMachine\Root",
-    [string]$FriendlyName = "FAISAL - WinRM Self Signed Root Certificate For Windows Vagrant VM"
+    [string]$FriendlyName = "FAISAL-WinRM-SelfSigned-WinVM"
 )
 
 function Write-Log {

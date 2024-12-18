@@ -1,5 +1,5 @@
 param (
-    [string]$FriendlyNamePattern = "SETTING IT ANY RANDOM STR SO THAT NOTHING GETS UNTIL PATTERN IS PROVIDED"
+    [string]$FriendlyNamePattern = "SETTING IT ANY RANDOM STR SO THAT NOTHING GETS REMOVED UNTIL PATTERN IS PROVIDED"
 )
 
 # Define certificate store locations
