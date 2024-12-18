@@ -1,4 +1,5 @@
 services:
+  # Run it with: COMPOSE_PROFILES=CI docker-compose -f docker-compose.yml -f docker-compose-ci.override.yml up
   ansible:
     network_mode: host
     networks: !reset []
