@@ -19,6 +19,12 @@ RUN apt-get update && apt-get install -y \
 # Install the latest version of pywinrm
 RUN pip3 install --no-cache-dir pywinrm
 
+# Install Molecule and its dependencies
+RUN pip3 install --no-cache-dir molecule[docker] ansible-lint
+
+# Install Testinfra
+RUN pip3 install --no-cache-dir testinfra pytest
+
 # Reset DEBIAN_FRONTEND to its default
 ENV DEBIAN_FRONTEND=
 
@@ -39,6 +45,9 @@ CMD [ \
     "/bin/sh", "-c", \
     "python3 --version && \
     pip3 show pywinrm && \
+    pip3 show molecule && \
+    molecule --version && \
+    pytest --version && \
     ansible --version && \
     ansible-playbook --version && \
     tail -f /dev/null" \

@@ -1,5 +1,13 @@
 #!/bin/sh
 
+python3 --version
+pip3 show pywinrm
+pip3 show molecule
+molecule --version
+pytest --version
+ansible --version
+ansible-playbook --version
+
 echo "ENVIRONMENT=${ENVIRONMENT}"
 echo "COMPOSE_PROFILES=${COMPOSE_PROFILES}"
 echo "RUN_WITH_CERTIFICATE=${RUN_WITH_CERTIFICATE}"
