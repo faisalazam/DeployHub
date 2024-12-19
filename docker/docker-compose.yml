@@ -13,9 +13,11 @@ services:
       - ../ansible/ansible.cfg:/etc/ansible/ansible.cfg
       - ../certs/${ENVIRONMENT}/:/certs:ro
       - ../.ssh_keys/${ENVIRONMENT}:/root/.ssh
+      - ./scripts/pre_playbook_checks.sh:/usr/local/bin/pre_playbook_checks.sh
     env_file:
       - .env
     environment:
+      - RUN_TESTS=${RUN_TESTS:-false}
       - ENVIRONMENT=${ENVIRONMENT:-local}
       - COMPOSE_PROFILES=${COMPOSE_PROFILES:-default}
       - RUN_WITH_CERTIFICATE=${RUN_WITH_CERTIFICATE}

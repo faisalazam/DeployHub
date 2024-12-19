@@ -9,6 +9,7 @@ pytest --version
 ansible --version
 ansible-playbook --version
 
+echo "RUN_TESTS=${RUN_TESTS}"
 echo "ENVIRONMENT=${ENVIRONMENT}"
 echo "COMPOSE_PROFILES=${COMPOSE_PROFILES}"
 echo "RUN_WITH_CERTIFICATE=${RUN_WITH_CERTIFICATE}"
@@ -32,6 +33,14 @@ else
 fi
 
 ansible-galaxy install -r requirements.yml
+
+# Run pre-playbook checks if the RUN_TESTS environment variable is set to true
+if [ "${RUN_TESTS}" = "true" ]; then
+  echo "RUN_TESTS is true. Running pre-playbook checks..."
+
+  # Call the pre-playbook checks script
+  /usr/local/bin/pre_playbook_checks.sh
+fi
 
 # Run the Ansible playbooks
 if [ "${COMPOSE_PROFILES}" = "CI" ]; then
