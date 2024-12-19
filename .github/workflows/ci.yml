@@ -63,12 +63,20 @@ jobs:
 
       - name: Setup environment
         run: |
-          ENVIRONMENT=local RUN_WITH_CERTIFICATE=true docker exec "${{ env.ANSIBLE_CONTAINER_NAME }}" sh /usr/local/bin/setup.sh
+          docker exec \
+            -e ENVIRONMENT=local \
+            -e RUN_WITH_CERTIFICATE=true \
+            "${{ env.ANSIBLE_CONTAINER_NAME }}" \
+            sh /usr/local/bin/setup.sh
 
       - name: Run tests
         id: test-results # id is used later on to check whether tests passed or failed
         run: |
-          ENVIRONMENT=local RUN_TESTS=true docker exec "${{ env.ANSIBLE_CONTAINER_NAME }}" sh /usr/local/bin/run_tests.sh
+          docker exec \
+            -e RUN_TESTS=true \
+            -e ENVIRONMENT=local \
+            "${{ env.ANSIBLE_CONTAINER_NAME }}" \
+            sh /usr/local/bin/run_tests.sh
           if [ $? -eq 0 ]; then
             echo "outcome=success" >> $GITHUB_OUTPUT
           else
@@ -83,7 +91,11 @@ jobs:
 
       - name: Execute playbooks
         run: |
-          COMPOSE_PROFILES=test ENVIRONMENT=local docker exec "${{ env.ANSIBLE_CONTAINER_NAME }}" sh /usr/local/bin/execute_playbooks.sh
+          docker exec \
+            -e ENVIRONMENT=local \
+            -e COMPOSE_PROFILES=test \
+            "${{ env.ANSIBLE_CONTAINER_NAME }}" \
+            sh /usr/local/bin/execute_playbooks.sh
 
       - name: Collect Docker container logs
         if: ${{ always() && env.docker_service_started == 'true' }}
