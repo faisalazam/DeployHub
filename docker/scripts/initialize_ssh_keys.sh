@@ -22,6 +22,7 @@ chmod 700 "$SSH_DIR"
 chown "$ROOT_USER:$ROOT_USER" "$SSH_DIR"
 
 if [ -f "$AUTHORIZED_KEYS" ]; then
+  chown "$ROOT_USER:$ROOT_USER" "$AUTHORIZED_KEYS"
   chmod 600 "$AUTHORIZED_KEYS"
 else
   echo "Warning: $AUTHORIZED_KEYS not found."
