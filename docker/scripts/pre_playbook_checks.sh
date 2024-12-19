@@ -3,67 +3,66 @@
 # Activate the virtual environment to ensures that the ansible, ansible-lint, and pytest commands are available
 . /opt/venv/bin/activate
 
-# Run pre-playbook checks for best practices and syntax
-
+# Environment variables
 ENVIRONMENT=${ENVIRONMENT:-"local"}
 COMPOSE_PROFILES=${COMPOSE_PROFILES:-"default"}
 INVENTORY_PATH="/ansible/inventory/${ENVIRONMENT}/hosts.yml"
 
-# Initialize a failure flag
+# Initialize failure flag
 FAILURE=0
 
-# Define the function to check connectivity
-check_connectivity() {
-  echo "Checking connectivity to all Linux hosts..."
-
-  ansible linux_hosts -i "${INVENTORY_PATH}" -m ping
-  if [ $? -ne 0 ]; then
-    echo "Linux hosts ping failed"
-    FAILURE=1
-  fi
-
-  if [ "${COMPOSE_PROFILES}" != "test" ]; then
-    echo "Checking connectivity to all Windows hosts..."
-    ansible windows_hosts -i "${INVENTORY_PATH}" -m win_ping
-    if [ $? -ne 0 ]; then
-      echo "Windows hosts ping failed"
-      FAILURE=1
-    fi
-  fi
+# Log function for consistency
+log() {
+    echo "[INFO] $1"
 }
 
-# Run the connectivity check
-check_connectivity
+# Error function to set the failure flag
+error() {
+    echo "[ERROR] $1"
+    FAILURE=1
+}
 
-# Run ansible-lint to ensure playbooks meet best practices
-echo "Running ansible-lint..."
-ansible-lint /ansible/playbooks/*.yml
-if [ $? -ne 0 ]; then
-  echo "ansible-lint failed."
-  FAILURE=1
-fi
+# Check connectivity
+check_connectivity() {
+    log "Checking connectivity to all Linux hosts..."
+    ansible linux_hosts -i "${INVENTORY_PATH}" -m ping || error "Linux hosts ping failed."
+
+    if [ "${COMPOSE_PROFILES}" != "test" ]; then
+        log "Checking connectivity to all Windows hosts..."
+        ansible windows_hosts -i "${INVENTORY_PATH}" -m win_ping || error "Windows hosts ping failed."
+    fi
+}
+
+# Run ansible-lint
+run_ansible_lint() {
+    log "Running ansible-lint..."
+    ansible-lint /ansible/playbooks/*.yml || error "ansible-lint failed."
+}
 
 # Run ansible-playbook syntax check
-echo "Running ansible-playbook --syntax-check..."
-ansible-playbook --syntax-check -i /ansible/inventory/"${ENVIRONMENT}"/hosts.yml /ansible/playbooks/*.yml
-if [ $? -ne 0 ]; then
-  echo "ansible-playbook syntax check failed."
-  FAILURE=1
-fi
+run_syntax_check() {
+    log "Running ansible-playbook --syntax-check..."
+    ansible-playbook --syntax-check -i "${INVENTORY_PATH}" /ansible/playbooks/*.yml || error "ansible-playbook syntax check failed."
+}
 
-# Run pytest tests for any additional pre-playbook validations
-echo "Running pytest tests..."
-pytest /ansible/tests/test_pre_playbook.py --tb=short --disable-warnings
-if [ $? -ne 0 ]; then
-  echo "Pre-playbook pytest tests failed."
-  FAILURE=1
-fi
+# Run pytest
+run_pytest() {
+    log "Running pytest tests..."
+    pytest /ansible/tests/test_pre_playbook.py --tb=short --disable-warnings || error "Pre-playbook pytest tests failed."
+}
 
-# Final exit based on the failure flag
+# Perform all checks
+log "Starting pre-playbook checks..."
+check_connectivity
+run_ansible_lint
+run_syntax_check
+run_pytest
+
+# Final exit based on failure flag
 if [ $FAILURE -ne 0 ]; then
-  echo "One or more pre-playbook checks failed. Exiting with errors."
-  exit 1
+    log "One or more pre-playbook checks failed. Exiting with errors."
+    exit 1
 else
-  echo "All pre-playbook checks passed successfully."
-  exit 0
+    log "All pre-playbook checks passed successfully."
+    exit 0
 fi
