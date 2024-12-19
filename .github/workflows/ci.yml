@@ -71,6 +71,9 @@ jobs:
             "${{ env.ANSIBLE_CONTAINER_NAME }}" \
             sh /usr/local/bin/setup.sh
 
+      - name: Debug SSH key mount
+        run: docker exec linux_ssh_keys_host ls -l /root/.ssh
+
       - name: Run tests
         id: test-results # id is used later on to check whether tests passed or failed
         run: |
