@@ -1,5 +1,5 @@
 - name: Test File Copy with WinRM
-  hosts: local_windows
+  hosts: windows_hosts
   vars_files:
     - "../inventory/{{ ENVIRONMENT }}/group_vars/windows.yml"
   tasks:
