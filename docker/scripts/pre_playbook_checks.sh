@@ -36,4 +36,20 @@ if [ "${RUN_TESTS}" = "true" ]; then
     echo "ansible-lint failed. Exiting..."
     exit 1
   fi
+
+  # Run ansible-playbook syntax check
+  echo "Running ansible-playbook --syntax-check..."
+  ansible-playbook --syntax-check -i /ansible/inventory/"${ENVIRONMENT}"/hosts.yml /ansible/playbooks/*.yml
+  if [ $? -ne 0 ]; then
+    echo "ansible-playbook syntax check failed. Exiting..."
+    exit 1
+  fi
+
+  # Run pytest tests for any additional pre-playbook validations
+  echo "Running pytest tests..."
+  pytest /ansible/tests/test_pre_playbook.py --tb=short --disable-warnings
+  if [ $? -ne 0 ]; then
+    echo "Pre-playbook pytest tests failed. Exiting..."
+    exit 1
+  fi
 fi
