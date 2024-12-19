@@ -15,18 +15,12 @@ FAILURE=0
 # Define the function to check connectivity
 check_connectivity() {
   echo "Checking connectivity to all Linux hosts..."
-  # TODO: UNCOMMENT ME, CI is failing with:
-  # linux_ssh_keys_host | UNREACHABLE! => {
-  #    "changed": false,
-  #    "msg": "Failed to connect to the host via ssh: Warning: Permanently added 'linux_ssh_keys_host' (ED25519)
-  #    to the list of known hosts.\r\nroot@linux_ssh_keys_host: Permission denied (publickey).",
-  #    "unreachable": true
-  #}
-#  ansible linux_hosts -i "${INVENTORY_PATH}" -m ping
-#  if [ $? -ne 0 ]; then
-#    echo "Linux hosts ping failed"
-#    FAILURE=1
-#  fi
+
+  ansible linux_hosts -i "${INVENTORY_PATH}" -m ping
+  if [ $? -ne 0 ]; then
+    echo "Linux hosts ping failed"
+    FAILURE=1
+  fi
 
   if [ "${COMPOSE_PROFILES}" != "test" ]; then
     echo "Checking connectivity to all Windows hosts..."
