@@ -6,6 +6,7 @@
 # Run pre-playbook checks for best practices and syntax
 
 ENVIRONMENT=${ENVIRONMENT:-"local"}
+COMPOSE_PROFILES=${COMPOSE_PROFILES:-"default"}
 INVENTORY_PATH="/ansible/inventory/${ENVIRONMENT}/hosts.yml"
 
 # Initialize a failure flag
@@ -20,11 +21,13 @@ check_connectivity() {
     FAILURE=1
   fi
 
-  echo "Checking connectivity to all Windows hosts..."
-  ansible windows_hosts -i "${INVENTORY_PATH}" -m win_ping
-  if [ $? -ne 0 ]; then
-    echo "Windows hosts ping failed"
-    FAILURE=1
+  if [ "${COMPOSE_PROFILES}" != "test" ]; then
+    echo "Checking connectivity to all Windows hosts..."
+    ansible windows_hosts -i "${INVENTORY_PATH}" -m win_ping
+    if [ $? -ne 0 ]; then
+      echo "Windows hosts ping failed"
+      FAILURE=1
+    fi
   fi
 }
 
