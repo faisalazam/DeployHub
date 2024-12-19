@@ -43,11 +43,11 @@ if [ "${RUN_TESTS}" = "true" ]; then
 fi
 
 # Run the Ansible playbooks
-if [ "${COMPOSE_PROFILES}" = "CI" ]; then
-  echo "CI profile detected. Running Windows playbook only."
+if [ "${COMPOSE_PROFILES}" = "test" ]; then
+  echo "'test' profile detected. Running Linux playbook only."
   ansible-playbook \
     -i /ansible/inventory/"${ENVIRONMENT}"/hosts.yml \
-    /ansible/playbooks/deploy_windows.yml \
+    /ansible/playbooks/deploy_linux.yml \
     -e ENVIRONMENT="${ENVIRONMENT}"
 else
   echo "Non-CI profile detected. Running both Linux and Windows playbooks."
