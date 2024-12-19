@@ -28,7 +28,7 @@ fi
 # Install custom certificate if needed
 if [ "${RUN_WITH_CERTIFICATE}" = "true" ]; then
   echo "Installing custom certificate..."
-  /usr/local/bin/install-cert.sh
+  /usr/local/bin/install_cert.sh
 else
   echo "Skipping certificate installation."
 fi
