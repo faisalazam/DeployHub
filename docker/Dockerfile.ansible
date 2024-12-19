@@ -21,7 +21,7 @@ RUN apt-get update && apt-get install -y \
 RUN python3 -m venv /opt/venv
 
 # Activate virtual environment and install Python dependencies
-RUN /opt/venv/bin/pip install --no-cache-dir pywinrm molecule[docker] ansible-lint testinfra pytest
+RUN /opt/venv/bin/pip install --no-cache-dir pywinrm molecule[docker] ansible-lint pytest-testinfra pytest
 
 # Reset DEBIAN_FRONTEND to its default
 ENV DEBIAN_FRONTEND=
