@@ -28,4 +28,12 @@ if [ "${RUN_TESTS}" = "true" ]; then
     echo "Connectivity test failed. Exiting..."
     exit 1
   fi
+
+  # Run ansible-lint to ensure playbooks meet best practices
+  echo "Running ansible-lint..."
+  ansible-lint /ansible/playbooks/*.yml
+  if [ $? -ne 0 ]; then
+    echo "ansible-lint failed. Exiting..."
+    exit 1
+  fi
 fi

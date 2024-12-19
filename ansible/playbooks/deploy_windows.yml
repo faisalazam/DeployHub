@@ -1,20 +1,28 @@
-- name: Test File Copy with WinRM
+---
+- name: Deploy to Windows host
   hosts: windows_hosts
 
   tasks:
-    - name: Debug FILE_TO_COPY, DESTINATION_PATH and dirname
-      debug:
-        msg:
-          - "FILE_TO_COPY: {{ FILE_TO_COPY }}"
-          - "DESTINATION_PATH: {{ DESTINATION_PATH }}"
-          - "Directory Path (win_dirname): {{ DESTINATION_PATH | win_dirname }}"
+    - name: Print available hosts
+      ansible.builtin.debug:
+        msg: "Available hosts: {{ ansible_play_hosts }}"
+
+    - name: Debug hosts
+      ansible.builtin.debug:
+        var: inventory_hostname
 
     - name: Ensure the destination directory exists
-      win_file:
-        path: "{{ DESTINATION_PATH | win_dirname}}"
+      ansible.windows.win_file:
+        path: "{{ DESTINATION_PATH | win_dirname }}"
         state: directory
+        mode: '0755'  # Adjust file permissions as needed
 
     - name: Copy a file to the remote Windows machine
-      win_copy:
+      ansible.windows.win_copy:
         src: "{{ FILE_TO_COPY }}"
         dest: "{{ DESTINATION_PATH }}"
+        mode: '0644'  # Adjust file permissions as needed
+
+    - name: Print a message
+      ansible.builtin.debug:
+        msg: "Hello, Windows Host!"

@@ -1,1 +1,7 @@
-# Placeholder for validate_env.yml
+---
+- name: Validate environment setup
+  hosts: localhost
+  tasks:
+    - name: A placeholder task to make the lint happy
+      ansible.builtin.debug:
+        msg: "This is a placeholder for environment validation tasks."
