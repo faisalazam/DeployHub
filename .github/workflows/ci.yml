@@ -8,6 +8,7 @@ on:
 env:
   DOCKER_VERSION: 5:27.3.1
   PAGES_FOLDER: github-pages
+  ANSIBLE_CONTAINER_NAME: ansible
   DOCKER_COMPOSE_VERSION: 2.29.2
   DOCKER_COMPOSE_FILE: docker-compose.yml
 
@@ -33,9 +34,7 @@ jobs:
             ${{ runner.os }}-docker-
 
       - name: Install Docker with specific version
-        run: |
-          chmod +x ./install_docker.sh
-          ./install_docker.sh
+        run: sh ./install_docker.sh
         working-directory: ./.github/workflows/scripts
 
       - name: Install Docker Compose with specific version
@@ -44,6 +43,58 @@ jobs:
             -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
           docker-compose --version
+
+      - name: Check if docker-compose is available before proceeding
+        run: which docker-compose || { echo "docker-compose is not installed or not in PATH"; exit 1; }
+
+      - name: Start and setup the container
+        id: docker-start
+        run: |
+          docker-compose up -d
+
+          # Check if any container is running
+          container_count=$(docker-compose ps -q | wc -l)
+          if [ "$container_count" -gt 0 ]; then
+            echo "docker_service_started=true" >> $GITHUB_ENV
+          else
+            echo "docker_service_started=false" >> $GITHUB_ENV
+          fi
+        working-directory: ./docker
+
+      - name: Setup environment
+        run: RUN_TESTS=true docker exec "${{ env.ANSIBLE_CONTAINER_NAME }}" sh /usr/local/bin/setup.sh
+
+      - name: Run tests
+        id: test-results # id is used later on to check whether tests passed or failed
+        run: |
+          docker exec "${{ env.ANSIBLE_CONTAINER_NAME }}" sh /usr/local/bin/run_tests.sh
+          if [ $? -eq 0 ]; then
+            echo "outcome=success" >> $GITHUB_OUTPUT
+          else
+            echo "outcome=failure" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Report Build Failure
+        if: ${{ always() && steps.test-results.outcome == 'skipped' }}
+        run: |
+          echo "### Workflow Summary" >> $GITHUB_STEP_SUMMARY
+          echo "❌ Pre-playbook tests were not executed because the build failed or the test step was skipped." >> $GITHUB_STEP_SUMMARY
+
+      - name: Execute playbooks
+        run: |
+          COMPOSE_PROFILES=test docker exec "${{ env.ANSIBLE_CONTAINER_NAME }}" sh /usr/local/bin/execute_playbooks.sh
+
+      - name: Collect Docker container logs
+        if: ${{ always() && env.docker_service_started == 'true' }}
+        run: |
+          docker logs "${{ env.ANSIBLE_CONTAINER_NAME }}"
+
+      - name: Clean up Docker containers and volumes
+        if: ${{ always() && env.docker_service_started == 'true' }}
+        run: |
+          [ -f "${{ env.DOCKER_COMPOSE_FILE }}" ] || { echo "Compose file not found!"; exit 1; }
+          docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} down --volumes --remove-orphans
+        working-directory: ./docker
 
   deploy-gh-pages:
     name: gh-pages-deployment
