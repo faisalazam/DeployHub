@@ -21,8 +21,5 @@ RUN sed -i \
 # Expose SSH port
 EXPOSE 22
 
-COPY docker/scripts/initialize_ssh_keys.sh /usr/local/bin/initialize_ssh_keys.sh
-
-RUN chmod +x /usr/local/bin/initialize_ssh_keys.sh
-
-CMD ["/usr/local/bin/initialize_ssh_keys.sh"]
+# Set a default command to show the SSH daemon status
+CMD ["sh", "-c", "sshd -v && tail -f /dev/null"]
