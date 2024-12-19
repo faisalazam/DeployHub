@@ -47,6 +47,14 @@ jobs:
       - name: Check if docker-compose is available before proceeding
         run: which docker-compose || { echo "docker-compose is not installed or not in PATH"; exit 1; }
 
+      - name: Verify paths
+        run: |
+          ls -l ../ansible
+          ls -l ../certs/${{ env.ENVIRONMENT }}/certificate.pem
+          ls -l ../.ssh_keys/${{ env.ENVIRONMENT }}/id_rsa
+          ls -l ./scripts/setup.sh
+        working-directory: ./docker
+
       - name: Start and setup the container
         id: docker-start
         run: |
