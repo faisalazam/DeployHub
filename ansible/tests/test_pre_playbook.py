@@ -34,6 +34,12 @@ def test_python_version():
     except subprocess.CalledProcessError as e:
         pytest.fail(f"Failed to check Python version: {e.output.decode()}")
 
+def test_pip_version():
+    expected_version = "24.3.1"
+    pip_version = subprocess.check_output(["/opt/venv/bin/pip", "--version"]).decode("utf-8")
+    installed_version = pip_version.split()[1]
+    assert installed_version == expected_version, f"Expected pip version {expected_version}, but got {installed_version}"
+
 # Test for checking pywinrm version
 def test_pywinrm_version():
     expected_version = "0.5.0"
