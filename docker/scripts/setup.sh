@@ -34,4 +34,5 @@ else
 fi
 
 # Install required Ansible Galaxy roles
-ansible-galaxy install -r requirements.yml
+ansible-galaxy install -r requirements.yml || { echo "Failed to install Ansible Galaxy roles"; exit 1; }
+

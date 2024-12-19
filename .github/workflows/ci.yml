@@ -50,7 +50,7 @@ jobs:
       - name: Start and setup the container
         id: docker-start
         run: |
-          docker-compose up -d
+          COMPOSE_PROFILES=test docker-compose up -d
 
           # Check if any container is running
           container_count=$(docker-compose ps -q | wc -l)
@@ -62,12 +62,13 @@ jobs:
         working-directory: ./docker
 
       - name: Setup environment
-        run: RUN_TESTS=true docker exec "${{ env.ANSIBLE_CONTAINER_NAME }}" sh /usr/local/bin/setup.sh
+        run: |
+          ENVIRONMENT=local RUN_WITH_CERTIFICATE=true docker exec "${{ env.ANSIBLE_CONTAINER_NAME }}" sh /usr/local/bin/setup.sh
 
       - name: Run tests
         id: test-results # id is used later on to check whether tests passed or failed
         run: |
-          docker exec "${{ env.ANSIBLE_CONTAINER_NAME }}" sh /usr/local/bin/run_tests.sh
+          ENVIRONMENT=local RUN_TESTS=true docker exec "${{ env.ANSIBLE_CONTAINER_NAME }}" sh /usr/local/bin/run_tests.sh
           if [ $? -eq 0 ]; then
             echo "outcome=success" >> $GITHUB_OUTPUT
           else
@@ -82,7 +83,7 @@ jobs:
 
       - name: Execute playbooks
         run: |
-          COMPOSE_PROFILES=test docker exec "${{ env.ANSIBLE_CONTAINER_NAME }}" sh /usr/local/bin/execute_playbooks.sh
+          COMPOSE_PROFILES=test ENVIRONMENT=local docker exec "${{ env.ANSIBLE_CONTAINER_NAME }}" sh /usr/local/bin/execute_playbooks.sh
 
       - name: Collect Docker container logs
         if: ${{ always() && env.docker_service_started == 'true' }}
