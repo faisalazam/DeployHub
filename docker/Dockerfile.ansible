@@ -54,7 +54,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=10s CMD ansible --versio
 # Set the default command to keep the container running
 CMD [ \
     "/bin/sh", "-c", \
-    "source /opt/venv/bin/activate && \
+    ". /opt/venv/bin/activate && \
     python3 --version && \
     pip show pywinrm && \
     pip show molecule && \
