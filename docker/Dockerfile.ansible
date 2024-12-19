@@ -12,18 +12,16 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     openssh-client \
     git \
-    tzdata && \
+    tzdata \
+    python3-venv && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Install the latest version of pywinrm
-RUN pip3 install --no-cache-dir pywinrm
+# Create a virtual environment for Python packages
+RUN python3 -m venv /opt/venv
 
-# Install Molecule and its dependencies
-RUN pip3 install --no-cache-dir molecule[docker] ansible-lint
-
-# Install Testinfra
-RUN pip3 install --no-cache-dir testinfra pytest
+# Activate virtual environment and install Python dependencies
+RUN /opt/venv/bin/pip install --no-cache-dir pywinrm molecule[docker] ansible-lint testinfra pytest
 
 # Reset DEBIAN_FRONTEND to its default
 ENV DEBIAN_FRONTEND=
@@ -43,9 +41,10 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=10s CMD ansible --versio
 # Set the default command to keep the container running
 CMD [ \
     "/bin/sh", "-c", \
-    "python3 --version && \
-    pip3 show pywinrm && \
-    pip3 show molecule && \
+    "source /opt/venv/bin/activate && \
+    python3 --version && \
+    pip show pywinrm && \
+    pip show molecule && \
     molecule --version && \
     pytest --version && \
     ansible --version && \

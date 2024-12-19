@@ -1,1 +1,2 @@
-# Placeholder for requirements.yml
+collections:
+  - name: ansible.windows

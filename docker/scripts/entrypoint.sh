@@ -1,8 +1,9 @@
 #!/bin/sh
 
+. /opt/venv/bin/activate
 python3 --version
-pip3 show pywinrm
-pip3 show molecule
+pip show pywinrm
+pip show molecule
 molecule --version
 pytest --version
 ansible --version
@@ -29,6 +30,8 @@ if [ "${RUN_WITH_CERTIFICATE}" = "true" ]; then
 else
   echo "RUN_WITH_CERTIFICATE is not set to true. Skipping certificate installation."
 fi
+
+ansible-galaxy install -r requirements.yml
 
 # Run the Ansible playbooks
 if [ "${COMPOSE_PROFILES}" = "CI" ]; then
