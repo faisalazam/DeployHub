@@ -22,12 +22,12 @@
         src: "{{ FILE_TO_COPY }}"
         dest: "{{ DESTINATION_PATH }}"
         mode: '0644'  # Adjust file permissions as needed
-
-    - name: Install curl
-      ansible.builtin.apt:
-        name: "curl"
-        state: present
-      become: true
+#
+#    - name: Install curl
+#      ansible.builtin.apt:
+#        name: "curl"
+#        state: present
+#      become: true
 
     - name: Print a message
       ansible.builtin.debug:
