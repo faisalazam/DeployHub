@@ -13,6 +13,9 @@ services:
       - ../ansible/ansible.cfg:/etc/ansible/ansible.cfg
       - ../certs/${ENVIRONMENT}/:/certs:ro
       - ../.ssh_keys/${ENVIRONMENT}:/root/.ssh
+      - ./scripts/setup.sh:/usr/local/bin/setup.sh
+      - ./scripts/run_tests.sh:/usr/local/bin/run_tests.sh
+      - ./scripts/execute_playbooks.sh:/usr/local/bin/execute_playbooks.sh
       - ./scripts/pre_playbook_checks.sh:/usr/local/bin/pre_playbook_checks.sh
     env_file:
       - .env
@@ -27,7 +30,6 @@ services:
       - ansible_network
     stdin_open: true
     tty: true
-    entrypoint: ["/usr/local/bin/entrypoint.sh"]
     depends_on:
       linux_ssh_pass_host:
         condition: service_healthy

@@ -47,10 +47,6 @@ ENV DEBIAN_FRONTEND=
 WORKDIR /ansible
 
 COPY docker/scripts/install-cert.sh /usr/local/bin/install-cert.sh
-COPY docker/scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
-
-# Make sure the scripts are executable
-RUN chmod +x /usr/local/bin/install-cert.sh /usr/local/bin/entrypoint.sh
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s CMD ansible --version || exit 1
