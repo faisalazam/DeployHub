@@ -47,14 +47,6 @@ jobs:
       - name: Check if docker-compose is available before proceeding
         run: which docker-compose || { echo "docker-compose is not installed or not in PATH"; exit 1; }
 
-      - name: Verify paths
-        run: |
-          ls -l ../ansible
-          ls -l ../certs/${{ env.ENVIRONMENT }}/certificate.pem
-          ls -l ../.ssh_keys/${{ env.ENVIRONMENT }}/id_rsa
-          ls -l ./scripts/setup.sh
-        working-directory: ./docker
-
       - name: Start and setup the container
         id: docker-start
         run: |
@@ -71,9 +63,11 @@ jobs:
 
       - name: Setup environment
         run: |
+          # As the certs directory is not committed to Git, so to set RUN_WITH_CERTIFICATE to true, 
+          # we first need to create a script to generate certs on linux machine, i.e. in ansible container.
           docker exec \
             -e ENVIRONMENT=local \
-            -e RUN_WITH_CERTIFICATE=true \
+            -e RUN_WITH_CERTIFICATE=false \
             "${{ env.ANSIBLE_CONTAINER_NAME }}" \
             sh /usr/local/bin/setup.sh
 

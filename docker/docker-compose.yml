@@ -23,6 +23,8 @@ services:
       - RUN_TESTS=${RUN_TESTS:-false}
       - ENVIRONMENT=${ENVIRONMENT:-local}
       - COMPOSE_PROFILES=${COMPOSE_PROFILES:-default}
+      # As the certs directory is not committed to Git, so to set RUN_WITH_CERTIFICATE to true,
+      # we first need to create a script to generate certs on linux machine, i.e. in ansible container.
       - RUN_WITH_CERTIFICATE=${RUN_WITH_CERTIFICATE}
     extra_hosts:
       - local_windows_vm:host-gateway # The host-gateway keyword resolves to the host's IP address on the bridge network.
