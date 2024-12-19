@@ -1,7 +1,6 @@
 - name: Deploy to Linux host
   hosts: linux_hosts
-  vars_files:
-    - "../inventory/{{ ENVIRONMENT }}/group_vars/linux.yml"
+
   tasks:
     - name: Print available hosts
       debug:
