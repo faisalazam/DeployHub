@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Activate the virtual environment to ensures that the ansible, ansible-lint, and pytest commands are available
+# Activate the virtual environment to ensures that the ansible commands are available
 . /opt/venv/bin/activate
 
 # Run pre-playbook checks for best practices and syntax
