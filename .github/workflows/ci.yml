@@ -16,8 +16,6 @@ jobs:
   build:
     runs-on: ubuntu-24.04
 
-    outputs:
-      test_outcome: ${{ steps.test-results.outputs.outcome }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -71,8 +69,8 @@ jobs:
             "${{ env.ANSIBLE_CONTAINER_NAME }}" \
             sh /usr/local/bin/setup.sh
 
-      - name: Run tests
-        id: test-results # id is used later on to check whether tests passed or failed
+      - name: Run Pre-Playbook tests
+        id: pre-playbook-test-results # id is used later on to check whether tests passed or failed
         run: |
           docker exec \
             -e RUN_TESTS=true \
@@ -85,8 +83,8 @@ jobs:
             echo "outcome=failure" >> $GITHUB_OUTPUT
           fi
 
-      - name: Report Build Failure
-        if: ${{ always() && steps.test-results.outcome == 'skipped' }}
+      - name: Report Pre-Playbook Build Failure
+        if: ${{ always() && steps.pre-playbook-test-results.outcome == 'skipped' }}
         run: |
           echo "### Workflow Summary" >> $GITHUB_STEP_SUMMARY
           echo "❌ Pre-playbook tests were not executed because the build failed or the test step was skipped." >> $GITHUB_STEP_SUMMARY
@@ -98,6 +96,26 @@ jobs:
             -e COMPOSE_PROFILES=test \
             "${{ env.ANSIBLE_CONTAINER_NAME }}" \
             sh /usr/local/bin/execute_playbooks.sh
+
+      - name: Run Post-Playbook tests
+        id: post-playbook-test-results # id is used later on to check whether tests passed or failed
+        run: |
+          docker exec \
+            -e RUN_TESTS=true \
+            -e ENVIRONMENT=local \
+            "${{ env.ANSIBLE_CONTAINER_NAME }}" \
+            sh /usr/local/bin/post_playbook_checks.sh
+          if [ $? -eq 0 ]; then
+            echo "outcome=success" >> $GITHUB_OUTPUT
+          else
+            echo "outcome=failure" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Report Post-Playbook Build Failure
+        if: ${{ always() && steps.post-playbook-test-results.outcome == 'skipped' }}
+        run: |
+          echo "### Workflow Summary" >> $GITHUB_STEP_SUMMARY
+          echo "❌ Post-playbook tests were not executed because the build failed or the test step was skipped." >> $GITHUB_STEP_SUMMARY
 
       - name: Collect Docker container logs
         if: ${{ always() && env.docker_service_started == 'true' }}
