@@ -17,6 +17,7 @@ services:
       - ./scripts/run_tests.sh:/usr/local/bin/run_tests.sh
       - ./scripts/execute_playbooks.sh:/usr/local/bin/execute_playbooks.sh
       - ./scripts/pre_playbook_checks.sh:/usr/local/bin/pre_playbook_checks.sh
+      - ./scripts/post_playbook_checks.sh:/usr/local/bin/post_playbook_checks.sh
     env_file:
       - .env
     environment:
