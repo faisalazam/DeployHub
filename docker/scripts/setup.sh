@@ -20,10 +20,16 @@ chmod 700 /root/.ssh
 chmod 600 /root/.ssh/id_rsa
 chown root:root /root/.ssh/id_rsa
 
-# Remove known_hosts entry
-if [ -f /root/.ssh/known_hosts ]; then
-  ssh-keygen -f /root/.ssh/known_hosts -R "linux_ssh_pass_host"
+# Path to known_hosts
+KNOWN_HOSTS_FILE="/root/.ssh/known_hosts"
+
+# Remove old entry for linux_ssh_pass_host
+if [ -f "$KNOWN_HOSTS_FILE" ]; then
+  ssh-keygen -f "$KNOWN_HOSTS_FILE" -R "linux_ssh_pass_host"
 fi
+
+# Add the current host key for linux_ssh_pass_host
+ssh-keyscan -H linux_ssh_pass_host >> "$KNOWN_HOSTS_FILE"
 
 # Install custom certificate if needed
 if [ "${RUN_WITH_CERTIFICATE}" = "true" ]; then
