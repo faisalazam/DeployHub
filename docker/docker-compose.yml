@@ -5,7 +5,7 @@ services:
     # docker build -f ./Dockerfile.ansible -t ansible-automation ..
     build:
       context: ..
-      dockerfile: docker/Dockerfile.ansible
+      dockerfile: docker/ansible_host/Dockerfile.ansible
     container_name: ansible
     image: ansible-automation:latest
     volumes:
@@ -42,7 +42,7 @@ services:
     # docker build -f ./Dockerfile.linuxSshPassHost -t linux_ssh_pass_host ..
     build:
       context: ..
-      dockerfile: docker/Dockerfile.linuxSshPassHost
+      dockerfile: docker/linux_ssh_pass_host/Dockerfile.linuxSshPassHost
     container_name: linux_ssh_pass_host
     image: linux_ssh_pass_host:latest
     tty: true
@@ -62,7 +62,7 @@ services:
     # docker build -f ./Dockerfile.linuxSshKeysHost -t linux_ssh_keys_host ..
     build:
       context: ..
-      dockerfile: docker/Dockerfile.linuxSshKeysHost
+      dockerfile: docker/linux_ssh_keys_host/Dockerfile.linuxSshKeysHost
     container_name: linux_ssh_keys_host
     image: linux_ssh_keys_host:latest
     volumes:
