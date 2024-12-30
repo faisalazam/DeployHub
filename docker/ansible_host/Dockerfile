@@ -1,5 +1,5 @@
 # Use official Ubuntu 24.04 as the base image
-# docker build -f ./Dockerfile -t ansible-automation ..
+# docker build -f ./Dockerfile -t ansible-automation ../..
 FROM ubuntu:24.04
 
 # Set environment variable to prevent interactive prompts
@@ -46,7 +46,7 @@ ENV DEBIAN_FRONTEND=
 # Set the working directory
 WORKDIR /ansible
 
-COPY docker/scripts/install_cert.sh /usr/local/bin/install_cert.sh
+COPY docker/ansible_host/scripts/install_cert.sh /usr/local/bin/install_cert.sh
 
 # Make sure the script are executable
 RUN chmod +x /usr/local/bin/install_cert.sh
