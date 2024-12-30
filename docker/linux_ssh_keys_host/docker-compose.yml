@@ -1,0 +1,27 @@
+services:
+  linux_ssh_keys_host:
+    # To rebuild the image, run either of the two:
+    # docker-compose up --build
+    # docker build -f ./Dockerfile.linuxSshKeysHost -t linux_ssh_keys_host .
+    build:
+      context: ../..
+      dockerfile: docker/linux_ssh_keys_host/Dockerfile.linuxSshKeysHost
+    container_name: linux_ssh_keys_host
+    image: linux_ssh_keys_host:latest
+    volumes:
+      - ../../.ssh_keys/${ENVIRONMENT}/id_rsa.pub:/root/.ssh/authorized_keys
+      - ./scripts/initialize_ssh_keys.sh:/usr/local/bin/initialize_ssh_keys.sh
+    command: [ "/bin/sh", "-c", "sh /usr/local/bin/initialize_ssh_keys.sh && /usr/sbin/sshd -D" ]
+    tty: true
+    stdin_open: true
+    networks:
+      - ansible_network
+    healthcheck:
+      test: [ "CMD", "sshd", "-t" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  ansible_network:
+    driver: bridge
