@@ -21,6 +21,7 @@ From the ansible service, verify the SSH connection manually using the private k
 `docker exec -it ansible ssh -i /root/.ssh/id_rsa root@linux_ssh_keys_host -o StrictHostKeyChecking=no`
 
 Generate keys:
+`ssh-keygen -t rsa -b 4096 -f ../.ssh_keys/ansible/id_rsa -N ""`
 `ssh-keygen -t rsa -b 4096 -f ../.ssh_keys/local/id_rsa -N ""`
 
 Why REQUESTS_CA_BUNDLE is Important
