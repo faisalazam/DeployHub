@@ -5,6 +5,9 @@ services:
       service: ansible
     env_file:
       - .env
+    network_mode: "" # Reset network_mode
+    networks:
+      - ansible_network
     depends_on:
       linux_ssh_pass_host:
         condition: service_healthy
