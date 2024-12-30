@@ -9,8 +9,8 @@ services:
     container_name: ansible
     image: ansible-automation:latest
     volumes:
-      - ../../ansible:/ansible:ro
-      - ../../ansible/ansible.cfg:/etc/ansible/ansible.cfg
+      - ../../ansible:/ansible
+      - ../../ansible/ansible.cfg:/etc/ansible/ansible.cfg:ro
       - ../../certs/${ENVIRONMENT}/:/certs:ro
       - ../../.ssh_keys/${ENVIRONMENT}:/root/.ssh
       - ./scripts:/usr/local/bin

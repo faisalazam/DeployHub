@@ -39,6 +39,15 @@ else
   echo "Skipping certificate installation."
 fi
 
+# Set correct ownership
+chown -R root:root /ansible
+
+# Set directories to 755 (read, write, execute for owner, read/execute for others)
+find /ansible -type d -exec chmod 755 {} \;
+
+# Set files to 644 (read, write for owner, read for others)
+find /ansible -type f -exec chmod 644 {} \;
+
 # Install required Ansible Galaxy roles
 ansible-galaxy install -r requirements.yml || { echo "Failed to install Ansible Galaxy roles"; exit 1; }
 
