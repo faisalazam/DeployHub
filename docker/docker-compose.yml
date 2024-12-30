@@ -59,10 +59,10 @@ services:
   linux_ssh_keys_host:
     # To rebuild the image, run either of the two:
     # docker-compose up --build
-    # docker build -f ./Dockerfile.linuxSshKeysHost -t linux_ssh_keys_host ..
+    # docker build -f ./Dockerfile -t linux_ssh_keys_host .
     build:
       context: ..
-      dockerfile: docker/linux_ssh_keys_host/Dockerfile.linuxSshKeysHost
+      dockerfile: docker/linux_ssh_keys_host/Dockerfile
     container_name: linux_ssh_keys_host
     image: linux_ssh_keys_host:latest
     volumes:
