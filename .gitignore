@@ -39,6 +39,7 @@ __pycache__/
 .vscode/
 *.sublime-workspace
 *.sublime-project
+/DeployHub.iml
 
 # Ignore system-specific files
 *.bak
