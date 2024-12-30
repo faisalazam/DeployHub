@@ -14,6 +14,16 @@ services:
       VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
     networks:
       - ansible_network
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "echo -e 'GET /v1/sys/health HTTP/1.1\\r\\nHost: localhost\\r\\n\\r\\n' | nc -w 5 127.0.0.1 8200 | grep '200 OK'"
+        ]
+      timeout: 5s
+      retries: 10
+      interval: 10s
+      start_period: 10s
 
 volumes:
   vault_file:
