@@ -1,5 +1,5 @@
 # Use Ubuntu 24.04 as the base image
-# docker build -f ./Dockerfile.linuxSshPassHost -t linux_ssh_pass_host .
+# docker build -f ./Dockerfile -t linux_ssh_pass_host .
 FROM ubuntu:24.04
 
 # Install SSH server and required dependencies
