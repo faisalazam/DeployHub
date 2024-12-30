@@ -1,34 +1,10 @@
 services:
   ansible:
-    # To rebuild the image, run either of the two:
-    # docker-compose up --build
-    # docker build -f ./Dockerfile -t ansible-automation ..
-    build:
-      context: ..
-      dockerfile: docker/ansible_host/Dockerfile
-    container_name: ansible
-    image: ansible-automation:latest
-    volumes:
-      - ../ansible:/ansible:ro
-      - ../ansible/ansible.cfg:/etc/ansible/ansible.cfg
-      - ../certs/${ENVIRONMENT}/:/certs:ro
-      - ../.ssh_keys/${ENVIRONMENT}:/root/.ssh
-      - ./scripts:/usr/local/bin
+    extends:
+      file: ./ansible_host/docker-compose.yml
+      service: ansible
     env_file:
       - .env
-    environment:
-      - RUN_TESTS=${RUN_TESTS:-false}
-      - ENVIRONMENT=${ENVIRONMENT:-local}
-      - COMPOSE_PROFILES=${COMPOSE_PROFILES:-default}
-      # As the certs directory is not committed to Git, so to set RUN_WITH_CERTIFICATE to true,
-      # we first need to create a script to generate certs on linux machine, i.e. in ansible container.
-      - RUN_WITH_CERTIFICATE=${RUN_WITH_CERTIFICATE}
-    extra_hosts:
-      - local_windows_vm:host-gateway # The host-gateway keyword resolves to the host's IP address on the bridge network.
-    networks:
-      - ansible_network
-    stdin_open: true
-    tty: true
     depends_on:
       linux_ssh_pass_host:
         condition: service_healthy
@@ -48,7 +24,6 @@ services:
       service: linux_ssh_keys_host
     profiles: ["default", "test"]
 
-# TODO: Remove networks from here after extending ansible service
 networks:
   ansible_network:
     driver: bridge
