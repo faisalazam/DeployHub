@@ -25,13 +25,15 @@ if [ "${RESET_HOSTS_FILE}" = "true" ]; then
   # Path to known_hosts
   KNOWN_HOSTS_FILE="/root/.ssh/known_hosts"
 
-  # Remove old entry for linux_ssh_pass_host
+  # Remove old entry for linux hosts
   if [ -f "$KNOWN_HOSTS_FILE" ]; then
     ssh-keygen -f "$KNOWN_HOSTS_FILE" -R "linux_ssh_pass_host"
+    ssh-keygen -f "$KNOWN_HOSTS_FILE" -R "linux_ssh_keys_host"
   fi
 
-  # Add the current host key for linux_ssh_pass_host
+  # Add the current host key for linux hosts
   ssh-keyscan -H linux_ssh_pass_host >> "$KNOWN_HOSTS_FILE"
+  ssh-keyscan -H linux_ssh_keys_host >> "$KNOWN_HOSTS_FILE"
 fi
 
 # Install custom certificate if needed
