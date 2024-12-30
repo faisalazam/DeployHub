@@ -14,6 +14,8 @@ services:
       - ../../certs/${ENVIRONMENT}/:/certs:ro
       - ../../.ssh_keys/${ENVIRONMENT}:/root/.ssh
       - ./scripts:/usr/local/bin
+    env_file:
+      - .env
     environment:
       - RUN_TESTS=${RUN_TESTS:-false}
       - ENVIRONMENT=${ENVIRONMENT:-local}
