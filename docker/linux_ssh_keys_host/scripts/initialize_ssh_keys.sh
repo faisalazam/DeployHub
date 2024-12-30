@@ -13,7 +13,7 @@ SSH_DIR="/root/.ssh"
 AUTHORIZED_KEYS="${SSH_DIR}/authorized_keys"
 SSHD_PATH="/usr/sbin/sshd"
 
-# Copy the public key to the authorized_keys file explicitly if you're not mounting it through docker-compose...
+# Copy the public key to the authorized_keys file explicitly if you're not mounting it through docker compose...
 #cp .ssh/id_rsa.pub /root/.ssh/authorized_keys
 
 echo "Setting up SSH directory and permissions..."

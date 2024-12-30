@@ -6,13 +6,13 @@ When CI profile is active, only the ansible service will run.
 How to Run:
 
 To start all services (e.g. local development):
-`docker-compose up`
+`docker compose up`
 
 To start all services (e.g. local development):
-`COMPOSE_PROFILES=default docker-compose up`
+`COMPOSE_PROFILES=default docker compose up`
 
 To start only the ansible service (e.g. CI):
-`COMPOSE_PROFILES=CI docker-compose -f docker-compose.yml -f docker-compose-ci.override.yml up`
+`COMPOSE_PROFILES=CI docker compose -f docker-compose.yml -f docker-compose-ci.override.yml up`
 
 This setup ensures flexibility for local development and CI pipelines without duplicating configuration.
 

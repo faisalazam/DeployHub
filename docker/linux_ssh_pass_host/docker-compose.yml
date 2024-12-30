@@ -1,7 +1,7 @@
 services:
   linux_ssh_pass_host:
     # To rebuild the image, run either of the two:
-    # docker-compose up --build
+    # docker compose up --build
     # docker build -f ./Dockerfile -t linux_ssh_pass_host .
     build:
       context: .

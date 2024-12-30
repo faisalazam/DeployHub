@@ -1,7 +1,7 @@
 services:
   ansible:
     # To rebuild the image, run either of the two:
-    # docker-compose up --build
+    # docker compose up --build
     # docker build -f ./Dockerfile -t ansible-automation ../..
     build:
       context: ../..
