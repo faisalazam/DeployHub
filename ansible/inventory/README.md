@@ -55,7 +55,7 @@ all:
   hosts:
     local_windows:
       ansible_port: 55986
-      # You can either use `local_windows_vm` by defining `extra_hosts` in docker-compose.yml,
+      # You can either use `local_windows_vm` by defining `extra_hosts` in docker compose.yml,
       # or use `host.docker.internal` to access host from within the container - Should work out of the box.
       ansible_host: local_windows_vm
       ansible_connection: winrm
