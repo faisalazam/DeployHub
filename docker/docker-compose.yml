@@ -5,6 +5,8 @@ services:
       service: ansible
     env_file:
       - .env
+    environment:
+      - RESET_HOSTS_FILE=true
     network_mode: "" # Reset network_mode
     networks:
       - ansible_network

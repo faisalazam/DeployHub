@@ -17,6 +17,7 @@ services:
     env_file:
       - .env
     environment:
+      - RESET_HOSTS_FILE=false
       - RUN_TESTS=${RUN_TESTS:-false}
       - ENVIRONMENT=${ENVIRONMENT:-local}
       - COMPOSE_PROFILES=${COMPOSE_PROFILES:-default}

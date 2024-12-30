@@ -13,6 +13,7 @@ ansible --version
 ansible-playbook --version
 
 echo "ENVIRONMENT=${ENVIRONMENT}"
+echo "RESET_HOSTS_FILE=${RESET_HOSTS_FILE}"
 echo "RUN_WITH_CERTIFICATE=${RUN_WITH_CERTIFICATE}"
 
 # Ensure proper permissions for SSH
@@ -20,16 +21,18 @@ chmod 700 /root/.ssh
 chmod 600 /root/.ssh/id_rsa
 chown root:root /root/.ssh/id_rsa
 
-# Path to known_hosts
-KNOWN_HOSTS_FILE="/root/.ssh/known_hosts"
+if [ "${RESET_HOSTS_FILE}" = "true" ]; then
+  # Path to known_hosts
+  KNOWN_HOSTS_FILE="/root/.ssh/known_hosts"
 
-# Remove old entry for linux_ssh_pass_host
-if [ -f "$KNOWN_HOSTS_FILE" ]; then
-  ssh-keygen -f "$KNOWN_HOSTS_FILE" -R "linux_ssh_pass_host"
+  # Remove old entry for linux_ssh_pass_host
+  if [ -f "$KNOWN_HOSTS_FILE" ]; then
+    ssh-keygen -f "$KNOWN_HOSTS_FILE" -R "linux_ssh_pass_host"
+  fi
+
+  # Add the current host key for linux_ssh_pass_host
+  ssh-keyscan -H linux_ssh_pass_host >> "$KNOWN_HOSTS_FILE"
 fi
-
-# Add the current host key for linux_ssh_pass_host
-ssh-keyscan -H linux_ssh_pass_host >> "$KNOWN_HOSTS_FILE"
 
 # Install custom certificate if needed
 if [ "${RUN_WITH_CERTIFICATE}" = "true" ]; then
