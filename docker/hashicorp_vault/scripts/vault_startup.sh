@@ -15,7 +15,7 @@ echo "Vault is ready."
 
 generate_and_store_keypair() {
   MACHINE_NAME=$1
-  KEYS_DIR="ssh_keys/${ENVIRONMENT}/${MACHINE_NAME}"
+  KEYS_DIR="secret/ssh_keys/${ENVIRONMENT}/${MACHINE_NAME}"
 
   # Check if keys already exist
   if ! vault kv get "${KEYS_DIR}" > /dev/null 2>&1; then
