@@ -18,9 +18,10 @@ services:
     volumes:
       - vault_file:/vault/file
       - vault_logs:/vault/logs
-      - ./scripts/vault_startup.sh:/vault_startup.sh
-    command: vault server -dev
-    entrypoint: /bin/sh -c "vault server -dev & /vault_startup.sh"
+      - ./scripts:/scripts
+      - ./config/vault_config.hcl:/vault/config/vault_config.hcl
+    command: vault server -dev -config=/vault/config/vault_config.hcl
+    entrypoint: /bin/sh -c "vault server -dev & /scripts/vault_startup.sh"
     networks:
       - ansible_network
     healthcheck:
