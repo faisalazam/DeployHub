@@ -15,6 +15,7 @@ services:
     volumes:
       - vault_file:/vault/file
       - vault_logs:/vault/logs
+    command: vault server -dev
     networks:
       - ansible_network
     healthcheck:
