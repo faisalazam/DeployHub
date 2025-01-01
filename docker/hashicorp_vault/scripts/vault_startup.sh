@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# Timeout settings
+RETRY_COUNT=0
+MAX_RETRIES=10
+RETRY_INTERVAL=1
+
 # Ensure ENVIRONMENT variable is set
 if [ -z "$ENVIRONMENT" ]; then
   echo "Error: ENVIRONMENT variable is not set. Please set it before running the script."
@@ -9,7 +14,15 @@ fi
 # Wait for Vault to be ready
 echo "Waiting for Vault to be ready..."
 until vault status > /dev/null 2>&1; do
-  sleep 2
+  # Check if we've exceeded the maximum number of retries
+  if [ $RETRY_COUNT -ge $MAX_RETRIES ]; then
+    echo "Vault readiness check timed out after $MAX_RETRIES retries."
+    exit 1
+  fi
+
+  echo "Vault is not ready yet, retrying..."
+  RETRY_COUNT=$((RETRY_COUNT + 1))
+  sleep $RETRY_INTERVAL
 done
 echo "Vault is ready."
 
