@@ -1,5 +1,11 @@
 #!/bin/sh
 
+# Start Vault server in the background
+echo "Starting Vault server..."
+# TODO: Run in normal mode instead of '-dev'
+vault server -dev -config=/vault/config/vault_config.hcl &
+VAULT_PID=$!  # Capture the process ID of the Vault server
+
 # Timeout settings
 RETRY_COUNT=0
 MAX_RETRIES=10
@@ -46,3 +52,6 @@ generate_and_store_keypair() {
 # Generate keys for Ansible and remote hosts
 generate_and_store_keypair "ansible"
 generate_and_store_keypair "linux_ssh_keys_host"
+
+# Bring the Vault server process to the foreground
+wait $VAULT_PID

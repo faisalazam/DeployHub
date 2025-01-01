@@ -16,10 +16,9 @@ services:
     volumes:
       - vault_file:/vault/file
       - vault_logs:/vault/logs
-      - ./scripts:/scripts
+      - ./scripts:/opt/vault
       - ./config/vault_config.hcl:/vault/config/vault_config.hcl
-    # TODO: Run in normal mode instead of '-dev'
-    command: /bin/sh -c "vault server -dev -config=/vault/config/vault_config.hcl & /scripts/vault_startup.sh"
+    entrypoint: [ "sh", "/opt/vault/vault_startup.sh" ]
     networks:
       - ansible_network
     healthcheck:
