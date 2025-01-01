@@ -32,26 +32,30 @@ until vault status > /dev/null 2>&1; do
 done
 echo "Vault is ready."
 
+SSH_KEYS_DIR="secret/ssh_keys"
+
 generate_and_store_keypair() {
   MACHINE_NAME=$1
-  KEYS_DIR="secret/ssh_keys/${ENVIRONMENT}/${MACHINE_NAME}"
+  KEYS_DIR=$2
 
   # Check if keys already exist
   if ! vault kv get "${KEYS_DIR}" > /dev/null 2>&1; then
-    echo "Generating keys for ${MACHINE_NAME} in environment ${ENVIRONMENT}..."
+    echo "Generating keys for ${MACHINE_NAME}..."
     ssh-keygen -t rsa -b 2048 -f "/tmp/${MACHINE_NAME}_id_rsa" -N ""
     vault kv put "${KEYS_DIR}" \
       id_rsa=@"/tmp/${MACHINE_NAME}_id_rsa" \
       id_rsa.pub=@"/tmp/${MACHINE_NAME}_id_rsa.pub"
     rm -f "/tmp/${MACHINE_NAME}_id_rsa" "/tmp/${MACHINE_NAME}_id_rsa.pub"
   else
-    echo "Keys for ${MACHINE_NAME} already exist in Vault for environment ${ENVIRONMENT}."
+    echo "Keys for ${MACHINE_NAME} already exist in Vault at ${KEYS_DIR}."
   fi
 }
 
-# Generate keys for Ansible and remote hosts
-generate_and_store_keypair "ansible"
-generate_and_store_keypair "linux_ssh_keys_host"
+# Generate keys for Ansible (environment-agnostic)
+generate_and_store_keypair "ansible" "${SSH_KEYS_DIR}/ansible"
+
+# Generate keys for remote hosts (environment-specific)
+generate_and_store_keypair "linux_ssh_keys_host" "${SSH_KEYS_DIR}/${ENVIRONMENT}/linux_ssh_keys_host"
 
 # Bring the Vault server process to the foreground
 wait $VAULT_PID
