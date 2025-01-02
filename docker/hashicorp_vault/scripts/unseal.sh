@@ -23,6 +23,7 @@ elif echo "$VAULT_STATUS" | grep -qE "Initialized\s+false"; then
     echo "Key 2: $UNSEAL_KEY_2"
     echo "Key 3: $UNSEAL_KEY_3"
     echo "Root Token: $ROOT_TOKEN"
+    echo "Non-root token:" # Placeholder for Non-root token
   } > "$KEYS_FILE"
   echo "Vault has been initialized."
 else
