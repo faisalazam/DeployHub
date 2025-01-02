@@ -4,6 +4,7 @@
 RETRY_COUNT=0
 MAX_RETRIES=10
 RETRY_INTERVAL=1
+KEYS_FILE="/opt/vault/keys/keys.txt"
 
 # Wait for Vault to be ready
 check_vault_status() {
@@ -21,4 +22,16 @@ check_vault_status() {
     RETRY_COUNT=$((RETRY_COUNT + 1))
     sleep $RETRY_INTERVAL
   done
+}
+
+login_with_token() {
+  LINE_NUMBER=$1
+  if [ -f "$KEYS_FILE" ]; then
+    LOGIN_TOKEN=$(sed -n "$LINE_NUMBER" "$KEYS_FILE" | awk '{print $NF}')
+    echo "Logging in with THE required token..."
+    vault login "$LOGIN_TOKEN"
+  else
+    echo "Login token file is missing, cannot login."
+    exit 1
+  fi
 }

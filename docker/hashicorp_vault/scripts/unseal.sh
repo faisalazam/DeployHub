@@ -1,6 +1,6 @@
 #!/bin/sh
 
-KEYS_FILE="/opt/vault/keys/keys.txt"
+. /opt/vault/common.sh
 
 # Check Vault initialization status
 VAULT_STATUS=$(vault status)
@@ -23,7 +23,7 @@ elif echo "$VAULT_STATUS" | grep -qE "Initialized\s+false"; then
     echo "Key 2: $UNSEAL_KEY_2"
     echo "Key 3: $UNSEAL_KEY_3"
     echo "Root Token: $ROOT_TOKEN"
-  } > $KEYS_FILE
+  } > "$KEYS_FILE"
   echo "Vault has been initialized."
 else
   echo "Vault initialization status is unknown!"
@@ -53,17 +53,9 @@ else
 fi
 
 # Login as root token
-if [ -f "$KEYS_FILE" ]; then
-  ROOT_TOKEN=$(sed -n '5p' "$KEYS_FILE" | awk '{print $NF}')
-  echo "Logging in with root token..."
-  vault login "$ROOT_TOKEN"
-else
-  echo "Root token file is missing, cannot login."
-  exit 1
-fi
+login_with_token '5p'
 
 # Wait for Vault to become ready
 echo "Waiting for Vault to become ready..."
-. /opt/vault/common.sh
 check_vault_status '"sealed":false'
 echo "Vault is unsealed and ready."
