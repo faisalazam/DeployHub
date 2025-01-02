@@ -41,7 +41,8 @@ until printf 'GET /v1/sys/health HTTP/1.1\r\nHost: localhost\r\n\r\n' \
 done
 echo "Vault is ready."
 
-SSH_KEYS_DIR="secret/ssh_keys"
+SECRETS_PATH="secret"
+SSH_KEYS_DIR="${SECRETS_PATH}/ssh_keys"
 
 generate_and_store_keypair() {
   MACHINE_NAME=$1
@@ -64,6 +65,20 @@ generate_and_store_keypair() {
     echo "Keys for ${MACHINE_NAME} already exist in Vault."
   fi
 }
+
+if [ "$SERVER_MODE" = "prod" ]; then
+  echo "Unsealing Vault..."
+  if ! sh /opt/vault/unseal.sh; then
+    echo "Error: Failed to unseal Vault. Exiting."
+    exit 1
+  fi
+
+  echo "Enabling Secrets Engine at path=${SECRETS_PATH}..."
+  if ! vault secrets enable -path="${SECRETS_PATH}" kv-v2; then
+    echo "Error: Failed to enable secrets engine at path=${SECRETS_PATH}. Exiting..."
+    exit 1
+  fi
+fi
 
 # Generate keys for Ansible (environment-agnostic)
 generate_and_store_keypair "ansible" "${SSH_KEYS_DIR}/ansible"
