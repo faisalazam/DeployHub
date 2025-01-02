@@ -64,9 +64,6 @@ fi
 
 # Wait for Vault to become ready
 echo "Waiting for Vault to become ready..."
-until vault status | grep -qE "Sealed\s+false"; do
-  echo "Vault is still sealed, retrying..."
-  sleep 5
-done
-
+. /opt/vault/common.sh
+check_vault_status '"sealed":false'
 echo "Vault is unsealed and ready."

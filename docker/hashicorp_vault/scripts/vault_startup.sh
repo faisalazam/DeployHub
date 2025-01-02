@@ -13,32 +13,15 @@ else
 fi
 VAULT_PID=$!  # Capture the process ID of the Vault server
 
-# Timeout settings
-RETRY_COUNT=0
-MAX_RETRIES=10
-RETRY_INTERVAL=1
-
 # Ensure ENVIRONMENT variable is set
 if [ -z "$ENVIRONMENT" ]; then
   echo "Error: ENVIRONMENT variable is not set. Please set it before running the script."
   exit 1
 fi
 
-# Wait for Vault to be ready
 echo "Waiting for Vault to be ready..."
-until printf 'GET /v1/sys/health HTTP/1.1\r\nHost: localhost\r\n\r\n' \
-              | nc -w 5 127.0.0.1 8200 \
-              | grep -E '200 OK|initialized' > /dev/null 2>&1; do
-  # Check if we've exceeded the maximum number of retries
-  if [ $RETRY_COUNT -ge $MAX_RETRIES ]; then
-    echo "Vault readiness check timed out after $MAX_RETRIES retries."
-    exit 1
-  fi
-
-  echo "Vault is not ready yet, retrying..."
-  RETRY_COUNT=$((RETRY_COUNT + 1))
-  sleep $RETRY_INTERVAL
-done
+. /opt/vault/common.sh
+check_vault_status "200 OK|initialized"
 echo "Vault is ready."
 
 SECRETS_PATH="secret"
