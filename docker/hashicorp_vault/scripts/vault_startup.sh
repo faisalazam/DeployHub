@@ -112,11 +112,17 @@ NON_ROOT_TOKEN=$(vault token create -policy="${SSH_KEY_POLICY_NAME}" \
                                     | grep '"client_token"' \
                                     | sed 's/.*"client_token": "\(.*\)",/\1/')
 
+if [ -z "$NON_ROOT_TOKEN" ]; then
+  echo "Error: Failed to create non-root token."
+  exit 1
+fi
+
 echo "Non-root token: $NON_ROOT_TOKEN"
 # Replace or write the non-root token on line 6 in the file for later use
-sed -i "6c\Non-root token: $NON_ROOT_TOKEN" "$KEYS_FILE"
-
-# Display message
+if ! sed -i "6c\Non-root token: $NON_ROOT_TOKEN" "$KEYS_FILE"; then
+  echo "Error: Failed to update $KEYS_FILE with the non-root token."
+  exit 1
+fi
 echo "Non-root token has been created and saved."
 
 # Login as non-root token
