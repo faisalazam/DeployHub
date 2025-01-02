@@ -1,7 +1,7 @@
 # Listener Configuration (for development mode)
 listener "tcp" {
-  tls_disable = 1
-  address = "127.0.0.1:8300"
+  tls_disable = 1                 # Disable TLS (use TLS in production)
+  address     = "127.0.0.1:${VAULT_EXTERNAL_PORT}"  # Binding Vault to only localhost network interface
 }
 
 # Enable the Raft storage backend

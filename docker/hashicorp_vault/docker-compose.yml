@@ -6,11 +6,12 @@ services:
     image: custom_vault:latest
     container_name: hashicorp_vault
     ports:
-      - "127.0.0.1:8300:8200" # Restrict port mapping to localhost
+      - "127.0.0.1:8200:8200" # Restrict port mapping to localhost
     cap_add:
-      - IPC_LOCK
+      - IPC_LOCK  # Allow Vault to lock memory for production-like setups
     environment:
       ENVIRONMENT: ${ENVIRONMENT}
+      SERVER_MODE: ${SERVER_MODE:-prod}
       VAULT_DEV_ROOT_TOKEN_ID: "root"
       VAULT_ADDR: "http://127.0.0.1:8200"
     volumes:

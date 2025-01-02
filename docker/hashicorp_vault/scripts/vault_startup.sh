@@ -2,8 +2,15 @@
 
 # Start Vault server in the background
 echo "Starting Vault server..."
-# TODO: Run in normal mode instead of '-dev'
-vault server -dev -config=/vault/config/vault_config.hcl &
+if [ "$SERVER_MODE" = "prod" ]; then
+  export VAULT_EXTERNAL_PORT=8200
+  sed "s|\${VAULT_EXTERNAL_PORT}|$VAULT_EXTERNAL_PORT|g" /vault/config/vault_config.hcl > /vault/config/vault_config_substituted.hcl
+  vault server -config=/vault/config/vault_config_substituted.hcl &
+else
+  export VAULT_EXTERNAL_PORT=8300
+  sed "s|\${VAULT_EXTERNAL_PORT}|$VAULT_EXTERNAL_PORT|g" /vault/config/vault_config.hcl > /vault/config/vault_config_substituted.hcl
+  vault server -dev -config=/vault/config/vault_config_substituted.hcl &
+fi
 VAULT_PID=$!  # Capture the process ID of the Vault server
 
 # Timeout settings
