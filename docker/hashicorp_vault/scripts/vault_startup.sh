@@ -19,7 +19,9 @@ fi
 
 # Wait for Vault to be ready
 echo "Waiting for Vault to be ready..."
-until vault status > /dev/null 2>&1; do
+until printf 'GET /v1/sys/health HTTP/1.1\r\nHost: localhost\r\n\r\n' \
+              | nc -w 5 127.0.0.1 8300 \
+              | grep '200 OK' > /dev/null 2>&1; do
   # Check if we've exceeded the maximum number of retries
   if [ $RETRY_COUNT -ge $MAX_RETRIES ]; then
     echo "Vault readiness check timed out after $MAX_RETRIES retries."
