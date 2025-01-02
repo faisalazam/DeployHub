@@ -73,6 +73,17 @@ if [ "$SERVER_MODE" = "prod" ]; then
     fi
     echo "Secrets engine at path=${SECRETS_PATH} has been enabled."
   fi
+else
+  # Ensure the file has 6 lines
+  touch "$KEYS_FILE"
+  while [ "$(wc -l < "$KEYS_FILE")" -lt 6 ]; do
+    echo "" >> "$KEYS_FILE"
+  done
+  # Replace or write the root token on line 5
+  sed -i "5c\Non-root token: $VAULT_DEV_ROOT_TOKEN_ID" "$KEYS_FILE"
+
+  # Login as root token
+  login_with_token '5p'
 fi
 
 echo "Applying Vault policy..."
