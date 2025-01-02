@@ -19,6 +19,7 @@ services:
       - vault_file:/vault/file
       - vault_logs:/vault/logs
       - ./scripts:/opt/vault
+      - ./policies:/vault/policies
       - ./unseal_keys:/opt/vault/keys
       - ./config/vault_config.hcl:/vault/config/vault_config.hcl
     entrypoint: [ "sh", "/opt/vault/vault_startup.sh" ]

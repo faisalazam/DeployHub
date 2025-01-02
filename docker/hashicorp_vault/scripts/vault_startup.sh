@@ -63,6 +63,16 @@ if [ "$SERVER_MODE" = "prod" ]; then
   fi
 fi
 
+echo "Applying Vault policy..."
+SSH_KEY_POLICY_NAME="ssh_key_policy"
+SSH_KEY_POLICY_PATH="/vault/policies/ssh_key_policy.hcl"
+if ! vault policy write ${SSH_KEY_POLICY_NAME} ${SSH_KEY_POLICY_PATH}; then
+  echo "Error: Failed to apply Vault policy. Exiting..."
+  exit 1
+else
+  vault policy read ${SSH_KEY_POLICY_NAME}
+fi
+
 # Generate keys for Ansible (environment-agnostic)
 generate_and_store_keypair "ansible" "${SSH_KEYS_DIR}/ansible"
 
