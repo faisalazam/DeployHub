@@ -2,13 +2,25 @@
 
 . /opt/vault/common.sh
 
+# Constants
+KEY_SHARES=3
+KEY_THRESHOLD=2
+# Allow overriding KEYS_FILE via an environment variable
+: "${KEYS_FILE:=/opt/vault/keys/keys.txt}"
+
+# Check if 'vault' command is available
+if ! command -v vault > /dev/null 2>&1; then
+  log "Error: 'vault' command not found. Please ensure Vault CLI is installed."
+  exit 1
+fi
+
 # Check Vault initialization status
-VAULT_STATUS=$(vault status)
+VAULT_STATUS=$(vault status 2>&1)
 if echo "$VAULT_STATUS" | grep -qE "Initialized\s+true"; then
-  echo "Vault is already initialized!"
+  log "Vault is already initialized."
 elif echo "$VAULT_STATUS" | grep -qE "Initialized\s+false"; then
-  echo "Initializing Vault..."
-  INIT_OUTPUT=$(vault operator init -key-shares=3 -key-threshold=2)
+  log "Initializing Vault..."
+  INIT_OUTPUT=$(vault operator init -key-shares="$KEY_SHARES" -key-threshold="$KEY_THRESHOLD" 2>&1)
 
   # Extract unseal keys and root token from the initialization output
   UNSEAL_KEY_1=$(echo "$INIT_OUTPUT" | grep 'Unseal Key 1' | awk '{print $NF}')
@@ -16,7 +28,7 @@ elif echo "$VAULT_STATUS" | grep -qE "Initialized\s+false"; then
   UNSEAL_KEY_3=$(echo "$INIT_OUTPUT" | grep 'Unseal Key 3' | awk '{print $NF}')
   ROOT_TOKEN=$(echo "$INIT_OUTPUT" | grep 'Initial Root Token' | awk '{print $NF}')
 
-  # Save the unseal keys and root token to a file for backup
+  # Save unseal keys and root token to the keys file (sensitive data stored securely)
   {
     echo "Unseal Keys:"
     echo "Key 1: $UNSEAL_KEY_1"
@@ -25,15 +37,15 @@ elif echo "$VAULT_STATUS" | grep -qE "Initialized\s+false"; then
     echo "Root Token: $ROOT_TOKEN"
     echo "Non-root token:" # Placeholder for Non-root token
   } > "$KEYS_FILE"
-  echo "Vault has been initialized."
+  log "Vault has been initialized. Keys saved to $KEYS_FILE."
 else
-  echo "Vault initialization status is unknown!"
+  log "Vault initialization status is unknown!"
   exit 1
 fi
 
-# Unseal Vault (only if it's not already unsealed)
+# Unseal Vault if sealed
 if echo "$VAULT_STATUS" | grep -qE "Sealed\s+true"; then
-  echo "Unsealing Vault..."
+  log "Unsealing Vault..."
 
   # Read unseal keys from file
   if [ -f "$KEYS_FILE" ]; then
@@ -45,15 +57,16 @@ if echo "$VAULT_STATUS" | grep -qE "Sealed\s+true"; then
     vault operator unseal "$UNSEAL_KEY_1"
     vault operator unseal "$UNSEAL_KEY_2"
     vault operator unseal "$UNSEAL_KEY_3"
+    log "Vault has been unsealed."
   else
-    echo "Unseal keys file is missing, cannot unseal Vault."
+    log "Error: Unseal keys file not found. Cannot unseal Vault."
     exit 1
   fi
 else
-  echo "Vault is already unsealed."
+  log "Vault is already unsealed."
 fi
 
-# Wait for Vault to become ready
-echo "Waiting for Vault to become ready..."
+# Wait for Vault readiness
+log "Waiting for Vault to become ready..."
 check_vault_status '"sealed":false'
-echo "Vault is unsealed and ready."
+log "Vault is unsealed and ready."
