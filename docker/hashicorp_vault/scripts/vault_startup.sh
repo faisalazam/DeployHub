@@ -1,5 +1,7 @@
 #!/bin/sh
 
+. /opt/vault/common.sh
+
 # Start Vault server in the background
 echo "Starting Vault server..."
 if [ "$SERVER_MODE" = "prod" ]; then
@@ -20,7 +22,6 @@ if [ -z "$ENVIRONMENT" ]; then
 fi
 
 echo "Waiting for Vault to be ready..."
-. /opt/vault/common.sh
 check_vault_status "200 OK|initialized"
 echo "Vault is ready."
 
@@ -66,12 +67,22 @@ fi
 echo "Applying Vault policy..."
 SSH_KEY_POLICY_NAME="ssh_key_policy"
 SSH_KEY_POLICY_PATH="/vault/policies/ssh_key_policy.hcl"
-if ! vault policy write ${SSH_KEY_POLICY_NAME} ${SSH_KEY_POLICY_PATH}; then
-  echo "Error: Failed to apply Vault policy. Exiting..."
-  exit 1
+
+# Check if the policy already exists
+if vault policy read ${SSH_KEY_POLICY_NAME} > /dev/null 2>&1; then
+  echo "Vault policy '${SSH_KEY_POLICY_NAME}' already exists. Skipping policy application..."
 else
-  vault policy read ${SSH_KEY_POLICY_NAME}
+  # Apply the policy if it doesn't exist
+  if ! vault policy write ${SSH_KEY_POLICY_NAME} ${SSH_KEY_POLICY_PATH}; then
+    echo "Error: Failed to apply Vault policy. Exiting..."
+    exit 1
+  else
+    echo "Vault policy '${SSH_KEY_POLICY_NAME}' applied successfully."
+  fi
 fi
+
+# Read and display the policy
+vault policy read ${SSH_KEY_POLICY_NAME}
 
 # Generate keys for Ansible (environment-agnostic)
 generate_and_store_keypair "ansible" "${SSH_KEYS_DIR}/ansible"
