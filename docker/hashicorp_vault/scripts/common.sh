@@ -28,8 +28,17 @@ login_with_token() {
   LINE_NUMBER=$1
   if [ -f "$KEYS_FILE" ]; then
     LOGIN_TOKEN=$(sed -n "$LINE_NUMBER" "$KEYS_FILE" | awk '{print $NF}')
-    echo "Logging in with THE required token..."
-    vault login "$LOGIN_TOKEN"
+    if [ -z "$LOGIN_TOKEN" ]; then
+      echo "Error: The token is empty. Exiting..."
+      exit 1
+    fi
+
+    echo "Logging in with the required token..."
+    if ! vault login "$LOGIN_TOKEN" > /dev/null 2>&1; then
+      echo "Error: Failed to log in with the token. Exiting..."
+      exit 1
+    fi
+    echo "Successfully logged in with the token."
   else
     echo "Login token file is missing, cannot login."
     exit 1
