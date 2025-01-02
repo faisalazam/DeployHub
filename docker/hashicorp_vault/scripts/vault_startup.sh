@@ -65,10 +65,7 @@ generate_and_store_keypair() {
 
 if [ "$SERVER_MODE" = "prod" ]; then
   log "Unsealing Vault..."
-  if ! sh /opt/vault/unseal.sh; then
-    log "Error: Failed to unseal Vault. Exiting."
-    exit 1
-  fi
+  sh /opt/vault/unseal.sh
 
   log "Logging in as root token..."
   login_with_token "${ROOT_TOKEN_LINE}p"

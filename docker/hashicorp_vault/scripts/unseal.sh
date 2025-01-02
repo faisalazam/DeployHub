@@ -22,18 +22,16 @@ elif echo "$VAULT_STATUS" | grep -qE "Initialized\s+false"; then
   log "Initializing Vault..."
   INIT_OUTPUT=$(vault operator init -key-shares="$KEY_SHARES" -key-threshold="$KEY_THRESHOLD" 2>&1)
 
-  # Extract unseal keys and root token from the initialization output
-  UNSEAL_KEY_1=$(echo "$INIT_OUTPUT" | grep 'Unseal Key 1' | awk '{print $NF}')
-  UNSEAL_KEY_2=$(echo "$INIT_OUTPUT" | grep 'Unseal Key 2' | awk '{print $NF}')
-  UNSEAL_KEY_3=$(echo "$INIT_OUTPUT" | grep 'Unseal Key 3' | awk '{print $NF}')
+  # Extract unseal keys from lines 2, 3, ..., KEY_SHARES+1
+  UNSEAL_KEYS=$(echo "$INIT_OUTPUT" | grep 'Unseal Key' | awk '{print $NF}' | head -n "$KEY_SHARES")
+
+  # Extract root token
   ROOT_TOKEN=$(echo "$INIT_OUTPUT" | grep 'Initial Root Token' | awk '{print $NF}')
 
   # Save unseal keys and root token to the keys file (sensitive data stored securely)
   {
     echo "Unseal Keys:"
-    echo "Key 1: $UNSEAL_KEY_1"
-    echo "Key 2: $UNSEAL_KEY_2"
-    echo "Key 3: $UNSEAL_KEY_3"
+    echo "$UNSEAL_KEYS" | nl -w2 -s": "
     echo "Root Token: $ROOT_TOKEN"
     echo "Non-root token:" # Placeholder for Non-root token
   } > "$KEYS_FILE"
@@ -49,14 +47,14 @@ if echo "$VAULT_STATUS" | grep -qE "Sealed\s+true"; then
 
   # Read unseal keys from file
   if [ -f "$KEYS_FILE" ]; then
-    UNSEAL_KEY_1=$(sed -n '2p' "$KEYS_FILE" | awk '{print $NF}')
-    UNSEAL_KEY_2=$(sed -n '3p' "$KEYS_FILE" | awk '{print $NF}')
-    UNSEAL_KEY_3=$(sed -n '4p' "$KEYS_FILE" | awk '{print $NF}')
-
-    # Unseal with keys
-    vault operator unseal "$UNSEAL_KEY_1"
-    vault operator unseal "$UNSEAL_KEY_2"
-    vault operator unseal "$UNSEAL_KEY_3"
+    # Unseal Vault with keys (only the first $KEY_SHARES unseal keys, excluding the root token)
+    UNSEAL_KEYS=$(awk 'NR>1 {print $NF}' "$KEYS_FILE" | head -n "$KEY_SHARES")
+    for KEY in $UNSEAL_KEYS; do
+      if ! vault operator unseal "$KEY" > /dev/null 2>&1; then
+        log "Error: Failed to unseal Vault with key: $KEY"
+        exit 1
+      fi
+    done
     log "Vault has been unsealed."
   else
     log "Error: Unseal keys file not found. Cannot unseal Vault."
