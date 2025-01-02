@@ -2,9 +2,11 @@
 
 KEYS_FILE="/opt/vault/keys/keys.txt"
 
-if vault status | grep -qE "Initialized\s+true"; then
+# Check Vault initialization status
+VAULT_STATUS=$(vault status)
+if echo "$VAULT_STATUS" | grep -qE "Initialized\s+true"; then
   echo "Vault is already initialized!"
-elif vault status | grep -qE "Initialized\s+false"; then
+elif echo "$VAULT_STATUS" | grep -qE "Initialized\s+false"; then
   echo "Initializing Vault..."
   INIT_OUTPUT=$(vault operator init -key-shares=3 -key-threshold=2)
 
@@ -22,27 +24,43 @@ elif vault status | grep -qE "Initialized\s+false"; then
     echo "Key 3: $UNSEAL_KEY_3"
     echo "Root Token: $ROOT_TOKEN"
   } > $KEYS_FILE
+  echo "Vault has been initialized."
 else
   echo "Vault initialization status is unknown!"
+  exit 1
 fi
 
 # Unseal Vault (only if it's not already unsealed)
-if vault status | grep -qE "Sealed\s+true"; then
+if echo "$VAULT_STATUS" | grep -qE "Sealed\s+true"; then
   echo "Unsealing Vault..."
-  UNSEAL_KEY_1=$(sed -n '2p' "$KEYS_FILE" | awk '{print $NF}')
-  UNSEAL_KEY_2=$(sed -n '3p' "$KEYS_FILE" | awk '{print $NF}')
-  UNSEAL_KEY_3=$(sed -n '4p' "$KEYS_FILE" | awk '{print $NF}')
 
-  vault operator unseal "$UNSEAL_KEY_1"
-  vault operator unseal "$UNSEAL_KEY_2"
-  vault operator unseal "$UNSEAL_KEY_3"
+  # Read unseal keys from file
+  if [ -f "$KEYS_FILE" ]; then
+    UNSEAL_KEY_1=$(sed -n '2p' "$KEYS_FILE" | awk '{print $NF}')
+    UNSEAL_KEY_2=$(sed -n '3p' "$KEYS_FILE" | awk '{print $NF}')
+    UNSEAL_KEY_3=$(sed -n '4p' "$KEYS_FILE" | awk '{print $NF}')
+
+    # Unseal with keys
+    vault operator unseal "$UNSEAL_KEY_1"
+    vault operator unseal "$UNSEAL_KEY_2"
+    vault operator unseal "$UNSEAL_KEY_3"
+  else
+    echo "Unseal keys file is missing, cannot unseal Vault."
+    exit 1
+  fi
 else
   echo "Vault is already unsealed."
 fi
 
-echo "Logging in as root"
-ROOT_TOKEN=$(sed -n '5p' "$KEYS_FILE" | awk '{print $NF}')
-vault login "$ROOT_TOKEN"
+# Login as root token
+if [ -f "$KEYS_FILE" ]; then
+  ROOT_TOKEN=$(sed -n '5p' "$KEYS_FILE" | awk '{print $NF}')
+  echo "Logging in with root token..."
+  vault login "$ROOT_TOKEN"
+else
+  echo "Root token file is missing, cannot login."
+  exit 1
+fi
 
 # Wait for Vault to become ready
 echo "Waiting for Vault to become ready..."
