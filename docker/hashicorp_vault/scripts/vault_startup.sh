@@ -47,14 +47,14 @@ generate_and_store_keypair() {
     if vault kv put "${KEYS_DIR}" \
       id_rsa=@"/tmp/${MACHINE_NAME}_id_rsa" \
       id_rsa.pub=@"/tmp/${MACHINE_NAME}_id_rsa.pub"; then
-      echo "SSH keys for ${MACHINE_NAME} have been stored in Vault at ${KEYS_DIR}!"
+      echo "SSH keys for ${MACHINE_NAME} have been stored in Vault!"
       rm -f "/tmp/${MACHINE_NAME}_id_rsa" "/tmp/${MACHINE_NAME}_id_rsa.pub"
     else
-      echo "Failed to store SSH keys for ${MACHINE_NAME} at ${KEYS_DIR}."
+      echo "Failed to store SSH keys for ${MACHINE_NAME}."
       rm -f "/tmp/${MACHINE_NAME}_id_rsa" "/tmp/${MACHINE_NAME}_id_rsa.pub"
     fi
   else
-    echo "Keys for ${MACHINE_NAME} already exist in Vault at ${KEYS_DIR}."
+    echo "Keys for ${MACHINE_NAME} already exist in Vault."
   fi
 }
 
