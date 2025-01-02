@@ -10,11 +10,11 @@ storage "raft" {
   node_id = "raft_node_1"    # Unique node ID for this instance
 }
 
-# Cluster communication address
+# Cluster communication address (use 8201 for internal cluster communication)
 cluster_addr = "http://127.0.0.1:8201" # Cluster address for Raft communication
 
 # API Address Configuration
-api_addr = "http://127.0.0.1:8300"
+api_addr = "http://127.0.0.1:8200"  # Internal Vault API address
 
 # Disable Mlock for development
 disable_mlock = true
