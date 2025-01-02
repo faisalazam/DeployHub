@@ -52,9 +52,6 @@ else
   echo "Vault is already unsealed."
 fi
 
-# Login as root token
-login_with_token '5p'
-
 # Wait for Vault to become ready
 echo "Waiting for Vault to become ready..."
 check_vault_status '"sealed":false'

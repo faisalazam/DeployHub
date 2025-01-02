@@ -58,6 +58,9 @@ if [ "$SERVER_MODE" = "prod" ]; then
     exit 1
   fi
 
+  # Login as root token
+  login_with_token '5p'
+
   echo "Enabling Secrets Engine at path=${SECRETS_PATH}..."
   # Check if the secrets engine is already enabled at the specified path
   if vault secrets list | grep -q "${SECRETS_PATH}"; then
