@@ -6,6 +6,10 @@ MAX_RETRIES=10
 RETRY_INTERVAL=1
 KEYS_FILE="/opt/vault/keys/keys.txt"
 
+log() {
+  echo "$(date '+%Y-%m-%d %H:%M:%S') $1"
+}
+
 # Wait for Vault to be ready
 check_vault_status() {
   STATUS_TEXT=$1

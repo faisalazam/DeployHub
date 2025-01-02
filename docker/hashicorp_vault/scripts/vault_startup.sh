@@ -1,9 +1,27 @@
 #!/bin/sh
 
+# Set constants
+ROOT_TOKEN_LINE=5
+NON_ROOT_TOKEN_LINE=6
+TOTAL_LINES_IN_FILE=6
+SECRETS_PATH="secret"
+SSH_KEY_POLICY_NAME="ssh_key_policy"
+SSH_KEYS_DIR="${SECRETS_PATH}/ssh_keys"
+SSH_KEY_POLICY_PATH="/vault/policies/ssh_key_policy.hcl"
+
 . /opt/vault/common.sh
 
+terminate_vault() {
+  log "Terminating Vault server..."
+  kill $VAULT_PID
+  wait $VAULT_PID 2>/dev/null
+  log "Vault server terminated."
+}
+
+trap terminate_vault INT TERM EXIT
+
 # Start Vault server in the background
-echo "Starting Vault server..."
+log "Starting Vault server..."
 if [ "$SERVER_MODE" = "prod" ]; then
   export VAULT_EXTERNAL_PORT=8200
   sed "s|\${VAULT_EXTERNAL_PORT}|$VAULT_EXTERNAL_PORT|g" /vault/config/vault_config.hcl > /vault/config/vault_config_substituted.hcl
@@ -15,124 +33,105 @@ else
 fi
 VAULT_PID=$!  # Capture the process ID of the Vault server
 
-# Ensure ENVIRONMENT variable is set
 if [ -z "$ENVIRONMENT" ]; then
-  echo "Error: ENVIRONMENT variable is not set. Please set it before running the script."
+  log "Error: ENVIRONMENT variable is not set. Please set it before running the script."
   exit 1
 fi
 
-echo "Waiting for Vault to be ready..."
+log "Waiting for Vault to be ready..."
 check_vault_status "200 OK|initialized"
-echo "Vault is ready."
-
-SECRETS_PATH="secret"
-SSH_KEYS_DIR="${SECRETS_PATH}/ssh_keys"
+log "Vault is ready."
 
 generate_and_store_keypair() {
   MACHINE_NAME=$1
   KEYS_DIR=$2
-
-  # Check if keys already exist
   if ! vault kv get "${KEYS_DIR}" > /dev/null 2>&1; then
-    echo "Generating keys for ${MACHINE_NAME}..."
+    log "Generating keys for ${MACHINE_NAME}..."
     ssh-keygen -t rsa -b 2048 -f "/tmp/${MACHINE_NAME}_id_rsa" -N ""
     if vault kv put "${KEYS_DIR}" \
       id_rsa=@"/tmp/${MACHINE_NAME}_id_rsa" \
       id_rsa.pub=@"/tmp/${MACHINE_NAME}_id_rsa.pub"; then
-      echo "SSH keys for ${MACHINE_NAME} have been stored in Vault!"
+      log "SSH keys for ${MACHINE_NAME} have been stored in Vault!"
       rm -f "/tmp/${MACHINE_NAME}_id_rsa" "/tmp/${MACHINE_NAME}_id_rsa.pub"
     else
-      echo "Failed to store SSH keys for ${MACHINE_NAME}."
+      log "Failed to store SSH keys for ${MACHINE_NAME}."
       rm -f "/tmp/${MACHINE_NAME}_id_rsa" "/tmp/${MACHINE_NAME}_id_rsa.pub"
       exit 1
     fi
   else
-    echo "Keys for ${MACHINE_NAME} already exist in Vault."
+    log "Keys for ${MACHINE_NAME} already exist in Vault."
   fi
 }
 
 if [ "$SERVER_MODE" = "prod" ]; then
-  echo "Unsealing Vault..."
+  log "Unsealing Vault..."
   if ! sh /opt/vault/unseal.sh; then
-    echo "Error: Failed to unseal Vault. Exiting."
+    log "Error: Failed to unseal Vault. Exiting."
     exit 1
   fi
 
-  # Login as root token
-  login_with_token '5p'
+  log "Logging in as root token..."
+  login_with_token "${ROOT_TOKEN_LINE}p"
 
-  echo "Enabling Secrets Engine at path=${SECRETS_PATH}..."
-  # Check if the secrets engine is already enabled at the specified path
+  log "Enabling Secrets Engine at path=${SECRETS_PATH}..."
   if vault read "sys/mounts/${SECRETS_PATH}" > /dev/null 2>&1; then
-    echo "Secrets engine at path=${SECRETS_PATH} is already enabled. Skipping..."
+    log "Secrets engine at path=${SECRETS_PATH} is already enabled. Skipping..."
   else
-    # Enable the secrets engine if it is not already enabled
     if ! vault secrets enable -path="${SECRETS_PATH}" kv-v2; then
-      echo "Error: Failed to enable secrets engine at path=${SECRETS_PATH}. Exiting..."
+      log "Error: Failed to enable secrets engine at path=${SECRETS_PATH}. Exiting..."
       exit 1
     fi
-    echo "Secrets engine at path=${SECRETS_PATH} has been enabled."
+    log "Secrets engine at path=${SECRETS_PATH} has been enabled."
   fi
 else
-  # Ensure the file has 6 lines
   touch "$KEYS_FILE"
-  while [ "$(wc -l < "$KEYS_FILE")" -lt 6 ]; do
+  while [ "$(wc -l < "$KEYS_FILE")" -lt $TOTAL_LINES_IN_FILE ]; do
     echo "" >> "$KEYS_FILE"
   done
-  # Replace or write the root token on line 5
-  sed -i "5c\Non-root token: $VAULT_DEV_ROOT_TOKEN_ID" "$KEYS_FILE"
+  sed -i "${ROOT_TOKEN_LINE}c\Non-root token: $VAULT_DEV_ROOT_TOKEN_ID" "$KEYS_FILE"
 
-  # Login as root token
-  login_with_token '5p'
+  log "Logging in as root token..."
+  login_with_token "${ROOT_TOKEN_LINE}p"
 fi
 
-echo "Applying Vault policy..."
-SSH_KEY_POLICY_NAME="ssh_key_policy"
-SSH_KEY_POLICY_PATH="/vault/policies/ssh_key_policy.hcl"
-
-# Check if the policy already exists
+log "Applying Vault policy..."
 if vault policy read ${SSH_KEY_POLICY_NAME} > /dev/null 2>&1; then
-  echo "Vault policy '${SSH_KEY_POLICY_NAME}' already exists. Skipping policy application..."
+  log "Vault policy '${SSH_KEY_POLICY_NAME}' already exists. Skipping policy application..."
 else
-  # Apply the policy if it doesn't exist
   if ! vault policy write ${SSH_KEY_POLICY_NAME} ${SSH_KEY_POLICY_PATH}; then
-    echo "Error: Failed to apply Vault policy. Exiting..."
+    log "Error: Failed to apply Vault policy. Exiting..."
     exit 1
   else
-    echo "Vault policy '${SSH_KEY_POLICY_NAME}' applied successfully."
+    log "Vault policy '${SSH_KEY_POLICY_NAME}' applied successfully."
   fi
 fi
 
-# Read and display the policy
 vault policy read ${SSH_KEY_POLICY_NAME}
 
-echo "Creating non-root token with ${SSH_KEY_POLICY_NAME} policy..."
+log "Creating non-root token with ${SSH_KEY_POLICY_NAME} policy..."
 NON_ROOT_TOKEN=$(vault token create -policy="${SSH_KEY_POLICY_NAME}" \
                                     -format=json \
                                     | grep '"client_token"' \
                                     | sed 's/.*"client_token": "\(.*\)",/\1/')
 
 if [ -z "$NON_ROOT_TOKEN" ]; then
-  echo "Error: Failed to create non-root token."
+  log "Error: Failed to create non-root token."
   exit 1
 fi
 
-echo "Non-root token: $NON_ROOT_TOKEN"
-# Replace or write the non-root token on line 6 in the file for later use
-if ! sed -i "6c\Non-root token: $NON_ROOT_TOKEN" "$KEYS_FILE"; then
-  echo "Error: Failed to update $KEYS_FILE with the non-root token."
+MASKED_NON_ROOT_TOKEN=$(echo "$NON_ROOT_TOKEN" | sed 's/^\(....\).*/\1****/')
+log "Non-root token created: $MASKED_NON_ROOT_TOKEN"
+
+if ! sed -i "${NON_ROOT_TOKEN_LINE}c\Non-root token: $NON_ROOT_TOKEN" "$KEYS_FILE"; then
+  log "Error: Failed to update $KEYS_FILE with the non-root token."
   exit 1
 fi
-echo "Non-root token has been created and saved."
+log "Non-root token has been saved."
 
-# Login as non-root token
-login_with_token '6p'
+log "Logging in as non-root token..."
+login_with_token "${NON_ROOT_TOKEN_LINE}p"
 
-# Generate keys for Ansible (environment-agnostic)
 generate_and_store_keypair "ansible" "${SSH_KEYS_DIR}/ansible"
-
-# Generate keys for remote hosts (environment-specific)
 generate_and_store_keypair "linux_ssh_keys_host" "${SSH_KEYS_DIR}/${ENVIRONMENT}/linux_ssh_keys_host"
 
-# Bring the Vault server process to the foreground
 wait $VAULT_PID
