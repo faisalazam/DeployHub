@@ -44,6 +44,7 @@ generate_and_store_keypair() {
     else
       echo "Failed to store SSH keys for ${MACHINE_NAME}."
       rm -f "/tmp/${MACHINE_NAME}_id_rsa" "/tmp/${MACHINE_NAME}_id_rsa.pub"
+      exit 1
     fi
   else
     echo "Keys for ${MACHINE_NAME} already exist in Vault."
@@ -83,6 +84,21 @@ fi
 
 # Read and display the policy
 vault policy read ${SSH_KEY_POLICY_NAME}
+
+echo "Creating non-root token with ${SSH_KEY_POLICY_NAME} policy..."
+NON_ROOT_TOKEN=$(vault token create -policy="${SSH_KEY_POLICY_NAME}" \
+                                    -format=json \
+                                    | grep '"client_token"' \
+                                    | sed 's/.*"client_token": "\(.*\)",/\1/')
+# Save the non-root token for later use
+echo "Non-root token: $NON_ROOT_TOKEN"
+echo "Non-root token: $NON_ROOT_TOKEN" >> "$KEYS_FILE"
+
+# Display message
+echo "Non-root token has been created and saved."
+
+# Login as non-root token
+login_with_token '6p'
 
 # Generate keys for Ansible (environment-agnostic)
 generate_and_store_keypair "ansible" "${SSH_KEYS_DIR}/ansible"
