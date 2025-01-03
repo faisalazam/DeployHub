@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/vault/common.sh
+. /vault/scripts/common.sh
 
 # Check if 'vault' command is available
 if ! command -v vault > /dev/null 2>&1; then

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/vault/common.sh
+. /vault/scripts/common.sh
 
 if [ -z "$ENVIRONMENT" ]; then
   log "ENVIRONMENT variable is not set. Please set it before running the script." "ERROR"
@@ -8,15 +8,15 @@ if [ -z "$ENVIRONMENT" ]; then
 fi
 
 log "Starting Vault setup..."
-. /opt/vault/start_vault.sh
+. /vault/scripts/start_vault.sh
 
 log "Configuring Vault Environment..."
-. /opt/vault/vault_configure.sh
+. /vault/scripts/vault_configure.sh
 
 log "Create Service Account/Token with Vault Policy..."
-. /opt/vault/create_svc_token_with_policy.sh
+. /vault/scripts/create_svc_token_with_policy.sh
 
 log "Generating and storing SSH keys..."
-. /opt/vault/generate_and_store_keypair.sh
+. /vault/scripts/generate_and_store_keypair.sh
 
 wait "$VAULT_PID"

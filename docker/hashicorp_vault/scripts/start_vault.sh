@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/vault/common.sh
+. /vault/scripts/common.sh
 
 terminate_vault() {
   if [ -n "$VAULT_PID" ]; then

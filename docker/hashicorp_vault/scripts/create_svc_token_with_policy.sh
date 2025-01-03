@@ -7,7 +7,7 @@ SSH_MANAGER_ROLE_NAME="ssh_manager_role"
 SSH_KEY_POLICY_NAME="ssh_key_policy"
 SSH_KEY_POLICY_PATH="/vault/policies/ssh_key_policy.hcl"
 
-. /opt/vault/common.sh
+. /vault/scripts/common.sh
 
 apply_vault_policy() {
   log "Applying Vault policy..."

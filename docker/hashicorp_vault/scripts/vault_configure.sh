@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/vault/common.sh
+. /vault/scripts/common.sh
 
 ROOT_TOKEN_LINE=5
 TOTAL_LINES_IN_FILE=6
@@ -8,10 +8,10 @@ SECRETS_PATH="secret"
 
 if [ "$SERVER_MODE" = "prod" ]; then
   log "Initializing Vault..."
-  . /opt/vault/initialize_vault.sh
+  . /vault/scripts/initialize_vault.sh
 
   log "Unsealing Vault..."
-  . /opt/vault/unseal_vault.sh
+  . /vault/scripts/unseal_vault.sh
 
   log "Logging in as root token..."
   login_with_token "${ROOT_TOKEN_LINE}p"

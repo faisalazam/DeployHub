@@ -8,8 +8,8 @@ RETRY_INTERVAL=1
 KEY_SHARES=3
 # shellcheck disable=SC2034
 KEY_THRESHOLD=2
-KEYS_FILE="/opt/vault/keys/keys.txt"
-: "${KEYS_FILE:=/opt/vault/keys/keys.txt}"
+KEYS_FILE="/vault/keys/keys.txt"
+: "${KEYS_FILE:=/vault/keys/keys.txt}"
 
 log() {
   log_level="${2:-INFO}" # Default to INFO if no log level is provided

@@ -4,7 +4,7 @@ NON_ROOT_TOKEN_LINE=6
 SECRETS_PATH="secret"
 SSH_KEYS_DIR="${SECRETS_PATH}/ssh_keys"
 
-. /opt/vault/common.sh
+. /vault/scripts/common.sh
 
 generate_and_store_keypair() {
   MACHINE_NAME=$1

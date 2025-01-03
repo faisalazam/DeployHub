@@ -18,11 +18,11 @@ services:
       - raft_data:/vault/raft
       - vault_file:/vault/file
       - vault_logs:/vault/logs
-      - ./scripts:/opt/vault
+      - ./scripts:/vault/scripts
       - ./policies:/vault/policies
-      - ./unseal_keys:/opt/vault/keys
+      - ./unseal_keys:/vault/keys
       - ./config/vault_config.hcl:/vault/config/vault_config.hcl
-    entrypoint: [ "sh", "/opt/vault/vault_startup.sh" ]
+    entrypoint: [ "sh", "/vault/scripts/vault_startup.sh" ]
     networks:
       - ansible_network
     healthcheck:
