@@ -4,7 +4,7 @@
 
 # Check if 'vault' command is available
 if ! command -v vault > /dev/null 2>&1; then
-  log "Error: 'vault' command not found. Please ensure Vault CLI is installed."
+  log "'vault' command not found. Please ensure Vault CLI is installed." "ERROR"
   exit 1
 fi
 

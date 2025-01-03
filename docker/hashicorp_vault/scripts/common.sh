@@ -12,14 +12,15 @@ KEYS_FILE="/opt/vault/keys/keys.txt"
 : "${KEYS_FILE:=/opt/vault/keys/keys.txt}"
 
 log() {
-  echo "$(date '+%Y-%m-%d %H:%M:%S') $1"
+  log_level="${2:-INFO}" # Default to INFO if no log level is provided
+  echo "$(date --utc '+%Y-%m-%dT%H:%M:%S.%3NZ') [$log_level] $1"
 }
 
 # Wait for Vault to be ready
 check_vault_status() {
   STATUS_TEXT=$1
   if ! command -v nc > /dev/null 2>&1; then
-    log "Error: 'nc' (Netcat) command not found. Please install it to proceed."
+    log "'nc' (Netcat) command not found. Please install it to proceed." "ERROR"
     exit 1
   fi
   until printf 'GET /v1/sys/health HTTP/1.1\r\nHost: localhost\r\n\r\n' \
@@ -42,24 +43,24 @@ login_with_token() {
   LINE_NUMBER=$1
 
   if [ ! -f "$KEYS_FILE" ]; then
-    log "Error: Key file '$KEYS_FILE' not found. Exiting..."
+    log "Key file '$KEYS_FILE' not found. Exiting..." "ERROR"
     exit 1
   fi
 
   if [ ! -s "$KEYS_FILE" ]; then
-    log "Error: Key file '$KEYS_FILE' is empty. Exiting..."
+    log "Key file '$KEYS_FILE' is empty. Exiting..." "ERROR"
     exit 1
   fi
 
   LOGIN_TOKEN=$(sed -n "$LINE_NUMBER" "$KEYS_FILE" | awk '{print $NF}')
   if [ -z "$LOGIN_TOKEN" ]; then
-    log "Error: Token at line $LINE_NUMBER is empty. Exiting..."
+    log "Token at line $LINE_NUMBER is empty. Exiting..." "ERROR"
     exit 1
   fi
 
   log "Logging in with the required token..."
   if ! vault login "$LOGIN_TOKEN" > /dev/null 2>&1; then
-    log "Error: Failed to log in with the token. Exiting..."
+    log "Failed to log in with the token. Exiting..." "ERROR"
     exit 1
   fi
   log "Successfully logged in with the token."

@@ -4,7 +4,7 @@
 
 # Check if 'vault' command is available
 if ! command -v vault > /dev/null 2>&1; then
-  log "Error: 'vault' command not found. Please ensure Vault CLI is installed."
+  log "'vault' command not found. Please ensure Vault CLI is installed." "ERROR"
   exit 1
 fi
 
@@ -19,13 +19,13 @@ if echo "$VAULT_STATUS" | grep -qE "Sealed\s+true"; then
     UNSEAL_KEYS=$(awk 'NR>1 {print $NF}' "$KEYS_FILE" | head -n "$KEY_SHARES")
     for KEY in $UNSEAL_KEYS; do
       if ! vault operator unseal "$KEY" > /dev/null 2>&1; then
-        log "Error: Failed to unseal Vault with key: $KEY"
+        log "Failed to unseal Vault with key: $KEY" "ERROR"
         exit 1
       fi
     done
     log "Vault has been unsealed."
   else
-    log "Error: Unseal keys file not found. Cannot unseal Vault."
+    log "Unseal keys file not found. Cannot unseal Vault." "ERROR"
     exit 1
   fi
 else

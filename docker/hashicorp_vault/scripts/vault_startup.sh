@@ -38,7 +38,7 @@ fi
 VAULT_PID=$!  # Capture the process ID of the Vault server
 
 if [ -z "$ENVIRONMENT" ]; then
-  log "Error: ENVIRONMENT variable is not set. Please set it before running the script."
+  log "ENVIRONMENT variable is not set. Please set it before running the script." "ERROR"
   exit 1
 fi
 
@@ -82,7 +82,7 @@ if [ "$SERVER_MODE" = "prod" ]; then
     log "Secrets engine at path=${SECRETS_PATH} is already enabled. Skipping..."
   else
     if ! vault secrets enable -path="${SECRETS_PATH}" kv-v2; then
-      log "Error: Failed to enable secrets engine at path=${SECRETS_PATH}. Exiting..."
+      log "Failed to enable secrets engine at path=${SECRETS_PATH}. Exiting..." "ERROR"
       exit 1
     fi
     log "Secrets engine at path=${SECRETS_PATH} has been enabled."
@@ -103,7 +103,7 @@ if vault policy read ${SSH_KEY_POLICY_NAME} > /dev/null 2>&1; then
   log "Vault policy '${SSH_KEY_POLICY_NAME}' already exists. Skipping policy application..."
 else
   if ! vault policy write ${SSH_KEY_POLICY_NAME} ${SSH_KEY_POLICY_PATH}; then
-    log "Error: Failed to apply Vault policy. Exiting..."
+    log "Failed to apply Vault policy. Exiting..." "ERROR"
     exit 1
   else
     log "Vault policy '${SSH_KEY_POLICY_NAME}' applied successfully."
@@ -119,7 +119,7 @@ NON_ROOT_TOKEN=$(vault token create -policy="${SSH_KEY_POLICY_NAME}" \
                                     | sed 's/.*"client_token": "\(.*\)",/\1/')
 
 if [ -z "$NON_ROOT_TOKEN" ]; then
-  log "Error: Failed to create non-root token."
+  log "Failed to create non-root token." "ERROR"
   exit 1
 fi
 
@@ -127,7 +127,7 @@ MASKED_NON_ROOT_TOKEN=$(echo "$NON_ROOT_TOKEN" | sed 's/^\(....\).*/\1****/')
 log "Non-root token created: $MASKED_NON_ROOT_TOKEN"
 
 if ! sed -i "${NON_ROOT_TOKEN_LINE}c\Non-root token: $NON_ROOT_TOKEN" "$KEYS_FILE"; then
-  log "Error: Failed to update $KEYS_FILE with the non-root token."
+  log "Failed to update $KEYS_FILE with the non-root token." "ERROR"
   exit 1
 fi
 log "Non-root token has been saved."
