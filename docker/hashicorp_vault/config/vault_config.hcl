@@ -22,5 +22,5 @@ api_addr = "http://127.0.0.1:8200"  # Internal Vault API address
 # TODO: change this for prod
 disable_mlock = true
 
-# Enable Vault UI
+# Enable Vault UI (TODO: web access doesn't work when server has started in dev mode)
 ui = true

@@ -22,6 +22,8 @@ elif echo "$VAULT_STATUS" | grep -qE "Initialized\s+false"; then
   # Extract root token
   ROOT_TOKEN=$(echo "$INIT_OUTPUT" | grep 'Initial Root Token' | awk '{print $NF}')
 
+  # TODO: store these somewhere secure instead of the file in the container.
+  # May be in the CI's credentials manger, AWS KMS etc.
   # Save unseal keys and root token to the keys file (sensitive data stored securely)
   {
     echo "Unseal Keys:"
