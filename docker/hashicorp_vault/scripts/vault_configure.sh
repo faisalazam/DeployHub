@@ -8,10 +8,10 @@ SECRETS_PATH="secret"
 
 if [ "$SERVER_MODE" = "prod" ]; then
   log "Initializing Vault..."
-  sh /opt/vault/initialize_vault.sh
+  . /opt/vault/initialize_vault.sh
 
   log "Unsealing Vault..."
-  sh /opt/vault/unseal.sh
+  . /opt/vault/unseal.sh
 
   log "Logging in as root token..."
   login_with_token "${ROOT_TOKEN_LINE}p"

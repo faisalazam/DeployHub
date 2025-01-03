@@ -11,12 +11,12 @@ log "Starting Vault setup..."
 . /opt/vault/start_vault.sh
 
 log "Configuring Vault Environment..."
-sh /opt/vault/vault_configure.sh
+. /opt/vault/vault_configure.sh
 
 log "Create Service Account/Token with Vault Policy..."
-sh /opt/vault/create_svc_token_with_policy.sh
+. /opt/vault/create_svc_token_with_policy.sh
 
 log "Generating and storing SSH keys..."
-sh /opt/vault/generate_and_store_keypair.sh
+. /opt/vault/generate_and_store_keypair.sh
 
 wait "$VAULT_PID"
