@@ -12,10 +12,14 @@ SSH_KEY_POLICY_PATH="/vault/policies/ssh_key_policy.hcl"
 . /opt/vault/common.sh
 
 terminate_vault() {
-  log "Terminating Vault server..."
-  kill $VAULT_PID
-  wait $VAULT_PID 2>/dev/null
-  log "Vault server terminated."
+  if [ -n "$VAULT_PID" ]; then
+    log "Terminating Vault server..."
+    kill $VAULT_PID
+    wait $VAULT_PID 2>/dev/null
+    log "Vault server terminated."
+  else
+    log "Vault server was not running."
+  fi
 }
 
 trap terminate_vault INT TERM EXIT
