@@ -1,9 +1,6 @@
 #!/bin/sh
 
-# Set constants
-ROOT_TOKEN_LINE=5
 NON_ROOT_TOKEN_LINE=6
-TOTAL_LINES_IN_FILE=6
 SECRETS_PATH="secret"
 SSH_KEYS_DIR="${SECRETS_PATH}/ssh_keys"
 
@@ -65,36 +62,8 @@ generate_and_store_keypair() {
   fi
 }
 
-if [ "$SERVER_MODE" = "prod" ]; then
-  log "Initializing Vault..."
-  sh /opt/vault/initialize_vault.sh
-
-  log "Unsealing Vault..."
-  sh /opt/vault/unseal.sh
-
-  log "Logging in as root token..."
-  login_with_token "${ROOT_TOKEN_LINE}p"
-
-  log "Enabling Secrets Engine at path=${SECRETS_PATH}..."
-  if vault read "sys/mounts/${SECRETS_PATH}" > /dev/null 2>&1; then
-    log "Secrets engine at path=${SECRETS_PATH} is already enabled. Skipping..."
-  else
-    if ! vault secrets enable -path="${SECRETS_PATH}" kv-v2; then
-      log "Failed to enable secrets engine at path=${SECRETS_PATH}. Exiting..." "ERROR"
-      exit 1
-    fi
-    log "Secrets engine at path=${SECRETS_PATH} has been enabled."
-  fi
-else
-  touch "$KEYS_FILE"
-  while [ "$(wc -l < "$KEYS_FILE")" -lt $TOTAL_LINES_IN_FILE ]; do
-    echo "" >> "$KEYS_FILE"
-  done
-  sed -i "${ROOT_TOKEN_LINE}c\Non-root token: $VAULT_DEV_ROOT_TOKEN_ID" "$KEYS_FILE"
-
-  log "Logging in as root token..."
-  login_with_token "${ROOT_TOKEN_LINE}p"
-fi
+log "Configuring Vault Environment..."
+sh /opt/vault/vault_configure.sh
 
 log "Create Service Account/Token with Vault Policy..."
 sh /opt/vault/create_svc_token_with_policy.sh
