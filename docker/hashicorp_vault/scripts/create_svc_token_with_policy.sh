@@ -2,6 +2,7 @@
 
 TOKEN_TTL="1h"
 TOKEN_MAX_TTL="24h"
+NON_ROOT_TOKEN_LINE=6
 SSH_MANAGER_ROLE_NAME="ssh_manager_role"
 SSH_KEY_POLICY_NAME="ssh_key_policy"
 SSH_KEY_POLICY_PATH="/vault/policies/ssh_key_policy.hcl"
