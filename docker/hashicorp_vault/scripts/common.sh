@@ -4,7 +4,12 @@
 RETRY_COUNT=0
 MAX_RETRIES=10
 RETRY_INTERVAL=1
+# shellcheck disable=SC2034
+KEY_SHARES=3
+# shellcheck disable=SC2034
+KEY_THRESHOLD=2
 KEYS_FILE="/opt/vault/keys/keys.txt"
+: "${KEYS_FILE:=/opt/vault/keys/keys.txt}"
 
 log() {
   echo "$(date '+%Y-%m-%d %H:%M:%S') $1"

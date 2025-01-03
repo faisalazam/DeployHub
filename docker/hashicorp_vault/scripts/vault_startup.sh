@@ -68,6 +68,9 @@ generate_and_store_keypair() {
 }
 
 if [ "$SERVER_MODE" = "prod" ]; then
+  log "Initializing Vault..."
+  sh /opt/vault/initialize_vault.sh
+
   log "Unsealing Vault..."
   sh /opt/vault/unseal.sh
 
