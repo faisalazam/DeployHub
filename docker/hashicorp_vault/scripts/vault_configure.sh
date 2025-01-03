@@ -16,17 +16,6 @@ if [ "$SERVER_MODE" = "prod" ]; then
   log "Logging in as root token..."
   login_with_token "${ROOT_TOKEN_LINE}p"
 
-  log "Enabling AppRole authentication method..."
-  if vault auth list | grep -q "approle"; then
-    log "AppRole auth method is already enabled. Skipping..."
-  else
-    if ! vault auth enable approle; then
-      log "Failed to enable AppRole auth method. Exiting..." "ERROR"
-      exit 1
-    fi
-    log "AppRole auth method has been enabled."
-  fi
-
   log "Enabling Secrets Engine at path=${SECRETS_PATH}..."
   if vault read "sys/mounts/${SECRETS_PATH}" > /dev/null 2>&1; then
     log "Secrets engine at path=${SECRETS_PATH} is already enabled. Skipping..."
@@ -46,4 +35,15 @@ else
 
   log "Logging in as root token..."
   login_with_token "${ROOT_TOKEN_LINE}p"
+fi
+
+log "Enabling AppRole authentication method..."
+if vault auth list | grep -q "approle"; then
+  log "AppRole auth method is already enabled. Skipping..."
+else
+  if ! vault auth enable approle; then
+    log "Failed to enable AppRole auth method. Exiting..." "ERROR"
+    exit 1
+  fi
+  log "AppRole auth method has been enabled."
 fi
