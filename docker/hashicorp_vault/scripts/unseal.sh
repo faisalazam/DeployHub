@@ -35,6 +35,8 @@ elif echo "$VAULT_STATUS" | grep -qE "Initialized\s+false"; then
     echo "Root Token: $ROOT_TOKEN"
     echo "Non-root token:" # Placeholder for Non-root token
   } > "$KEYS_FILE"
+  # Set secure file permissions (e.g., read/write only for the owner)
+  chmod 600 "$KEYS_FILE"
   log "Vault has been initialized. Keys saved to $KEYS_FILE."
 else
   log "Vault initialization status is unknown!"
