@@ -11,7 +11,7 @@ if [ "$SERVER_MODE" = "prod" ]; then
   . /opt/vault/initialize_vault.sh
 
   log "Unsealing Vault..."
-  . /opt/vault/unseal.sh
+  . /opt/vault/unseal_vault.sh
 
   log "Logging in as root token..."
   login_with_token "${ROOT_TOKEN_LINE}p"
