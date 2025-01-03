@@ -1,7 +1,9 @@
 # Listener Configuration (for development mode)
 listener "tcp" {
+  #TODO: Enable TLS and add certificate
   tls_disable = 1                 # Disable TLS (use TLS in production)
-  address     = "127.0.0.1:${VAULT_EXTERNAL_PORT}"  # Binding Vault to only localhost network interface
+  #TODO: Bind it to more specific IP (e.g. 127.0.0.1) instead of just 0.0.0.0
+  address     = "0.0.0.0:${VAULT_EXTERNAL_PORT}"  # Binding Vault to only localhost network interface
 }
 
 # Enable the Raft storage backend
