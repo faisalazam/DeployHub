@@ -8,8 +8,10 @@ RETRY_INTERVAL=1
 KEY_SHARES=3
 # shellcheck disable=SC2034
 KEY_THRESHOLD=2
-KEYS_FILE="/vault/keys/keys.txt"
-: "${KEYS_FILE:=/vault/keys/keys.txt}"
+KEYS_DIR="/vault/keys"
+# shellcheck disable=SC2034
+KEYS_FILE="$KEYS_DIR/KEYS"
+: "${KEYS_DIR:=/vault/keys}"
 
 log() {
   log_level="${2:-INFO}" # Default to INFO if no log level is provided
@@ -41,18 +43,19 @@ check_vault_status() {
 
 login_with_token() {
   KEY_NAME=$1
+  TOKEN_FILE="$KEYS_DIR/$KEY_NAME"
 
-  if [ ! -f "$KEYS_FILE" ]; then
-    log "Key file '$KEYS_FILE' not found. Exiting..." "ERROR"
+  if [ ! -f "$TOKEN_FILE" ]; then
+    log "Key file '$TOKEN_FILE' not found. Exiting..." "ERROR"
     exit 1
   fi
 
-  if [ ! -s "$KEYS_FILE" ]; then
-    log "Key file '$KEYS_FILE' is empty. Exiting..." "ERROR"
+  if [ ! -s "$TOKEN_FILE" ]; then
+    log "Key file '$TOKEN_FILE' is empty. Exiting..." "ERROR"
     exit 1
   fi
 
-  LOGIN_TOKEN=$(awk -F': ' -v key="$KEY_NAME" '$1 == key {print $2}' "$KEYS_FILE")
+  LOGIN_TOKEN=$(cat "$KEYS_DIR/$KEY_NAME")
   if [ -z "$LOGIN_TOKEN" ]; then
     log "Token with $KEY_NAME is empty. Exiting..." "ERROR"
     exit 1
@@ -63,7 +66,7 @@ login_with_token() {
     log "Failed to log in with the $KEY_NAME token. Exiting..." "ERROR"
     exit 1
   fi
-  log "Successfully logged in with the $KEY_NAME token."
+  log "Successfully logged in with the $KEY_NAME."
 }
 
 save_key_value_to_file() {
@@ -81,16 +84,11 @@ save_key_value_to_file() {
 
   log "Saving ${KEY}..."
 
-  if grep -q "^${KEY}:" "$KEYS_FILE"; then
-    if ! sed -i "s/^${KEY}:.*/${KEY}: ${VALUE}/" "$KEYS_FILE"; then
-      log "Failed to replace ${KEY} in $KEYS_FILE. Exiting..." "ERROR"
-      exit 1
-    fi
-  else
-    if ! echo "${KEY}: ${VALUE}" >> "$KEYS_FILE"; then
-      log "Failed to append ${KEY} in $KEYS_FILE. Exiting..." "ERROR"
-      exit 1
-    fi
+  if ! echo "$VALUE" > "$KEYS_DIR/$KEY"; then
+    log "Failed to save ${KEY} in $KEYS_DIR/$KEY. Exiting..." "ERROR"
+    exit 1
   fi
-  log "${KEY} has been saved."
+  chmod 600 "$KEYS_DIR/$KEY"   # Restrict access to the key file
+
+  log "${KEY} has been saved in $KEYS_DIR/$KEY."
 }

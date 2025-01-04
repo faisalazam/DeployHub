@@ -30,11 +30,13 @@ elif echo "$VAULT_STATUS" | grep -qE "Initialized\s+false"; then
   {
     echo "Unseal_Keys:"
     echo "$UNSEAL_KEYS" | nl -w2 -s": "
-    echo "$ROOT_TOKEN_KEY: $ROOT_TOKEN"
   } > "$KEYS_FILE"
 
+  save_key_value_to_file "$ROOT_TOKEN_KEY" "$ROOT_TOKEN"
+
   # Secure the file (e.g., read/write only for the owner)
-  chmod 600 "$KEYS_FILE"
+  chmod 700 "$KEYS_DIR"    # Restrict access to the keys directory
+  chmod 600 "$KEYS_FILE"   # Restrict access to the keys file
 
   log "Vault has been initialized. Keys saved to $KEYS_FILE."
 else
