@@ -1,5 +1,7 @@
 #!/bin/sh
 
+ROOT_TOKEN_KEY="ROOT_TOKEN"
+
 . /vault/scripts/common.sh
 
 # Check if 'vault' command is available
@@ -26,10 +28,9 @@ elif echo "$VAULT_STATUS" | grep -qE "Initialized\s+false"; then
   # May be in the CI's credentials manger, AWS KMS etc.
   # Save unseal keys and root token to the keys file (sensitive data stored securely)
   {
-    echo "Unseal Keys:"
+    echo "Unseal_Keys:"
     echo "$UNSEAL_KEYS" | nl -w2 -s": "
-    echo "Root Token: $ROOT_TOKEN"
-    echo "Non-root token:" # Placeholder for Non-root token
+    echo "$ROOT_TOKEN_KEY: $ROOT_TOKEN"
   } > "$KEYS_FILE"
 
   # Secure the file (e.g., read/write only for the owner)

@@ -2,7 +2,7 @@
 
 TOKEN_TTL="1h"
 TOKEN_MAX_TTL="24h"
-NON_ROOT_TOKEN_LINE=6
+NON_ROOT_TOKEN_KEY="NON_ROOT_TOKEN"
 SSH_MANAGER_ROLE_NAME="ssh_manager_role"
 SSH_KEY_POLICY_NAME="ssh_key_policy"
 SSH_KEY_POLICY_PATH="/vault/policies/ssh_key_policy.hcl"
@@ -44,9 +44,16 @@ update_keys_file() {
   MASKED_NON_ROOT_TOKEN=$(echo "$NON_ROOT_TOKEN" | sed 's/^\(....\).*/\1****/')
   log "Non-root token created: $MASKED_NON_ROOT_TOKEN"
 
-  if ! sed -i "${NON_ROOT_TOKEN_LINE}c\Non-root token: $NON_ROOT_TOKEN" "$KEYS_FILE"; then
-    log "Failed to update $KEYS_FILE with the non-root token. Exiting..." "ERROR"
-    exit 1
+  if grep -q "^$NON_ROOT_TOKEN_KEY:" "$KEYS_FILE"; then
+    if ! sed -i "s/^$NON_ROOT_TOKEN_KEY:.*/$NON_ROOT_TOKEN_KEY: $NON_ROOT_TOKEN/" "$KEYS_FILE"; then
+      log "Failed to replace $NON_ROOT_TOKEN_KEY in $KEYS_FILE. Exiting..." "ERROR"
+      exit 1
+    fi
+  else
+    if ! echo "$NON_ROOT_TOKEN_KEY: $NON_ROOT_TOKEN" >> "$KEYS_FILE"; then
+      log "Failed to append $NON_ROOT_TOKEN_KEY in $KEYS_FIL. Exiting..." "ERROR"
+      exit 1
+    fi
   fi
   log "Non-root token has been saved."
 }

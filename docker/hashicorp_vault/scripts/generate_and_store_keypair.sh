@@ -1,7 +1,7 @@
 #!/bin/sh
 
-NON_ROOT_TOKEN_LINE=6
 SECRETS_PATH="secret"
+NON_ROOT_TOKEN_KEY="NON_ROOT_TOKEN"
 SSH_KEYS_DIR="${SECRETS_PATH}/ssh_keys"
 
 . /vault/scripts/common.sh
@@ -28,7 +28,7 @@ generate_and_store_keypair() {
 }
 
 log "Logging in as non-root token..."
-login_with_token "${NON_ROOT_TOKEN_LINE}p"
+login_with_token "${NON_ROOT_TOKEN_KEY}"
 
 generate_and_store_keypair "ansible" "${SSH_KEYS_DIR}/ansible"
 generate_and_store_keypair "linux_ssh_keys_host" "${SSH_KEYS_DIR}/${ENVIRONMENT}/linux_ssh_keys_host"

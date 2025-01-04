@@ -2,9 +2,8 @@
 
 . /vault/scripts/common.sh
 
-ROOT_TOKEN_LINE=5
-TOTAL_LINES_IN_FILE=6
 SECRETS_PATH="secret"
+ROOT_TOKEN_KEY="ROOT_TOKEN"
 
 if [ "$SERVER_MODE" = "prod" ]; then
   log "Initializing Vault..."
@@ -14,7 +13,7 @@ if [ "$SERVER_MODE" = "prod" ]; then
   . /vault/scripts/unseal_vault.sh
 
   log "Logging in as root token..."
-  login_with_token "${ROOT_TOKEN_LINE}p"
+  login_with_token "${ROOT_TOKEN_KEY}"
 
   log "Enabling Secrets Engine at path=${SECRETS_PATH}..."
   if vault read "sys/mounts/${SECRETS_PATH}" > /dev/null 2>&1; then
@@ -27,14 +26,10 @@ if [ "$SERVER_MODE" = "prod" ]; then
     log "Secrets engine at path=${SECRETS_PATH} has been enabled."
   fi
 else
-  touch "$KEYS_FILE"
-  while [ "$(wc -l < "$KEYS_FILE")" -lt $TOTAL_LINES_IN_FILE ]; do
-    echo "" >> "$KEYS_FILE"
-  done
-  sed -i "${ROOT_TOKEN_LINE}c\Non-root token: $VAULT_DEV_ROOT_TOKEN_ID" "$KEYS_FILE"
+  echo "$ROOT_TOKEN_KEY: $VAULT_DEV_ROOT_TOKEN_ID" > "$KEYS_FILE"
 
   log "Logging in as root token..."
-  login_with_token "${ROOT_TOKEN_LINE}p"
+  login_with_token "${ROOT_TOKEN_KEY}"
 fi
 
 log "Enabling AppRole authentication method..."

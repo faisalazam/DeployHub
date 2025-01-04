@@ -40,7 +40,7 @@ check_vault_status() {
 }
 
 login_with_token() {
-  LINE_NUMBER=$1
+  KEY_NAME=$1
 
   if [ ! -f "$KEYS_FILE" ]; then
     log "Key file '$KEYS_FILE' not found. Exiting..." "ERROR"
@@ -52,16 +52,16 @@ login_with_token() {
     exit 1
   fi
 
-  LOGIN_TOKEN=$(sed -n "$LINE_NUMBER" "$KEYS_FILE" | awk '{print $NF}')
+  LOGIN_TOKEN=$(awk -F': ' -v key="$KEY_NAME" '$1 == key {print $2}' "$KEYS_FILE")
   if [ -z "$LOGIN_TOKEN" ]; then
-    log "Token at line $LINE_NUMBER is empty. Exiting..." "ERROR"
+    log "Token with $KEY_NAME is empty. Exiting..." "ERROR"
     exit 1
   fi
 
-  log "Logging in with the required token..."
+  log "Logging in with the $KEY_NAME token..."
   if ! vault login "$LOGIN_TOKEN" > /dev/null 2>&1; then
-    log "Failed to log in with the token. Exiting..." "ERROR"
+    log "Failed to log in with the $KEY_NAME token. Exiting..." "ERROR"
     exit 1
   fi
-  log "Successfully logged in with the token."
+  log "Successfully logged in with the $KEY_NAME token."
 }
