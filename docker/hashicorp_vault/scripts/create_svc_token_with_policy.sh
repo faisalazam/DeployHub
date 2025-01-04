@@ -2,8 +2,8 @@
 
 TOKEN_TTL="1h"
 TOKEN_MAX_TTL="24h"
-NON_ROOT_TOKEN_KEY="NON_ROOT_TOKEN"
 SSH_MANAGER_ROLE_NAME="ssh_manager_role"
+SSH_MANAGER_TOKEN_KEY="SSH_MANAGER_TOKEN"
 SSH_KEY_POLICY_NAME="ssh_key_policy"
 SSH_KEY_POLICY_PATH="/vault/policies/ssh_key_policy.hcl"
 
@@ -41,21 +41,21 @@ create_approle() {
 }
 
 update_keys_file() {
-  MASKED_NON_ROOT_TOKEN=$(echo "$NON_ROOT_TOKEN" | sed 's/^\(....\).*/\1****/')
-  log "Non-root token created: $MASKED_NON_ROOT_TOKEN"
+  MASKED_SSH_MANAGER_TOKEN=$(echo "$SSH_MANAGER_TOKEN" | sed 's/^\(....\).*/\1****/')
+  log "$SSH_MANAGER_TOKEN_KEY token created: $MASKED_SSH_MANAGER_TOKEN"
 
-  if grep -q "^$NON_ROOT_TOKEN_KEY:" "$KEYS_FILE"; then
-    if ! sed -i "s/^$NON_ROOT_TOKEN_KEY:.*/$NON_ROOT_TOKEN_KEY: $NON_ROOT_TOKEN/" "$KEYS_FILE"; then
-      log "Failed to replace $NON_ROOT_TOKEN_KEY in $KEYS_FILE. Exiting..." "ERROR"
+  if grep -q "^$SSH_MANAGER_TOKEN_KEY:" "$KEYS_FILE"; then
+    if ! sed -i "s/^$SSH_MANAGER_TOKEN_KEY:.*/$SSH_MANAGER_TOKEN_KEY: $SSH_MANAGER_TOKEN/" "$KEYS_FILE"; then
+      log "Failed to replace $SSH_MANAGER_TOKEN_KEY in $KEYS_FILE. Exiting..." "ERROR"
       exit 1
     fi
   else
-    if ! echo "$NON_ROOT_TOKEN_KEY: $NON_ROOT_TOKEN" >> "$KEYS_FILE"; then
-      log "Failed to append $NON_ROOT_TOKEN_KEY in $KEYS_FIL. Exiting..." "ERROR"
+    if ! echo "$SSH_MANAGER_TOKEN_KEY: $SSH_MANAGER_TOKEN" >> "$KEYS_FILE"; then
+      log "Failed to append $SSH_MANAGER_TOKEN_KEY in $KEYS_FILE. Exiting..." "ERROR"
       exit 1
     fi
   fi
-  log "Non-root token has been saved."
+  log "$SSH_MANAGER_TOKEN_KEY token has been saved."
 }
 
 apply_vault_policy
@@ -77,15 +77,15 @@ if [ -z "$SECRET_ID" ]; then
   exit 1
 fi
 
-log "Creating non-root token with ${SSH_KEY_POLICY_NAME} policy..."
-NON_ROOT_TOKEN=$(vault write -format=json auth/approle/login \
+log "Creating 'SSH_MANAGER_TOKEN' token with ${SSH_KEY_POLICY_NAME} policy..."
+SSH_MANAGER_TOKEN=$(vault write -format=json auth/approle/login \
                              role_id="$ROLE_ID" \
                              secret_id="$SECRET_ID" \
                              | grep '"client_token"' \
                              | sed 's/.*"client_token": "\(.*\)",/\1/')
 
-if [ -z "$NON_ROOT_TOKEN" ]; then
-  log "Failed to create non-root token. Exiting..." "ERROR"
+if [ -z "$SSH_MANAGER_TOKEN" ]; then
+  log "Failed to create 'SSH_MANAGER_TOKEN' token. Exiting..." "ERROR"
   exit 1
 fi
 
