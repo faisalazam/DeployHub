@@ -16,7 +16,12 @@ if echo "$VAULT_STATUS" | grep -qE "Sealed\s+true"; then
   # Read unseal keys from file
   if [ -f "$KEYS_FILE" ]; then
     # Unseal Vault with keys (only the first $KEY_SHARES unseal keys, excluding the root token)
-    UNSEAL_KEYS=$(awk 'NR>1 {print $NF}' "$KEYS_FILE" | head -n "$KEY_SHARES")
+    UNSEAL_KEYS=$(awk '/^[[:space:]]*[0-9]+:/ {print $2}' "$KEYS_FILE" | head -n "$KEY_SHARES")
+    if [ -z "$UNSEAL_KEYS" ]; then
+      log "No unseal keys were retrieved. Check the $KEYS_FILE or $KEY_SHARES." "ERROR"
+      exit 1
+    fi
+
     for KEY in $UNSEAL_KEYS; do
       if ! vault operator unseal "$KEY" > /dev/null 2>&1; then
         log "Failed to unseal Vault with key: $KEY" "ERROR"
