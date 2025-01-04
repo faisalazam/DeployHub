@@ -40,24 +40,6 @@ create_approle() {
   fi
 }
 
-update_keys_file() {
-  MASKED_SSH_MANAGER_TOKEN=$(echo "$SSH_MANAGER_TOKEN" | sed 's/^\(....\).*/\1****/')
-  log "$SSH_MANAGER_TOKEN_KEY token created: $MASKED_SSH_MANAGER_TOKEN"
-
-  if grep -q "^$SSH_MANAGER_TOKEN_KEY:" "$KEYS_FILE"; then
-    if ! sed -i "s/^$SSH_MANAGER_TOKEN_KEY:.*/$SSH_MANAGER_TOKEN_KEY: $SSH_MANAGER_TOKEN/" "$KEYS_FILE"; then
-      log "Failed to replace $SSH_MANAGER_TOKEN_KEY in $KEYS_FILE. Exiting..." "ERROR"
-      exit 1
-    fi
-  else
-    if ! echo "$SSH_MANAGER_TOKEN_KEY: $SSH_MANAGER_TOKEN" >> "$KEYS_FILE"; then
-      log "Failed to append $SSH_MANAGER_TOKEN_KEY in $KEYS_FILE. Exiting..." "ERROR"
-      exit 1
-    fi
-  fi
-  log "$SSH_MANAGER_TOKEN_KEY token has been saved."
-}
-
 apply_vault_policy
 create_approle
 
@@ -83,10 +65,4 @@ SSH_MANAGER_TOKEN=$(vault write -format=json auth/approle/login \
                              secret_id="$SECRET_ID" \
                              | grep '"client_token"' \
                              | sed 's/.*"client_token": "\(.*\)",/\1/')
-
-if [ -z "$SSH_MANAGER_TOKEN" ]; then
-  log "Failed to create 'SSH_MANAGER_TOKEN' token. Exiting..." "ERROR"
-  exit 1
-fi
-
-update_keys_file
+save_key_value_to_file "$SSH_MANAGER_TOKEN_KEY" "$SSH_MANAGER_TOKEN"

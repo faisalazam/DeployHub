@@ -65,3 +65,32 @@ login_with_token() {
   fi
   log "Successfully logged in with the $KEY_NAME token."
 }
+
+save_key_value_to_file() {
+  KEY="$1"
+  VALUE="$2"
+
+  if [ -z "$VALUE" ]; then
+    log "Failed to create '${KEY}' value. Exiting..." "ERROR"
+    exit 1
+  fi
+
+  # Mask the value (show last 4 characters and mask the rest)
+  MASKED_VALUE=$(echo "$VALUE" | sed 's/.*\(....\)$/****\1/')
+  log "${KEY} created: $MASKED_VALUE"
+
+  log "Saving ${KEY}..."
+
+  if grep -q "^${KEY}:" "$KEYS_FILE"; then
+    if ! sed -i "s/^${KEY}:.*/${KEY}: ${VALUE}/" "$KEYS_FILE"; then
+      log "Failed to replace ${KEY} in $KEYS_FILE. Exiting..." "ERROR"
+      exit 1
+    fi
+  else
+    if ! echo "${KEY}: ${VALUE}" >> "$KEYS_FILE"; then
+      log "Failed to append ${KEY} in $KEYS_FILE. Exiting..." "ERROR"
+      exit 1
+    fi
+  fi
+  log "${KEY} has been saved."
+}
