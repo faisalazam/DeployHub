@@ -4,6 +4,8 @@ TOKEN_TTL="1h"
 TOKEN_MAX_TTL="24h"
 SSH_MANAGER_ROLE_NAME="ssh_manager_role"
 SSH_MANAGER_TOKEN_KEY="SSH_MANAGER_TOKEN"
+SSH_MANAGER_ROLE_ID_KEY="SSH_MANAGER_ROLE_ID"
+SSH_MANAGER_SECRET_ID_KEY="SSH_MANAGER_SECRET_ID"
 SSH_KEY_POLICY_NAME="ssh_key_policy"
 SSH_KEY_POLICY_PATH="/vault/policies/ssh_key_policy.hcl"
 
@@ -46,18 +48,16 @@ create_approle
 log "Fetching ROLE_ID for ${SSH_MANAGER_ROLE_NAME}..."
 ROLE_ID=$(vault read -format=json auth/approle/role/${SSH_MANAGER_ROLE_NAME}/role-id \
                               | sed -n 's/.*"role_id": "\([^"]*\)".*/\1/p')
-if [ -z "$ROLE_ID" ]; then
-  log "Failed to retrieve ROLE_ID for ${SSH_MANAGER_ROLE_NAME}. Exiting..." "ERROR"
-  exit 1
-fi
+# TODO: store it somewhere secure instead of the file in the container.
+# May be in the CI's credentials manger, AWS KMS etc.
+save_key_value_to_file "$SSH_MANAGER_ROLE_ID_KEY" "$ROLE_ID"
 
 log "Fetching SECRET_ID for ${SSH_MANAGER_ROLE_NAME}..."
 SECRET_ID=$(vault write -f auth/approle/role/${SSH_MANAGER_ROLE_NAME}/secret-id \
                               | sed -n 's/secret_id[[:space:]]*\([a-zA-Z0-9-]*\).*/\1/p')
-if [ -z "$SECRET_ID" ]; then
-  log "Failed to retrieve SECRET_ID for ${SSH_MANAGER_ROLE_NAME}. Exiting..." "ERROR"
-  exit 1
-fi
+# TODO: store it somewhere secure instead of the file in the container.
+# May be in the CI's credentials manger, AWS KMS etc.
+save_key_value_to_file "$SSH_MANAGER_SECRET_ID_KEY" "$SECRET_ID"
 
 log "Creating 'SSH_MANAGER_TOKEN' token with ${SSH_KEY_POLICY_NAME} policy..."
 SSH_MANAGER_TOKEN=$(vault write -format=json auth/approle/login \
@@ -65,4 +65,6 @@ SSH_MANAGER_TOKEN=$(vault write -format=json auth/approle/login \
                              secret_id="$SECRET_ID" \
                              | grep '"client_token"' \
                              | sed 's/.*"client_token": "\(.*\)",/\1/')
+# TODO: store it somewhere secure instead of the file in the container.
+# May be in the CI's credentials manger, AWS KMS etc.
 save_key_value_to_file "$SSH_MANAGER_TOKEN_KEY" "$SSH_MANAGER_TOKEN"
