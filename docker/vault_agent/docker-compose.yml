@@ -1,0 +1,48 @@
+services:
+  vault_agent:
+    build:
+      context: ../..
+    image: hashicorp/vault:1.18.3
+    container_name: vault_agent
+    cap_add:
+      - IPC_LOCK  # Allow Vault to lock memory for production-like setups
+    env_file:
+      - .env
+    environment:
+      SKIP_SETCAP: false
+      SSH_MANAGER_ROLE_NAME: ${SSH_MANAGER_ROLE_NAME:-ssh_manager_role}
+    networks:
+      - ansible_network
+    volumes:
+      - ./keys:/vault/keys
+      - ./secrets:/vault/secrets
+      - ./config:/vault/config:ro
+      - ../vault_server/auth/${SSH_MANAGER_ROLE_NAME}:/vault/auth/${SSH_MANAGER_ROLE_NAME}:ro
+    command: >
+      sh -c "
+        # Change ownership of the /vault/keys directory to UID 100 and GID 1000
+        chown -R 100:1000 /vault/keys &&
+
+        # Set recursive permissions to allow the owner and group full access, and no access for others
+        chmod -R 770 /vault/keys &&
+
+        # Start the Vault agent with the specified configuration file
+        vault agent -config=/vault/config/vault_agent.hcl
+      "
+    #TODO: Run the service with vault user instead of the root user
+    # 100:1000 is the UID:GID of the vault user in the container.
+#    user: "100:1000"  # Ensure container runs as 'vault' user
+    healthcheck:
+      test:
+        [
+          "CMD", "sh", "-c",
+          "pgrep -f 'vault agent' > /dev/null || exit 1"
+        ]
+      interval: 30s
+      retries: 3
+      timeout: 10s
+      start_period: 10s
+
+networks:
+  ansible_network:
+    driver: bridge

@@ -1,0 +1,6 @@
+{{ with secret "secret/data/ssh_keys/ansible" }}
+{
+  "id_rsa": {{ .Data.data.id_rsa }},
+  "id_rsa_pub": {{ index .Data.data "id_rsa.pub" }}
+}
+{{ end }}
