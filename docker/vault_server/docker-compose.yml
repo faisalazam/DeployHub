@@ -1,10 +1,10 @@
 services:
-  hashicorp_vault:
+  vault_server:
     build:
       context: ../..
-      dockerfile: docker/hashicorp_vault/Dockerfile
+      dockerfile: docker/vault_server/Dockerfile
     image: custom_vault:latest
-    container_name: hashicorp_vault
+    container_name: vault_server
     ports:
       - "127.0.0.1:8200:8200" # Restrict port mapping to localhost
     cap_add:

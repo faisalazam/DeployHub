@@ -18,7 +18,7 @@
 *.log
 *.pid
 *.swp
-/docker/hashicorp_vault/unseal_keys/
+/docker/vault_server/unseal_keys/
 
 # Ignore the winrm folder
 winrm/
