@@ -21,11 +21,10 @@ services:
       - raft_data:/vault/raft
       - vault_file:/vault/file
       - vault_logs:/vault/logs
+      - ./auth:/vault/auth
       - ./scripts:/vault/scripts
-      - ./unseal_keys:/vault/keys
       - ./policies:/vault/policies:ro
       - ./config/vault_config.hcl:/vault/config/vault_config.hcl:ro
-      - ./auth/${SSH_MANAGER_ROLE_NAME}:/vault/auth/${SSH_MANAGER_ROLE_NAME}
     entrypoint: [ "sh", "/vault/scripts/vault_startup.sh" ]
     networks:
       - ansible_network

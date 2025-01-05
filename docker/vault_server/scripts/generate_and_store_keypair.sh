@@ -9,11 +9,11 @@ SSH_MANAGER_TOKEN_KEY="SSH_MANAGER_TOKEN"
 
 generate_and_store_keypair() {
   MACHINE_NAME=$1
-  KEYS_DIR=$2
-  if ! vault kv get "${KEYS_DIR}" > /dev/null 2>&1; then
+  AUTH_DIR=$2
+  if ! vault kv get "${AUTH_DIR}" > /dev/null 2>&1; then
     log "Generating keys for ${MACHINE_NAME}..."
     ssh-keygen -t rsa -b 2048 -f "/tmp/${MACHINE_NAME}_id_rsa" -N ""
-    if vault kv put "${KEYS_DIR}" \
+    if vault kv put "${AUTH_DIR}" \
       id_rsa=@"/tmp/${MACHINE_NAME}_id_rsa" \
       id_rsa.pub=@"/tmp/${MACHINE_NAME}_id_rsa.pub"; then
       log "SSH keys for ${MACHINE_NAME} have been stored in Vault!"

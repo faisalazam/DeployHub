@@ -21,16 +21,25 @@ elif echo "$VAULT_STATUS" | grep -qE "Initialized\s+false"; then
   # Extract unseal keys from lines 2, 3, ..., KEY_SHARES+1
   UNSEAL_KEYS=$(echo "$INIT_OUTPUT" | grep 'Unseal Key' | awk '{print $NF}' | head -n "$KEY_SHARES")
 
+  dir_name=$(dirname "$KEYS_FILE")
+  if ! mkdir -p "$dir_name"; then
+    log "Could not create $dir_name directory. Exiting..." "ERROR"
+    exit 1
+  fi
+
   # TODO: store these somewhere secure instead of the file in the container.
   # May be in the CI's credentials manger, AWS KMS etc.
   # Save unseal keys and root token to the keys file (sensitive data stored securely)
-  {
+  if ! {
     echo "Unseal_Keys:"
     echo "$UNSEAL_KEYS" | nl -w2 -s": "
-  } > "$KEYS_FILE"
+  } > "$KEYS_FILE" || [ ! -f "$KEYS_FILE" ] || [ ! -w "$KEYS_FILE" ]; then
+    log "Failed to write unseal keys to $KEYS_FILE or file is not writable. Exiting..." "ERROR"
+    exit 1
+  fi
 
   # Secure the file (e.g., read/write only for the owner)
-  chmod 700 "$KEYS_DIR"    # Restrict access to the keys directory
+  chmod 700 "$AUTH_DIR"    # Restrict access to the keys directory
   chmod 600 "$KEYS_FILE"   # Restrict access to the keys file
 
   # Extract and save root token

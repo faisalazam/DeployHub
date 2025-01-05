@@ -8,10 +8,10 @@ RETRY_INTERVAL=1
 KEY_SHARES=3
 # shellcheck disable=SC2034
 KEY_THRESHOLD=2
-KEYS_DIR="/vault/keys"
+AUTH_DIR="/vault/auth"
 # shellcheck disable=SC2034
-KEYS_FILE="$KEYS_DIR/KEYS"
-: "${KEYS_DIR:=/vault/keys}"
+KEYS_FILE="$AUTH_DIR/unseal_keys/keys"
+: "${AUTH_DIR:=/vault/auth}"
 
 log() {
   log_level="${2:-INFO}" # Default to INFO if no log level is provided
