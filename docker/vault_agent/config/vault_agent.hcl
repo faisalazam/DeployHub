@@ -7,7 +7,7 @@ vault {
 
 # The token storage, used for storing the token retrieved by the agent.
 storage "file" {
-  path = "/vault/secrets/vault_token" # File where the Vault token will be stored.
+  path = "/vault/secrets/auth/agent/ssh_manager_role/vault_token" # File where the Vault token will be stored.
 }
 
 # Define how frequently to renew the token, and the TTL (time-to-live).
@@ -25,19 +25,19 @@ auto_auth {
   # The agent will automatically authenticate on start and refresh periodically.
   sink "file" {
     config = {
-      path = "/vault/secrets/vault_token"  # Path to store the Vault token.
+      path = "/vault/secrets/auth/agent/ssh_manager_role/vault_token"  # Path to store the Vault token.
     }
   }
 }
 
 # Cache token and secrets on disk.
 cache "file" {
-  path = "/vault/secrets/.vault_token_cache"
+  path = "/vault/secrets/auth/agent/ssh_manager_role/.vault_token_cache"
 }
 
 template {
   source = "/vault/config/template.ctmpl"
-  destination = "/vault/secrets/output.json"
+  destination = "/vault/secrets/auth/ansible/ssh_keys/local/output.json"
 }
 
 # # A listener block allows the Vault Agent to expose secrets over an HTTP API,

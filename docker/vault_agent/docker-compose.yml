@@ -10,6 +10,7 @@ services:
       - .env
     environment:
       SKIP_SETCAP: false
+      ENVIRONMENT: ${ENVIRONMENT}
       SSH_MANAGER_ROLE_NAME: ${SSH_MANAGER_ROLE_NAME:-ssh_manager_role}
     networks:
       - ansible_network
@@ -21,6 +22,15 @@ services:
       - ../vault_server/auth/${SSH_MANAGER_ROLE_NAME}:/vault/auth/${SSH_MANAGER_ROLE_NAME}:ro
     command: >
       sh -c "
+        # Create required directories
+        mkdir -p /vault/secrets/auth/agent/${SSH_MANAGER_ROLE_NAME} &&
+        mkdir -p /vault/secrets/auth/ansible/ssh_keys/${ENVIRONMENT} &&
+
+        # Set ownership and permissions for security
+        chown -R vault:vault /vault/secrets &&
+        chmod -R 770 /vault/secrets &&
+
+        # Start the Vault Agent
         vault agent -config=/vault/config/vault_agent.hcl
       "
     # TODO: Run the service with vault user instead of the root user
