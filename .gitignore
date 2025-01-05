@@ -18,6 +18,7 @@
 *.log
 *.pid
 *.swp
+/docker/vault_server/auth
 /docker/vault_server/unseal_keys/
 
 # Ignore the winrm folder

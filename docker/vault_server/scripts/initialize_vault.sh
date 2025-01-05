@@ -21,9 +21,6 @@ elif echo "$VAULT_STATUS" | grep -qE "Initialized\s+false"; then
   # Extract unseal keys from lines 2, 3, ..., KEY_SHARES+1
   UNSEAL_KEYS=$(echo "$INIT_OUTPUT" | grep 'Unseal Key' | awk '{print $NF}' | head -n "$KEY_SHARES")
 
-  # Extract root token
-  ROOT_TOKEN=$(echo "$INIT_OUTPUT" | grep 'Initial Root Token' | awk '{print $NF}')
-
   # TODO: store these somewhere secure instead of the file in the container.
   # May be in the CI's credentials manger, AWS KMS etc.
   # Save unseal keys and root token to the keys file (sensitive data stored securely)
@@ -32,11 +29,13 @@ elif echo "$VAULT_STATUS" | grep -qE "Initialized\s+false"; then
     echo "$UNSEAL_KEYS" | nl -w2 -s": "
   } > "$KEYS_FILE"
 
-  save_key_value_to_file "$ROOT_TOKEN_KEY" "$ROOT_TOKEN"
-
   # Secure the file (e.g., read/write only for the owner)
   chmod 700 "$KEYS_DIR"    # Restrict access to the keys directory
   chmod 600 "$KEYS_FILE"   # Restrict access to the keys file
+
+  # Extract and save root token
+  ROOT_TOKEN=$(echo "$INIT_OUTPUT" | grep 'Initial Root Token' | awk '{print $NF}')
+  save_key_value_to_file "$ROOT_TOKEN_KEY" "$ROOT_TOKEN" "/vault/auth/root" "vault_token"
 
   log "Vault has been initialized. Keys saved to $KEYS_FILE."
 else

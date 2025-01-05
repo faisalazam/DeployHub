@@ -43,7 +43,9 @@ check_vault_status() {
 
 login_with_token() {
   KEY_NAME=$1
-  TOKEN_FILE="$KEYS_DIR/$KEY_NAME"
+  FILE_DIR=$2
+  FILE_NAME=$3
+  TOKEN_FILE="$FILE_DIR/$FILE_NAME"
 
   if [ ! -f "$TOKEN_FILE" ]; then
     log "Key file '$TOKEN_FILE' not found. Exiting..." "ERROR"
@@ -55,7 +57,7 @@ login_with_token() {
     exit 1
   fi
 
-  LOGIN_TOKEN=$(cat "$KEYS_DIR/$KEY_NAME")
+  LOGIN_TOKEN=$(cat "$TOKEN_FILE")
   if [ -z "$LOGIN_TOKEN" ]; then
     log "Token with $KEY_NAME is empty. Exiting..." "ERROR"
     exit 1
@@ -72,6 +74,8 @@ login_with_token() {
 save_key_value_to_file() {
   KEY="$1"
   VALUE="$2"
+  FILE_DIR="$3"
+  FILE_NAME="$4"
 
   if [ -z "$VALUE" ]; then
     log "Failed to create '${KEY}' value. Exiting..." "ERROR"
@@ -84,11 +88,17 @@ save_key_value_to_file() {
 
   log "Saving ${KEY}..."
 
-  if ! echo "$VALUE" > "$KEYS_DIR/$KEY"; then
-    log "Failed to save ${KEY} in $KEYS_DIR/$KEY. Exiting..." "ERROR"
+  if ! mkdir -p "$FILE_DIR"; then
+    log "Could not create $FILE_DIR directory. Exiting..." "ERROR"
     exit 1
   fi
-  chmod 600 "$KEYS_DIR/$KEY"   # Restrict access to the key file
 
-  log "${KEY} has been saved in $KEYS_DIR/$KEY."
+  if ! echo "$VALUE" > "$FILE_DIR/$FILE_NAME"; then
+    log "Failed to save ${KEY} in $FILE_DIR/$FILE_NAME. Exiting..." "ERROR"
+    exit 1
+  fi
+  chmod 700 "$FILE_DIR"              # Restrict access to the directory
+  chmod 600 "$FILE_DIR/$FILE_NAME"   # Restrict access to the file
+
+  log "${KEY} has been saved in $FILE_DIR/$FILE_NAME."
 }

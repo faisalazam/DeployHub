@@ -9,11 +9,14 @@ services:
       - "127.0.0.1:8200:8200" # Restrict port mapping to localhost
     cap_add:
       - IPC_LOCK  # Allow Vault to lock memory for production-like setups
+    env_file:
+      - .env
     environment:
       ENVIRONMENT: ${ENVIRONMENT}
       SERVER_MODE: ${SERVER_MODE:-prod}
       VAULT_DEV_ROOT_TOKEN_ID: "root"
       VAULT_ADDR: "http://127.0.0.1:8200"
+      SSH_MANAGER_ROLE_NAME: ${SSH_MANAGER_ROLE_NAME:-ssh_manager_role}
     volumes:
       - raft_data:/vault/raft
       - vault_file:/vault/file
@@ -22,6 +25,7 @@ services:
       - ./unseal_keys:/vault/keys
       - ./policies:/vault/policies:ro
       - ./config/vault_config.hcl:/vault/config/vault_config.hcl:ro
+      - ./auth/${SSH_MANAGER_ROLE_NAME}:/vault/auth/${SSH_MANAGER_ROLE_NAME}
     entrypoint: [ "sh", "/vault/scripts/vault_startup.sh" ]
     networks:
       - ansible_network
