@@ -2,12 +2,12 @@
 
 # Define the Vault address where the Vault server is located.
 vault {
-  address = "http://vault_server:8200"
+  address = "${VAULT_ADDR}"
 }
 
 # The token storage, used for storing the token retrieved by the agent.
 storage "file" {
-  path = "/vault/secrets/auth/agent/ssh_manager_role/vault_token" # File where the Vault token will be stored.
+  path = "/vault/secrets/auth/agent/${SSH_MANAGER_ROLE_NAME}/vault_token" # File where the Vault token will be stored.
 }
 
 # Define how frequently to renew the token, and the TTL (time-to-live).
@@ -17,27 +17,27 @@ auto_auth {
       path = "auth/approle/login"
       policies = ["default"]  # Specify the Vault policies to apply.
       ttl = "1h"              # Token TTL.
-      role_id_file_path   = "/vault/auth/ssh_manager_role/role_id"
-      secret_id_file_path = "/vault/auth/ssh_manager_role/secret_id"
+      role_id_file_path   = "/vault/auth/${SSH_MANAGER_ROLE_NAME}/role_id"
+      secret_id_file_path = "/vault/auth/${SSH_MANAGER_ROLE_NAME}/secret_id"
     }
   }
 
   # The agent will automatically authenticate on start and refresh periodically.
   sink "file" {
     config = {
-      path = "/vault/secrets/auth/agent/ssh_manager_role/vault_token"  # Path to store the Vault token.
+      path = "/vault/secrets/auth/agent/${SSH_MANAGER_ROLE_NAME}/vault_token"  # Path to store the Vault token.
     }
   }
 }
 
 # Cache token and secrets on disk.
 cache "file" {
-  path = "/vault/secrets/auth/agent/ssh_manager_role/.vault_token_cache"
+  path = "/vault/secrets/auth/agent/${SSH_MANAGER_ROLE_NAME}/.vault_token_cache"
 }
 
 template {
   source = "/vault/config/template.ctmpl"
-  destination = "/vault/secrets/auth/ansible/ssh_keys/local/output.json"
+  destination = "/vault/secrets/auth/ansible/ssh_keys/${ENVIRONMENT}/output.json"
 }
 
 # # A listener block allows the Vault Agent to expose secrets over an HTTP API,

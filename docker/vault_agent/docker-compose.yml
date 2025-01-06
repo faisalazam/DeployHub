@@ -10,6 +10,7 @@ services:
       - .env
     environment:
       SKIP_SETCAP: false
+      VAULT_ADDR: ${VAULT_ADDR}
       ENVIRONMENT: ${ENVIRONMENT}
       SSH_MANAGER_ROLE_NAME: ${SSH_MANAGER_ROLE_NAME:-ssh_manager_role}
     networks:
