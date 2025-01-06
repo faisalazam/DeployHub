@@ -1,4 +1,19 @@
 services:
+  vault_server:
+    extends:
+      file: ./vault_server/docker-compose.yml
+      service: vault_server
+    profiles: ["default", "test"]
+
+  vault_agent:
+    extends:
+      file: ./vault_agent/docker-compose.yml
+      service: vault_agent
+    depends_on:
+      vault_server:
+        condition: service_healthy
+    profiles: ["default", "test"]
+
   ansible:
     extends:
       file: ./ansible_host/docker-compose.yml
@@ -11,6 +26,8 @@ services:
     networks:
       - ansible_network
     depends_on:
+      vault_agent:
+        condition: service_healthy
       linux_ssh_pass_host:
         condition: service_healthy
       linux_ssh_keys_host:
@@ -28,6 +45,11 @@ services:
       file: ./linux_ssh_keys_host/docker-compose.yml
       service: linux_ssh_keys_host
     profiles: ["default", "test"]
+
+volumes:
+  raft_data:
+  vault_file:
+  vault_logs:
 
 networks:
   ansible_network:
