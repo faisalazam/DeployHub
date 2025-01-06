@@ -40,24 +40,6 @@ template {
   destination = "/vault/secrets/auth/ansible/ssh_keys/sample_output.json"
 }
 
-template {
-  contents = <<EOT
-      {{ with secret "secret/data/ssh_keys/ansible" }}
-      {{ .Data.data.id_rsa }}
-    {{ end }}
-  EOT
-  destination = "/vault/secrets/auth/ansible/ssh_keys/${ENVIRONMENT}/id_rsa"
-}
-
-template {
-  contents = <<EOT
-      {{ with secret "secret/data/ssh_keys/ansible" }}
-      {{ index .Data.data "id_rsa.pub" }}
-    {{ end }}
-  EOT
-  destination = "/vault/secrets/auth/ansible/ssh_keys/${ENVIRONMENT}/id_rsa.pub"
-}
-
 # # A listener block allows the Vault Agent to expose secrets over an HTTP API,
 # # enabling applications to fetch secrets dynamically. So, add either template or listener block.
 # # This will expose an HTTP endpoint (on port 8201 in this example) where secrets can be queried.
