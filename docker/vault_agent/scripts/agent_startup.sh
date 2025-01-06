@@ -2,8 +2,8 @@
 
 # Create required directories
 mkdir -p "/vault/secrets/config"
+mkdir -p "/vault/secrets/auth/ssh_keys"
 mkdir -p "/vault/secrets/auth/agent/$SSH_MANAGER_ROLE_NAME"
-mkdir -p "/vault/secrets/auth/ansible/ssh_keys/$ENVIRONMENT"
 
 # Set ownership and permissions for security
 chown -R vault:vault /vault/secrets

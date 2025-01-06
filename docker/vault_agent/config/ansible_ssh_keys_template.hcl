@@ -4,7 +4,7 @@ template {
       {{ .Data.data.id_rsa }}
     {{ end }}
   EOT
-  destination = "/vault/secrets/auth/ansible/ssh_keys/${ENVIRONMENT}/id_rsa"
+  destination = "/vault/secrets/auth/ssh_keys/ansible/id_rsa"
 }
 
 template {
@@ -13,5 +13,5 @@ template {
       {{ index .Data.data "id_rsa.pub" }}
     {{ end }}
   EOT
-  destination = "/vault/secrets/auth/ansible/ssh_keys/${ENVIRONMENT}/id_rsa.pub"
+  destination = "/vault/secrets/auth/ssh_keys/ansible/id_rsa.pub"
 }
