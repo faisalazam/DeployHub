@@ -1,9 +1,6 @@
 services:
   vault_server:
-    build:
-      context: ../..
-      dockerfile: docker/vault_server/Dockerfile
-    image: custom_vault:latest
+    image: hashicorp/vault:1.18.3
     container_name: vault_server
     ports:
       - "127.0.0.1:8200:8200" # Restrict port mapping to localhost

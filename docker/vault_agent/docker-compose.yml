@@ -2,7 +2,8 @@ services:
   vault_agent:
     build:
       context: ../..
-    image: hashicorp/vault:1.18.3
+      dockerfile: docker/vault_agent/Dockerfile
+    image: custom_vault_agent:latest
     container_name: vault_agent
     cap_add:
       - IPC_LOCK  # Allow Vault to lock memory for production-like setups
