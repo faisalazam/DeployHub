@@ -24,6 +24,8 @@ sed -e "s|\${VAULT_ADDR}|$VAULT_ADDR|g" \
 vault agent -config=/vault/secrets/config/vault_agent_resolved.hcl &
 AGENT_PID=$!  # Capture the process ID of the Vault Agent
 
+check_vault_status
+
 log "Generating and storing SSH keys..."
 . /vault/scripts/generate_and_store_keypair.sh
 
