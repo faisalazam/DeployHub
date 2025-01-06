@@ -14,41 +14,17 @@ fi
 for MACHINE in $MACHINES; do
   MACHINE_PATH="secret/data/ssh_keys/${ENVIRONMENT}/${MACHINE}"
 
-  # Add template for id_rsa
-  cat <<OUTER_EOT >> /vault/secrets/config/vault_agent_resolved.hcl
-    template {
-      contents = <<INNER_EOT
-        {{ with secret "${MACHINE_PATH}" }}
-          {{ .Data.data.id_rsa }}
-        {{ end }}
-      INNER_EOT
-      destination = "/vault/secrets/auth/ssh_keys/${ENVIRONMENT}/${MACHINE}/id_rsa"
-    }
-OUTER_EOT
+  # Fetch id_rsa
+  log "Fetching id_rsa for $MACHINE..."
+  vault kv get -field=id_rsa "$MACHINE_PATH" > "/vault/secrets/auth/ssh_keys/${ENVIRONMENT}/${MACHINE}/id_rsa"
 
-  # Add template for id_rsa.pub
-  cat <<OUTER_EOT >> /vault/secrets/config/vault_agent_resolved.hcl
-    template {
-      contents = <<INNER_EOT
-        {{ with secret "${MACHINE_PATH}" }}
-          {{ index .Data.data "id_rsa.pub" }}
-        {{ end }}
-      INNER_EOT
-      destination = "/vault/secrets/auth/ssh_keys/${ENVIRONMENT}/${MACHINE}/id_rsa.pub"
-    }
-OUTER_EOT
+  # Fetch id_rsa.pub
+  log "Fetching id_rsa.pub for $MACHINE..."
+  vault kv get -field=id_rsa.pub "$MACHINE_PATH" > "/vault/secrets/auth/ssh_keys/${ENVIRONMENT}/${MACHINE}/id_rsa.pub"
+
+  # Set permissions for the keys
+  chmod 600 "/vault/secrets/auth/ssh_keys/${ENVIRONMENT}/${MACHINE}/id_rsa"
+  chmod 644 "/vault/secrets/auth/ssh_keys/${ENVIRONMENT}/${MACHINE}/id_rsa.pub"
+
+  log "SSH keys fetched and stored for $MACHINE."
 done
-
-log "Restarting Vault agent to apply new templates..."
-kill "$AGENT_PID"  # Terminate the running Vault Agent process
-
-# Restart the Vault Agent
-vault agent -config=/vault/secrets/config/vault_agent_resolved.hcl &
-AGENT_PID=$!  # Capture the new process ID of the Vault Agent
-
-if kill -0 "$AGENT_PID" > /dev/null 2>&1; then
-  log "Vault Agent restarted successfully with new templates."
-else
-  log "Failed to restart Vault Agent. Exiting..." "ERROR"
-  exit 1
-fi
