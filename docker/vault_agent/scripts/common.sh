@@ -27,14 +27,20 @@ check_vault_status() {
   log "Vault agent is ready."
 }
 
-login_with_token() {
-  KEY_NAME=$1
-  FILE_DIR=$2
-  FILE_NAME=$3
+check_vault_token() {
+  FILE_DIR=$1
+  FILE_NAME=$2
   TOKEN_FILE="$FILE_DIR/$FILE_NAME"
+  # Wait for the TOKEN_FILE to exist
+  while [ ! -f "$TOKEN_FILE" ] && [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+    log "Waiting for key file '$TOKEN_FILE' to be created. Attempt #$((RETRY_COUNT + 1))..." "INFO"
+    sleep $RETRY_INTERVAL
+    RETRY_COUNT=$((RETRY_COUNT + 1))
+  done
 
+  # Check if the file is still not found after retries
   if [ ! -f "$TOKEN_FILE" ]; then
-    log "Key file '$TOKEN_FILE' not found. Exiting..." "ERROR"
+    log "Key file '$TOKEN_FILE' not found after $MAX_RETRIES attempts. Exiting..." "ERROR"
     exit 1
   fi
 
@@ -42,6 +48,15 @@ login_with_token() {
     log "Key file '$TOKEN_FILE' is empty. Exiting..." "ERROR"
     exit 1
   fi
+}
+
+login_with_token() {
+  KEY_NAME=$1
+  FILE_DIR=$2
+  FILE_NAME=$3
+  TOKEN_FILE="$FILE_DIR/$FILE_NAME"
+
+  check_vault_token "$FILE_DIR" "$FILE_NAME"
 
   LOGIN_TOKEN=$(cat "$TOKEN_FILE")
   if [ -z "$LOGIN_TOKEN" ]; then
