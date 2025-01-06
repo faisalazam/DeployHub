@@ -17,25 +17,14 @@ services:
     volumes:
       - vault_file:/vault/file
       - vault_logs:/vault/logs
+      - ./scripts:/vault/scripts
       - ./secrets:/vault/secrets
       - ./config:/vault/config:ro
       - ../vault_server/auth/${SSH_MANAGER_ROLE_NAME}:/vault/auth/${SSH_MANAGER_ROLE_NAME}:ro
-    command: >
-      sh -c "
-        # Create required directories
-        mkdir -p /vault/secrets/auth/agent/${SSH_MANAGER_ROLE_NAME} &&
-        mkdir -p /vault/secrets/auth/ansible/ssh_keys/${ENVIRONMENT} &&
-
-        # Set ownership and permissions for security
-        chown -R vault:vault /vault/secrets &&
-        chmod -R 770 /vault/secrets &&
-
-        # Start the Vault Agent
-        vault agent -config=/vault/config/vault_agent.hcl
-      "
+    entrypoint: [ "sh", "/vault/scripts/agent_startup.sh" ]
     # TODO: Run the service with vault user instead of the root user
     # 100:1000 is the UID:GID of the vault user in the container.
-#    user: "100:1000"  # Ensure container runs as 'vault' user
+    # user: "100:1000"  # Ensure container runs as 'vault' user
     healthcheck:
       test:
         [
