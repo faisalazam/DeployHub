@@ -29,6 +29,15 @@ fetch_ssh_keys() {
     exit 1
   fi
 
+  # Check if id_rsa.pub exists and is a directory
+  # linux_ssh_keys_host turns id_rsa.pub file to directory due to the volume mount.
+  # It happens because by the time linux_ssh_keys_host is created and the volume mounted,
+  # vault_agent hasn't created created the id_rsa.pub file yet, so docker treats it as a directory...
+  if [ -d "$SSH_KEYS_DIR/id_rsa.pub" ]; then
+      echo "$SSH_KEYS_DIR/id_rsa.pub is a directory. Deleting it."
+      rm -rf "$SSH_KEYS_DIR/id_rsa.pub"
+  fi
+
   # Fetch id_rsa.pub
   log "Fetching id_rsa.pub from $SSH_PATH..."
   if ! vault kv get -field=id_rsa.pub "$SSH_PATH" > "$SSH_KEYS_DIR/id_rsa.pub"; then
