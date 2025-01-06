@@ -29,4 +29,7 @@ check_vault_status
 log "Generating and storing SSH keys..."
 . /vault/scripts/generate_and_store_keypair.sh
 
+log "Fetching SSH keys..."
+. /vault/scripts/fetch_ssh_keys.sh
+
 wait "$AGENT_PID"
