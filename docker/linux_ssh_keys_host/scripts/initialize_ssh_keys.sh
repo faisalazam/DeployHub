@@ -25,7 +25,8 @@ if [ -f "$AUTHORIZED_KEYS" ]; then
   chown "$ROOT_USER:$ROOT_USER" "$AUTHORIZED_KEYS"
   chmod 600 "$AUTHORIZED_KEYS"
 else
-  echo "Warning: $AUTHORIZED_KEYS not found."
+  echo "ERROR: $AUTHORIZED_KEYS not found."
+  exit 1
 fi
 
 echo "Starting SSH server..."
