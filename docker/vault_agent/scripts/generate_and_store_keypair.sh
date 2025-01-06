@@ -2,6 +2,7 @@
 
 SECRETS_PATH="secret"
 SSH_KEYS_DIR="${SECRETS_PATH}/ssh_keys"
+SSH_MANAGER_TOKEN_KEY="SSH_MANAGER_TOKEN"
 
 . /vault/scripts/common.sh
 
