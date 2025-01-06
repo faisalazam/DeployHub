@@ -35,11 +35,6 @@ cache "file" {
   path = "/vault/secrets/auth/agent/${SSH_MANAGER_ROLE_NAME}/.vault_token_cache"
 }
 
-template {
-  source = "/vault/config/template.ctmpl"
-  destination = "/vault/secrets/auth/ansible/ssh_keys/sample_output.json"
-}
-
 # # A listener block allows the Vault Agent to expose secrets over an HTTP API,
 # # enabling applications to fetch secrets dynamically. So, add either template or listener block.
 # # This will expose an HTTP endpoint (on port 8201 in this example) where secrets can be queried.
