@@ -2,7 +2,7 @@
 
 . /vault/scripts/common.sh
 
-rm -rf "/vault/secrets/auth/agent/$SSH_MANAGER_ROLE_NAME"
+rm -rf "/vault/secrets"
 
 # Create required directories
 mkdir -p "/vault/secrets/config"
