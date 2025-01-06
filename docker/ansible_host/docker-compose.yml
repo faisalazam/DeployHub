@@ -12,7 +12,7 @@ services:
       - ../../ansible:/ansible
       - ../../ansible/ansible.cfg:/etc/ansible/ansible.cfg:ro
       - ../../certs/${ENVIRONMENT}/:/certs:ro
-      - ../../.ssh_keys/ansible:/root/.ssh
+      - ../vault_agent/secrets/auth/ssh_keys/ansible:/root/.ssh
       - ./scripts:/usr/local/bin
     env_file:
       - .env
