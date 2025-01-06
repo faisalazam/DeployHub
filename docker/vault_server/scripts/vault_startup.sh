@@ -16,7 +16,4 @@ log "Configuring Vault Environment..."
 log "Create Service Account/Token with Vault Policy..."
 . /vault/scripts/create_svc_token_with_policy.sh
 
-log "Generating and storing SSH keys..."
-. /vault/scripts/generate_and_store_keypair.sh
-
 wait "$VAULT_PID"
