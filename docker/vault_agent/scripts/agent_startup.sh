@@ -1,5 +1,7 @@
 #!/bin/sh
 
+. /vault/scripts/common.sh
+
 # Create required directories
 mkdir -p "/vault/secrets/config"
 mkdir -p "/vault/secrets/auth/ssh_keys"
@@ -19,4 +21,10 @@ sed -e "s|\${VAULT_ADDR}|$VAULT_ADDR|g" \
     /vault/secrets/config/vault_agent_combined.hcl > /vault/secrets/config/vault_agent_resolved.hcl
 
 # Start the Vault Agent
-vault agent -config=/vault/secrets/config/vault_agent_resolved.hcl
+vault agent -config=/vault/secrets/config/vault_agent_resolved.hcl &
+AGENT_PID=$!  # Capture the process ID of the Vault Agent
+
+log "Generating and storing SSH keys..."
+. /vault/scripts/generate_and_store_keypair.sh
+
+wait "$AGENT_PID"
