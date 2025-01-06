@@ -64,7 +64,7 @@ login_with_token() {
   fi
 
   log "Logging in with the $KEY_NAME token..."
-  if ! vault login "$LOGIN_TOKEN" > /dev/null 2>&1; then
+  if ! vault login -no-print "$LOGIN_TOKEN" > /dev/null 2>&1; then
     log "Failed to log in with the $KEY_NAME token. Exiting..." "ERROR"
     exit 1
   fi
