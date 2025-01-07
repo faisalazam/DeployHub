@@ -28,8 +28,8 @@ mkdir -p "$AGENT_DIR/ssh_keys"
 mkdir -p "$AGENT_DIR/auth/$SSH_MANAGER_ROLE_NAME"
 
 # Set ownership and permissions for security
-chown -R vault:vault "$SECRETS_DIR"
-chmod -R 770 "$SECRETS_DIR"
+chown -R vault:vault "$AGENT_DIR"
+chmod -R 770 "$AGENT_DIR"
 
 # Combine all .hcl files in the /vault/config directory
 cat /vault/config/*.hcl > "$AGENT_CONFIG_DIR/vault_agent_combined.hcl"
