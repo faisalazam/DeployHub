@@ -42,6 +42,12 @@ elif echo "$VAULT_STATUS" | grep -qE "Initialized\s+false"; then
   chmod 700 "$AUTH_DIR"    # Restrict access to the keys directory
   chmod 600 "$KEYS_FILE"   # Restrict access to the keys file
 
+  # Change the owner to the vault user for both the directory and the keys file
+  if ! chown -R vault:vault "$AUTH_DIR" "$KEYS_FILE"; then
+    log "Failed to change ownership to 'vault' for $AUTH_DIR and $KEYS_FILE. Exiting..." "ERROR"
+    exit 1
+  fi
+
   # Extract and save root token
   ROOT_TOKEN=$(echo "$INIT_OUTPUT" | grep 'Initial Root Token' | awk '{print $NF}')
   save_key_value_to_file "$ROOT_TOKEN_KEY" "$ROOT_TOKEN" "/vault/auth/root" "vault_token"

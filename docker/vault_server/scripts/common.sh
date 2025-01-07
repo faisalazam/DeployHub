@@ -100,5 +100,11 @@ save_key_value_to_file() {
   chmod 700 "$FILE_DIR"              # Restrict access to the directory
   chmod 600 "$FILE_DIR/$FILE_NAME"   # Restrict access to the file
 
+  # Change the owner to the vault user for both the directory and the keys file
+  if ! chown -R vault:vault "$FILE_DIR" "$FILE_DIR/$FILE_NAME"; then
+    log "Failed to change ownership to 'vault' for $FILE_DIR and $FILE_NAME. Exiting..." "ERROR"
+    exit 1
+  fi
+
   log "${KEY} has been saved in $FILE_DIR/$FILE_NAME."
 }
