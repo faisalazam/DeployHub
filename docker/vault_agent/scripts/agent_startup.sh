@@ -3,6 +3,7 @@
 . /vault/scripts/common.sh
 
 SECRETS_DIR="/vault/secrets"
+AGENT_CONFIG_DIR="$SECRETS_DIR/agent/config"
 
 if [ -e "$SECRETS_DIR" ]; then
   log "Directory exists: $SECRETS_DIR.  Cleaning contents..."
@@ -16,7 +17,7 @@ else
 fi
 
 # Create required directories
-mkdir -p "$SECRETS_DIR/config"
+mkdir -p "$AGENT_CONFIG_DIR"
 mkdir -p "$SECRETS_DIR/agent/ssh_keys"
 mkdir -p "$SECRETS_DIR/agent/auth/$SSH_MANAGER_ROLE_NAME"
 
@@ -25,16 +26,16 @@ chown -R vault:vault "$SECRETS_DIR"
 chmod -R 770 "$SECRETS_DIR"
 
 # Combine all .hcl files in the /vault/config directory
-cat /vault/config/*.hcl > "$SECRETS_DIR/config/vault_agent_combined.hcl"
+cat /vault/config/*.hcl > "$AGENT_CONFIG_DIR/vault_agent_combined.hcl"
 
 # Substitute variables in HCL using sed
 sed -e "s|\${VAULT_ADDR}|$VAULT_ADDR|g" \
     -e "s|\${ENVIRONMENT}|$ENVIRONMENT|g" \
     -e "s|\${SSH_MANAGER_ROLE_NAME}|$SSH_MANAGER_ROLE_NAME|g" \
-    "$SECRETS_DIR/config/vault_agent_combined.hcl" > "$SECRETS_DIR/config/vault_agent_resolved.hcl"
+    "$AGENT_CONFIG_DIR/vault_agent_combined.hcl" > "$AGENT_CONFIG_DIR/vault_agent_resolved.hcl"
 
 # Start the Vault Agent
-vault agent -config="$SECRETS_DIR/config/vault_agent_resolved.hcl" &
+vault agent -config="$AGENT_CONFIG_DIR/vault_agent_resolved.hcl" &
 AGENT_PID=$!  # Capture the process ID of the Vault Agent
 
 check_vault_status
