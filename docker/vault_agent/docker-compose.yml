@@ -22,8 +22,8 @@ services:
       - ./scripts:/vault/scripts
       - ./secrets:/vault/secrets
       - ./config:/vault/config:ro
-      # If the following dir is missing, then start the vault_server first to create the auth dir contents
-      - ../vault_server/auth/${SSH_MANAGER_ROLE_NAME}:/vault/auth/${SSH_MANAGER_ROLE_NAME}:ro
+      # If the following dir/volume is missing, then start the vault_server first to create the auth dir contents
+      - vault_ssh_manager_role:/vault/secrets/server/auth/${SSH_MANAGER_ROLE_NAME}:ro
     entrypoint: [ "sh", "/vault/scripts/agent_startup.sh" ]
     # TODO: Run the service with vault user instead of the root user
     # 100:1000 is the UID:GID of the vault user in the container.
@@ -44,6 +44,7 @@ services:
 volumes:
   vault_file:
   vault_logs:
+  vault_ssh_manager_role:
 
 networks:
   ansible_network:

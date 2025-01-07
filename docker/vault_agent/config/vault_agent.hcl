@@ -17,8 +17,8 @@ auto_auth {
       path = "auth/approle/login"
       policies = ["default"]  # Specify the Vault policies to apply.
       ttl = "1h"              # Token TTL.
-      role_id_file_path   = "/vault/auth/${SSH_MANAGER_ROLE_NAME}/role_id"
-      secret_id_file_path = "/vault/auth/${SSH_MANAGER_ROLE_NAME}/secret_id"
+      role_id_file_path   = "/vault/secrets/server/auth/${SSH_MANAGER_ROLE_NAME}/role_id"
+      secret_id_file_path = "/vault/secrets/server/auth/${SSH_MANAGER_ROLE_NAME}/secret_id"
     }
   }
 

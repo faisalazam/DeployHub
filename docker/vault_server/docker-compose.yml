@@ -19,6 +19,7 @@ services:
       - vault_file:/vault/file
       - vault_logs:/vault/logs
       - ./auth:/vault/auth
+      - vault_ssh_manager_role:/vault/auth/${SSH_MANAGER_ROLE_NAME}
       - ./scripts:/vault/scripts
       - ./policies:/vault/policies:ro
       - ./config/vault_config.hcl:/vault/config/vault_config.hcl:ro
@@ -40,6 +41,7 @@ volumes:
   raft_data:
   vault_file:
   vault_logs:
+  vault_ssh_manager_role:
 
 networks:
   ansible_network:

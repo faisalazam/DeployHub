@@ -53,6 +53,7 @@ volumes:
   raft_data:
   vault_file:
   vault_logs:
+  vault_ssh_manager_role:
 
 networks:
   ansible_network:
