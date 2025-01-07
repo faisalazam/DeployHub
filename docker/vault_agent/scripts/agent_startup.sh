@@ -3,23 +3,29 @@
 . /vault/scripts/common.sh
 
 SECRETS_DIR="/vault/secrets"
-AGENT_CONFIG_DIR="$SECRETS_DIR/agent/config"
+AGENT_DIR="$SECRETS_DIR/agent"
+AGENT_CONFIG_DIR="$AGENT_DIR/config"
 
-if [ -e "$SECRETS_DIR" ]; then
-  log "Directory exists: $SECRETS_DIR.  Cleaning contents..."
-  rm -rf "${SECRETS_DIR:?}/"* || {
-    log "Failed to delete the contents of $SECRETS_DIR. Exiting." "ERROR"
-    exit 1
-  }
-  log "Successfully cleaned up $SECRETS_DIR."
-else
-  log "Directory does not exist: $SECRETS_DIR. Nothing to clean up."
-fi
+clean_directory() {
+  dir="$1"
+  if [ -e "$dir" ]; then
+    log "Directory exists: $dir. Cleaning contents..."
+    rm -rf "${dir:?}/"* || {
+      log "Failed to delete the contents of $dir. Exiting." "ERROR"
+      exit 1
+    }
+    log "Successfully cleaned up $dir."
+  else
+    log "Directory does not exist: $dir. Nothing to clean up."
+  fi
+}
+
+clean_directory "$AGENT_DIR"
 
 # Create required directories
 mkdir -p "$AGENT_CONFIG_DIR"
-mkdir -p "$SECRETS_DIR/agent/ssh_keys"
-mkdir -p "$SECRETS_DIR/agent/auth/$SSH_MANAGER_ROLE_NAME"
+mkdir -p "$AGENT_DIR/ssh_keys"
+mkdir -p "$AGENT_DIR/auth/$SSH_MANAGER_ROLE_NAME"
 
 # Set ownership and permissions for security
 chown -R vault:vault "$SECRETS_DIR"
