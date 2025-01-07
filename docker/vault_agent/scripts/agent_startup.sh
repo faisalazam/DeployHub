@@ -32,10 +32,12 @@ cat /vault/config/*.hcl > "$AGENT_CONFIG_DIR/vault_agent_combined.hcl"
 sed -e "s|\${VAULT_ADDR}|$VAULT_ADDR|g" \
     -e "s|\${ENVIRONMENT}|$ENVIRONMENT|g" \
     -e "s|\${SSH_MANAGER_ROLE_NAME}|$SSH_MANAGER_ROLE_NAME|g" \
-    "$AGENT_CONFIG_DIR/vault_agent_combined.hcl" > "$AGENT_CONFIG_DIR/vault_agent_resolved.hcl"
+    "$AGENT_CONFIG_DIR/vault_agent_combined.hcl" > "$AGENT_CONFIG_DIR/vault_agent.hcl"
+
+rm -f "$AGENT_CONFIG_DIR/vault_agent_combined.hcl"
 
 # Start the Vault Agent
-vault agent -config="$AGENT_CONFIG_DIR/vault_agent_resolved.hcl" &
+vault agent -config="$AGENT_CONFIG_DIR/vault_agent.hcl" &
 AGENT_PID=$!  # Capture the process ID of the Vault Agent
 
 check_vault_status
