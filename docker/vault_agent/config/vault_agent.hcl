@@ -7,7 +7,7 @@ vault {
 
 # The token storage, used for storing the token retrieved by the agent.
 storage "file" {
-  path = "/vault/secrets/auth/agent/${SSH_MANAGER_ROLE_NAME}/vault_token" # File where the Vault token will be stored.
+  path = "/vault/secrets/agent/auth/${SSH_MANAGER_ROLE_NAME}/vault_token" # File where the Vault token will be stored.
 }
 
 # Define how frequently to renew the token, and the TTL (time-to-live).
@@ -25,14 +25,14 @@ auto_auth {
   # The agent will automatically authenticate on start and refresh periodically.
   sink "file" {
     config = {
-      path = "/vault/secrets/auth/agent/${SSH_MANAGER_ROLE_NAME}/vault_token"  # Path to store the Vault token.
+      path = "/vault/secrets/agent/auth/${SSH_MANAGER_ROLE_NAME}/vault_token"  # Path to store the Vault token.
     }
   }
 }
 
 # Cache token and secrets on disk.
 cache "file" {
-  path = "/vault/secrets/auth/agent/${SSH_MANAGER_ROLE_NAME}/.vault_token_cache"
+  path = "/vault/secrets/agent/auth/${SSH_MANAGER_ROLE_NAME}/.vault_token_cache"
 }
 
 # # A listener block allows the Vault Agent to expose secrets over an HTTP API,

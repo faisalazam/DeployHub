@@ -66,7 +66,7 @@ fetch_ssh_keys() {
 
 SSH_MANAGER_TOKEN_KEY="SSH_MANAGER_TOKEN"
 log "Logging in as ${SSH_MANAGER_TOKEN_KEY} role..."
-login_with_token "${SSH_MANAGER_TOKEN_KEY}" "/vault/secrets/auth/agent/${SSH_MANAGER_ROLE_NAME}" "vault_token"
+login_with_token "${SSH_MANAGER_TOKEN_KEY}" "/vault/secrets/agent/auth/${SSH_MANAGER_ROLE_NAME}" "vault_token"
 
 # Define ansible SSH keys path and directory
 ANSIBLE_PATH="secret/ssh_keys/ansible"
