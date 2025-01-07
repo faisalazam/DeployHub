@@ -25,7 +25,9 @@ services:
       # If the following dir/volume is missing, then start the vault_server first to create the auth dir contents
       - vault_ssh_manager_role:/vault/secrets/server/auth/${SSH_MANAGER_ROLE_NAME}:ro
     entrypoint: [ "sh", "/vault/scripts/agent_startup.sh" ]
-    user: "vault" # Ensure container runs as 'vault' user
+    # TODO: Run the service with vault user instead of the root user
+    # 100:1000 is the UID:GID of the vault user in the container.
+    # user: "100:1000"  # Ensure container runs as 'vault' user
     healthcheck:
       test:
         [
