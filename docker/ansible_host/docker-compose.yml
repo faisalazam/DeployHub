@@ -12,6 +12,7 @@ services:
       - ../../ansible:/ansible
       - ../../ansible/ansible.cfg:/etc/ansible/ansible.cfg:ro
       - ../../certs/${ENVIRONMENT}/:/certs:ro
+      # If the following dir is missing, then start the vault_agent first to create the secrets dir contents
       - ../vault_agent/secrets/agent/ssh_keys/ansible:/root/.ssh
       - ./scripts:/usr/local/bin
     env_file:
