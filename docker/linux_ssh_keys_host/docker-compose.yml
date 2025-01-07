@@ -9,7 +9,7 @@ services:
     container_name: linux_ssh_keys_host
     image: linux_ssh_keys_host:latest
     volumes:
-      - ../vault_agent/secrets/auth/ssh_keys/ansible/id_rsa.pub:/root/.ssh/authorized_keys
+      - ../vault_agent/secrets/agent/ssh_keys/ansible/id_rsa.pub:/root/.ssh/authorized_keys
       - ./scripts/initialize_ssh_keys.sh:/usr/local/bin/initialize_ssh_keys.sh
     command: [ "/bin/sh", "-c", "sh /usr/local/bin/initialize_ssh_keys.sh && /usr/sbin/sshd -D" ]
     tty: true

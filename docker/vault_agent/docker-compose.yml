@@ -32,8 +32,8 @@ services:
         [
           "CMD", "sh", "-c",
           "pgrep -f 'vault agent' > /dev/null && \
-           test -s /vault/secrets/auth/ssh_keys/ansible/id_rsa.pub && \
-           ! grep -q '^[[:space:]]*$' /vault/secrets/auth/ssh_keys/ansible/id_rsa.pub || exit 1"
+           test -s /vault/secrets/agent/ssh_keys/ansible/id_rsa.pub && \
+           ! grep -q '^[[:space:]]*$' /vault/secrets/agent/ssh_keys/ansible/id_rsa.pub || exit 1"
         ]
       interval: 30s
       retries: 3

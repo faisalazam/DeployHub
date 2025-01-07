@@ -17,7 +17,7 @@ fi
 
 # Create required directories
 mkdir -p "$SECRETS_DIR/config"
-mkdir -p "$SECRETS_DIR/auth/ssh_keys"
+mkdir -p "$SECRETS_DIR/agent/ssh_keys"
 mkdir -p "$SECRETS_DIR/agent/auth/$SSH_MANAGER_ROLE_NAME"
 
 # Set ownership and permissions for security

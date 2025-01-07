@@ -70,7 +70,7 @@ login_with_token "${SSH_MANAGER_TOKEN_KEY}" "/vault/secrets/agent/auth/${SSH_MAN
 
 # Define ansible SSH keys path and directory
 ANSIBLE_PATH="secret/ssh_keys/ansible"
-ANSIBLE_SSH_KEYS_DIR="/vault/secrets/auth/ssh_keys/ansible"
+ANSIBLE_SSH_KEYS_DIR="/vault/secrets/agent/ssh_keys/ansible"
 
 log "Fetching ansible SSH keys for ansible..."
 setup_ssh_keys_dir "$ANSIBLE_SSH_KEYS_DIR"
@@ -91,7 +91,7 @@ fi
 
 for MACHINE in $MACHINES; do
   MACHINE_PATH="secret/ssh_keys/${ENVIRONMENT}/${MACHINE}"
-  SSH_KEYS_DIR="/vault/secrets/auth/ssh_keys/${ENVIRONMENT}/${MACHINE}"
+  SSH_KEYS_DIR="/vault/secrets/agent/ssh_keys/${ENVIRONMENT}/${MACHINE}"
 
   log "Processing keys for $MACHINE..."
   setup_ssh_keys_dir "$SSH_KEYS_DIR"
