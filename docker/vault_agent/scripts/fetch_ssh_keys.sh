@@ -20,6 +20,8 @@ fetch_ssh_keys() {
   SSH_PATH=$1
   SSH_KEYS_DIR=$2
 
+  #TODO: Encrypt the id_rsa and id_rsa.pub files?
+
   # Fetch id_rsa
   log "Fetching id_rsa from $SSH_PATH..."
   if ! vault kv get -field=id_rsa "$SSH_PATH" > "$SSH_KEYS_DIR/id_rsa"; then
