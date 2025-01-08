@@ -32,6 +32,8 @@ services:
         condition: service_healthy
       linux_ssh_keys_host:
         condition: service_healthy
+      linux_explicit_ssh_keys_host:
+        condition: service_healthy
     profiles: ["default", "test"]
 
   linux_ssh_pass_host:
@@ -44,6 +46,15 @@ services:
     extends:
       file: ./linux_ssh_keys_host/docker-compose.yml
       service: linux_ssh_keys_host
+    depends_on:
+      vault_agent:
+        condition: service_healthy
+    profiles: ["default", "test"]
+
+  linux_explicit_ssh_keys_host:
+    extends:
+      file: ./linux_explicit_ssh_keys_host/docker-compose.yml
+      service: linux_explicit_ssh_keys_host
     depends_on:
       vault_agent:
         condition: service_healthy
