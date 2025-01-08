@@ -19,6 +19,12 @@ clean_directory() {
   fi
 }
 
+# Delete any existing marker file from previous runs
+if ! rm -f "${HEALTH_CHECK_MARKER_FILE}"; then
+  log "Couldn't delete the health check marker file ${HEALTH_CHECK_MARKER_FILE}. Exiting." "ERROR"
+  exit 1
+fi
+
 clean_directory "$AGENT_DIR"
 
 # Create required directories
@@ -55,5 +61,8 @@ log "Generating and storing SSH keys..."
 
 log "Fetching SSH keys..."
 . /vault/scripts/fetch_ssh_keys.sh
+
+# Create the marker file to indicate health
+touch "${HEALTH_CHECK_MARKER_FILE}"
 
 wait "$AGENT_PID"

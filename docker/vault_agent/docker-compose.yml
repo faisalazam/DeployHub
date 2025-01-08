@@ -30,8 +30,7 @@ services:
         [
           "CMD", "sh", "-c",
           "pgrep -f 'vault agent' > /dev/null && \
-           test -s ${VAULT_ANSIBLE_SSH_KEYS_DIR}/id_rsa.pub && \
-           ! grep -q '^[[:space:]]*$' ${VAULT_ANSIBLE_SSH_KEYS_DIR}/id_rsa.pub || exit 1"
+          test -f ${HEALTH_CHECK_MARKER_FILE} || exit 1"
         ]
       interval: 30s
       retries: 3
