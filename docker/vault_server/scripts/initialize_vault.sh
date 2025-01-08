@@ -50,7 +50,7 @@ elif echo "$VAULT_STATUS" | grep -qE "Initialized\s+false"; then
 
   # Extract and save root token
   ROOT_TOKEN=$(echo "$INIT_OUTPUT" | grep 'Initial Root Token' | awk '{print $NF}')
-  save_key_value_to_file "$ROOT_TOKEN_KEY" "$ROOT_TOKEN" "/vault/auth/admin/root" "vault_token"
+  save_key_value_to_file "$ROOT_TOKEN_KEY" "$ROOT_TOKEN" "/vault/secrets/auth/admin/root" "vault_token"
 
   log "Vault has been initialized. Keys saved to $KEYS_FILE."
 else
