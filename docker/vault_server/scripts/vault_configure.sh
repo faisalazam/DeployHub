@@ -26,7 +26,7 @@ if [ "$SERVER_MODE" = "prod" ]; then
     log "Secrets engine at path=${SECRETS_PATH} has been enabled."
   fi
 else
-  echo "$ROOT_TOKEN_KEY: $VAULT_DEV_ROOT_TOKEN_ID" > "$KEYS_FILE"
+  save_key_value_to_file "$ROOT_TOKEN_KEY" "$VAULT_DEV_ROOT_TOKEN_ID" "/vault/secrets/auth/admin/root" "vault_token"
 
   log "Logging in as root token..."
   login_with_token "${ROOT_TOKEN_KEY}" "/vault/secrets/auth/admin/root" "vault_token"
