@@ -2,8 +2,7 @@
 
 . /vault/scripts/common.sh
 
-SECRETS_DIR="/vault/secrets"
-AGENT_DIR="$SECRETS_DIR/agent"
+# shellcheck disable=SC2153
 AGENT_CONFIG_DIR="$AGENT_DIR/config"
 
 clean_directory() {
@@ -24,8 +23,8 @@ clean_directory "$AGENT_DIR"
 
 # Create required directories
 mkdir -p "$AGENT_CONFIG_DIR"
-mkdir -p "$AGENT_DIR/ssh_keys"
-mkdir -p "$AGENT_DIR/auth/$SSH_MANAGER_ROLE_NAME"
+mkdir -p "$VAULT_SSH_KEYS_DIR"
+mkdir -p "$VAULT_AGENT_ROLE_AUTH_DIR"
 
 # Set ownership and permissions for security
 chown -R vault:vault "$AGENT_DIR"

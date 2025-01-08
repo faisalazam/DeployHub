@@ -28,7 +28,7 @@ generate_and_store_keypair() {
 }
 
 log "Logging in as ${SSH_MANAGER_TOKEN_KEY} role..."
-login_with_token "${SSH_MANAGER_TOKEN_KEY}" "/vault/secrets/agent/auth/${SSH_MANAGER_ROLE_NAME}" "vault_token"
+login_with_token "${SSH_MANAGER_TOKEN_KEY}" "${VAULT_AGENT_ROLE_AUTH_DIR}" "vault_token"
 
 generate_and_store_keypair "ansible" "${SSH_KEYS_DIR}/ansible"
 generate_and_store_keypair "linux_explicit_ssh_keys_host" "${SSH_KEYS_DIR}/${ENVIRONMENT}/linux_explicit_ssh_keys_host"

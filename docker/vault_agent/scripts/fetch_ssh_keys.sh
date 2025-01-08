@@ -66,7 +66,7 @@ fetch_ssh_keys() {
 
 SSH_MANAGER_TOKEN_KEY="SSH_MANAGER_TOKEN"
 log "Logging in as ${SSH_MANAGER_TOKEN_KEY} role..."
-login_with_token "${SSH_MANAGER_TOKEN_KEY}" "/vault/secrets/agent/auth/${SSH_MANAGER_ROLE_NAME}" "vault_token"
+login_with_token "${SSH_MANAGER_TOKEN_KEY}" "${VAULT_AGENT_ROLE_AUTH_DIR}" "vault_token"
 
 # Define ansible SSH keys path and directory
 ANSIBLE_PATH="secret/ssh_keys/ansible"
@@ -90,7 +90,7 @@ fi
 
 for MACHINE in $MACHINES; do
   MACHINE_PATH="secret/ssh_keys/${ENVIRONMENT}/${MACHINE}"
-  SSH_KEYS_DIR="/vault/secrets/agent/ssh_keys/${ENVIRONMENT}/${MACHINE}"
+  SSH_KEYS_DIR="${VAULT_SSH_KEYS_DIR}/${ENVIRONMENT}/${MACHINE}"
 
   log "Processing keys for $MACHINE..."
   setup_ssh_keys_dir "$SSH_KEYS_DIR"
