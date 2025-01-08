@@ -17,7 +17,7 @@ services:
       - vault_file:/vault/file
       - vault_logs:/vault/logs
       - ./scripts:/vault/scripts
-      - ./secrets:/vault/secrets
+      - ./secrets:${SECRETS_DIR}
       - ./config:/vault/config:ro
       # If the following dir/volume is missing, then start the vault_server first to create the auth dir contents
       - vault_ssh_manager_role:${VAULT_SERVER_ROLE_AUTH_DIR}:ro
