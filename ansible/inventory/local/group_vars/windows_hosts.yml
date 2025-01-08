@@ -3,6 +3,7 @@ ansible_port: 55986
 ansible_connection: winrm
 ansible_winrm_scheme: https
 ansible_user: ansible-agent
+# TODO: Store me in Vault
 ansible_password: ANS1BLE_P@sS!
 ansible_winrm_transport: basic
 ansible_winrm_server_cert_validation: validate

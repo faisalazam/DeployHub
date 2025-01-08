@@ -32,7 +32,7 @@
 # Variables for the service account
 param(
     [string]$UserName = "ansible-agent",
-    [string]$Password = "ANS1BLE_P@sS!", # Ideally, get this from a secure source
+    [string]$Password = "ANS1BLE_P@sS!", # Ideally, get this from a secure source - TODO: Store me in Vault
     [string]$FullName = "Ansible Service Account",
     [string]$Description = "Service account for Ansible",
     [string]$GroupName = "Administrators"
