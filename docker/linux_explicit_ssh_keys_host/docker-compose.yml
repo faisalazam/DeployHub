@@ -1,0 +1,34 @@
+services:
+  linux_explicit_ssh_keys_host:
+    # To rebuild the image, run either of the two:
+    # docker compose up --build
+    # docker build -f ./Dockerfile -t linux_ssh_keys_host .
+    build:
+      context: ../..
+      dockerfile: docker/linux_ssh_keys_host/Dockerfile
+    container_name: linux_explicit_ssh_keys_host
+    image: linux_ssh_keys_host:latest
+    volumes:
+      # If the following dir is missing, then start the vault_agent first to create the secrets dir contents
+      - ../vault_agent/secrets/agent/ssh_keys/ansible/id_rsa.pub:/root/.ssh/authorized_keys
+      # If the following dir is missing, then start the vault_agent first to create the secrets dir contents
+      # We can either overwrite the keys at the default location (implemented below),
+      # or, we can `echo "HostKey /root/.ssh/id_rsa" >> /etc/ssh/sshd_config` update the `sshd_config` to define
+      # the location of the private key.
+      - ../vault_agent/secrets/agent/ssh_keys/${ENVIRONMENT}/linux_explicit_ssh_keys_host/id_rsa:/etc/ssh/ssh_host_rsa_key
+      - ../vault_agent/secrets/agent/ssh_keys/${ENVIRONMENT}/linux_explicit_ssh_keys_host/id_rsa.pub:/etc/ssh/ssh_host_rsa_key.pub
+      - ./scripts/initialize_ssh_keys.sh:/usr/local/bin/initialize_ssh_keys.sh
+    command: [ "/bin/sh", "-c", "sh /usr/local/bin/initialize_ssh_keys.sh && /usr/sbin/sshd -D -d" ]
+    tty: true
+    stdin_open: true
+    networks:
+      - ansible_network
+    healthcheck:
+      test: [ "CMD", "sshd", "-t" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  ansible_network:
+    driver: bridge
