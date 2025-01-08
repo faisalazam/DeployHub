@@ -18,7 +18,7 @@ services:
       - raft_data:/vault/raft
       - vault_file:/vault/file
       - vault_logs:/vault/logs
-      - ./auth:/vault/auth
+      - ./secrets/auth:/vault/auth
       - vault_ssh_manager_role:/vault/auth/${SSH_MANAGER_ROLE_NAME}
       - ./scripts:/vault/scripts
       - ./policies:/vault/policies:ro

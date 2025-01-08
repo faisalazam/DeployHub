@@ -18,8 +18,8 @@
 *.log
 *.pid
 *.swp
-/docker/vault_server/auth
 /docker/vault_agent/secrets
+/docker/vault_server/secrets
 
 # Ignore the winrm folder
 winrm/
