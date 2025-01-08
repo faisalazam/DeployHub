@@ -70,11 +70,10 @@ login_with_token "${SSH_MANAGER_TOKEN_KEY}" "/vault/secrets/agent/auth/${SSH_MAN
 
 # Define ansible SSH keys path and directory
 ANSIBLE_PATH="secret/ssh_keys/ansible"
-ANSIBLE_SSH_KEYS_DIR="/vault/secrets/agent/ssh_keys/ansible"
 
 log "Fetching ansible SSH keys for ansible..."
-setup_ssh_keys_dir "$ANSIBLE_SSH_KEYS_DIR"
-fetch_ssh_keys "$ANSIBLE_PATH" "$ANSIBLE_SSH_KEYS_DIR"
+setup_ssh_keys_dir "$VAULT_ANSIBLE_SSH_KEYS_DIR"
+fetch_ssh_keys "$ANSIBLE_PATH" "$VAULT_ANSIBLE_SSH_KEYS_DIR"
 log "Ansible SSH keys successfully fetched and stored."
 
 # Fetch the list of machines from Vault

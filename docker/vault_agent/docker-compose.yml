@@ -11,9 +11,6 @@ services:
       - .env
     environment:
       SKIP_SETCAP: false
-      VAULT_ADDR: ${VAULT_ADDR}
-      ENVIRONMENT: ${ENVIRONMENT}
-      SSH_MANAGER_ROLE_NAME: ${SSH_MANAGER_ROLE_NAME:-ssh_manager_role}
     networks:
       - ansible_network
     volumes:
@@ -23,7 +20,7 @@ services:
       - ./secrets:/vault/secrets
       - ./config:/vault/config:ro
       # If the following dir/volume is missing, then start the vault_server first to create the auth dir contents
-      - vault_ssh_manager_role:/vault/secrets/server/auth/${SSH_MANAGER_ROLE_NAME}:ro
+      - vault_ssh_manager_role:${VAULT_SERVER_ROLE_AUTH_DIR}:ro
     entrypoint: [ "sh", "/vault/scripts/agent_startup.sh" ]
     # TODO: Run the service with vault user instead of the root user
     # 100:1000 is the UID:GID of the vault user in the container.
@@ -33,8 +30,8 @@ services:
         [
           "CMD", "sh", "-c",
           "pgrep -f 'vault agent' > /dev/null && \
-           test -s /vault/secrets/agent/ssh_keys/ansible/id_rsa.pub && \
-           ! grep -q '^[[:space:]]*$' /vault/secrets/agent/ssh_keys/ansible/id_rsa.pub || exit 1"
+           test -s ${VAULT_ANSIBLE_SSH_KEYS_DIR}/id_rsa.pub && \
+           ! grep -q '^[[:space:]]*$' ${VAULT_ANSIBLE_SSH_KEYS_DIR}/id_rsa.pub || exit 1"
         ]
       interval: 30s
       retries: 3

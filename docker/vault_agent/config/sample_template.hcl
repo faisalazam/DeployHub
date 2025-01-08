@@ -1,4 +1,4 @@
 template {
   source = "/vault/config/template.ctmpl"
-  destination = "/vault/secrets/agent/ssh_keys/ansible/sample_output.json"
+  destination = "${VAULT_ANSIBLE_SSH_KEYS_DIR}/sample_output.json"
 }
