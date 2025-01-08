@@ -30,7 +30,7 @@ if [ "${RESET_HOSTS_FILE}" = "true" ]; then
   # or the key is regenerated), the existing key in the known_hosts file becomes outdated.
   if [ -f "$KNOWN_HOSTS_FILE" ]; then
     ssh-keygen -f "$KNOWN_HOSTS_FILE" -R "linux_ssh_pass_host"
-    ssh-keygen -f "$KNOWN_HOSTS_FILE" -R "linux_ssh_keys_host"
+    ssh-keygen -f "$KNOWN_HOSTS_FILE" -R "linux_implicit_ssh_keys_host"
   fi
 
   # Adds the public key of the specified remote machines to the known_hosts file.
@@ -38,7 +38,7 @@ if [ "${RESET_HOSTS_FILE}" = "true" ]; then
   # so that the supported keys get added to the known_hosts file.
   # Run `ls -lart /etc/ssh` in remote machine to see the public keys.
   ssh-keyscan -H linux_ssh_pass_host >> "$KNOWN_HOSTS_FILE"
-  ssh-keyscan -H linux_ssh_keys_host >> "$KNOWN_HOSTS_FILE"
+  ssh-keyscan -H linux_implicit_ssh_keys_host >> "$KNOWN_HOSTS_FILE"
 
   # Configure linux_explicit_ssh_keys_host to use the externally generated keypair
   hostname="linux_explicit_ssh_keys_host"  # Replace with the actual hostname or IP

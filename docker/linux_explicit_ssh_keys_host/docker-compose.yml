@@ -5,7 +5,7 @@ services:
     # docker build -f ./Dockerfile -t linux_ssh_keys_host .
     build:
       context: ../..
-      dockerfile: docker/linux_ssh_keys_host/Dockerfile
+      dockerfile: docker/linux_implicit_ssh_keys_host/Dockerfile
     container_name: linux_explicit_ssh_keys_host
     image: linux_ssh_keys_host:latest
     volumes:

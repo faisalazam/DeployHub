@@ -6,7 +6,7 @@ characters in Unix-based systems, leading to "command not found" errors.
 For SSH Keys: SSH keys must be treated as binary files to avoid corruption. Any unintended modification (like adding or
 removing \r characters) renders the key invalid, triggering libcrypto errors.
 
-e.g. `Load key \"/root/.ssh/id_rsa\": error in libcrypto\r\nroot@linux_ssh_keys_host`
+e.g. `Load key \"/root/.ssh/id_rsa\": error in libcrypto\r\nroot@linux_implicit_ssh_keys_host`
 
 Adding .sh and keys to .gitattributes ensures that all developers and systems interacting with your repository use the
 correct line endings, preventing future issues.

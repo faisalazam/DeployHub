@@ -1,6 +1,6 @@
 Profiles:
 
-When the default profile is active, all services (ansible, linux_ssh_pass_host, linux_ssh_keys_host) will run.
+When the default profile is active, all services (ansible, linux_ssh_pass_host, linux_implicit_ssh_keys_host) will run.
 When CI profile is active, only the ansible service will run.
 
 How to Run:
@@ -18,7 +18,7 @@ This setup ensures flexibility for local development and CI pipelines without du
 
 Testing the SSH Connection
 From the ansible service, verify the SSH connection manually using the private key:
-`docker exec -it ansible ssh -i /root/.ssh/id_rsa root@linux_ssh_keys_host -o StrictHostKeyChecking=no`
+`docker exec -it ansible ssh -i /root/.ssh/id_rsa root@linux_implicit_ssh_keys_host -o StrictHostKeyChecking=no`
 
 Generate keys:
 `ssh-keygen -t rsa -b 4096 -f ../.ssh_keys/ansible/id_rsa -N ""`
