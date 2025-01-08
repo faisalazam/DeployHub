@@ -24,6 +24,8 @@ Generate keys:
 `ssh-keygen -t rsa -b 4096 -f ../.ssh_keys/ansible/id_rsa -N ""`
 `ssh-keygen -t rsa -b 4096 -f ../.ssh_keys/local/id_rsa -N ""`
 
+Keys are generated and stored in vault through shell script, so there is no more `.ssh_keys` directory.
+
 Why REQUESTS_CA_BUNDLE is Important
 When a self-signed certificate is used, tools such as requests or curl do not trust it by default. By setting the
 REQUESTS_CA_BUNDLE to point to your trusted certificate file (e.g., /certs/certificate.pem), you allow these tools to
