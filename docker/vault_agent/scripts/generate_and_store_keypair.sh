@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Path of ssh_keys inside the Hashicorp Vault
-SSH_KEYS_DIR="secret/ssh_keys"
+SSH_KEYS_DIR_IN_VAULT="secret/ssh_keys"
 
 . /vault/scripts/common.sh
 
@@ -29,5 +29,5 @@ generate_and_store_keypair() {
 log "Logging in as ${SSH_MANAGER_ROLE_NAME} role..."
 login_with_token "${SSH_MANAGER_ROLE_NAME}" "${VAULT_AGENT_ROLE_AUTH_DIR}" "vault_token"
 
-generate_and_store_keypair "ansible" "${SSH_KEYS_DIR}/ansible"
-generate_and_store_keypair "linux_explicit_ssh_keys_host" "${SSH_KEYS_DIR}/${ENVIRONMENT}/linux_explicit_ssh_keys_host"
+generate_and_store_keypair "ansible" "${SSH_KEYS_DIR_IN_VAULT}/ansible"
+generate_and_store_keypair "linux_explicit_ssh_keys_host" "${SSH_KEYS_DIR_IN_VAULT}/${ENVIRONMENT}/linux_explicit_ssh_keys_host"
