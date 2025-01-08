@@ -14,6 +14,7 @@ services:
       - ../../certs/${ENVIRONMENT}/:/certs:ro
       # If the following dir is missing, then start the vault_agent first to create the secrets dir contents
       - ../vault_agent/secrets/agent/ssh_keys/ansible:/root/.ssh
+      - ../vault_agent/secrets/agent/ssh_keys/${ENVIRONMENT}/linux_explicit_ssh_keys_host/id_rsa.pub:/root/.ssh/linux_explicit_ssh_keys_host.pub
       - ./scripts:/usr/local/bin
     env_file:
       - .env
