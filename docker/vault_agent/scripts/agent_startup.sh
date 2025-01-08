@@ -62,7 +62,7 @@ log "Generating and storing SSH keys..."
 log "Fetching SSH keys..."
 . /vault/scripts/fetch_ssh_keys.sh
 
-# Create the marker file to indicate health
 touch "${HEALTH_CHECK_MARKER_FILE}"
+log "Health Check marker created successfully!"
 
 wait "$AGENT_PID"

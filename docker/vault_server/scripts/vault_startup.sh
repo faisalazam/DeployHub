@@ -16,4 +16,6 @@ log "Configuring Vault Environment..."
 log "Create Service Account/Token with Vault Policy..."
 . /vault/scripts/create_svc_token_with_policy.sh
 
+log "All operations completed successfully. Vault Server is running..."
+
 wait "$VAULT_PID"
