@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - ansible
+      - stable
 
 env:
   DOCKER_VERSION: 5:27.3.1
