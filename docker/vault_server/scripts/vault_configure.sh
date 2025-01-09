@@ -32,6 +32,8 @@ else
   login_with_token "${ROOT_TOKEN_KEY}" "/vault/secrets/auth/admin/root" "vault_token"
 fi
 
+. ./vault/scripts/enable_secrets_encryption.sh
+
 log "Enabling AppRole authentication method..."
 if vault auth list | grep -q "approle"; then
   log "AppRole auth method is already enabled. Skipping..."
