@@ -31,6 +31,8 @@ curl --cacert /vault/certs/cacert.pem https://localhost:8200/v1/sys/health
 curl --cacert /vault/certs/cacert.pem https://vault_server:8200/v1/sys/health
 curl --cacert /vault/certs/cacert.pem https://172.18.0.1:8200/v1/sys/health
 
+openssl s_client -connect 127.0.0.1:8200 -CAfile /vault/certs/vault-cert.pem
+
 sslscan 127.0.0.1:8200
 sslscan localhost:8200
 sslscan vault_server:8200
