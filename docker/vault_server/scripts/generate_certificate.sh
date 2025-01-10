@@ -72,17 +72,20 @@ generate_key_and_request() {
   CERT_TYPE=$1
   SERVER_DIR=$2
   CONFIG_FILE=$3
+  COMMON_NAME="localhost"
   TEMP_KEY="$SERVER_DIR/temp/tempkey.pem"
   TEMP_REQ="$SERVER_DIR/temp/tempreq.pem"
 
+  RANDOM_UID=$(uuidgen)
   log "Generate the key and request for $CERT_TYPE using $CONFIG_FILE"
-  if ! openssl req -newkey rsa:$RSA_KEY_SIZE \
-      -keyout "$TEMP_KEY" -keyform PEM \
-      -out "$TEMP_REQ" -outform PEM \
-      -passout pass:$PASSPHRASE \
-      -config "$CONFIG_FILE" -quiet; then
-    log "Failed to generate temporary key and certificate request for $CERT_TYPE" "ERROR"
-    exit 1
+  if ! CN="$COMMON_NAME" UID="$RANDOM_UID" openssl req \
+        -newkey rsa:$RSA_KEY_SIZE \
+        -keyout "$TEMP_KEY" -keyform PEM \
+        -out "$TEMP_REQ" -outform PEM \
+        -passout pass:$PASSPHRASE \
+        -config "$CONFIG_FILE" -quiet; then
+      log "Failed to generate temporary key and certificate request for $CERT_TYPE" "ERROR"
+      exit 1
   fi
   log "$CERT_TYPE temporary key and certificate request generated successfully"
 }
