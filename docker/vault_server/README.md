@@ -92,6 +92,7 @@ So the environment and volume sections may look like:
       VAULT_CLIENT_KEY: /vault/certs/agent.key
       VAULT_CLIENT_CERT: /vault/certs/agent.crt
     volumes:
+      - ./certs/vaultCA/cacert.pem:/vault/certs/ca.crt:ro
       - ./certs/vaultCA/agent/server_crt.pem:/vault/certs/agent.crt:ro
       - ./certs/vaultCA/agent/server_key.pem:/vault/certs/agent.key:ro
       - ./certs/vaultCA/server/server_key.pem:/vault/certs/server.key:ro
