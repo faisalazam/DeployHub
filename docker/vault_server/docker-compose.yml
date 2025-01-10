@@ -21,9 +21,9 @@ services:
       - vault_logs:/vault/logs
       - ./secrets:/vault/secrets
       # NOTE: Run the scripts/generate_certificate.sh on the host first, to generate the cert
-      - ./certs/vaultCA/cacert.pem:/vault/certs/ca.crt
-      - ./certs/vaultCA/server_key.pem:/vault/certs/server.key
-      - ./certs/vaultCA/full_chain.pem:/vault/certs/full_chain.pem
+      - ./certs/vaultCA/cacert.pem:/vault/certs/ca.crt:ro
+      - ./certs/vaultCA/server_key.pem:/vault/certs/server.key:ro
+      - ./certs/vaultCA/full_chain.pem:/vault/certs/full_chain.pem:ro
       - vault_ssh_manager_role:/vault/secrets/auth/${SSH_MANAGER_ROLE_NAME}
       - ./scripts:/vault/scripts
       - ./policies:/vault/policies:ro
