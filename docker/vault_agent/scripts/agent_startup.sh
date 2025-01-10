@@ -39,15 +39,14 @@ chmod -R 770 "$AGENT_DIR"
 # Combine all .hcl files in the /vault/config directory
 cat /vault/config/*.hcl > "$AGENT_CONFIG_DIR/vault_agent_combined.hcl"
 
-# Substitute variables in HCL using sed
-sed -e "s|\${VAULT_ADDR}|$VAULT_ADDR|g" \
-    -e "s|\${ENVIRONMENT}|$ENVIRONMENT|g" \
-    -e "s|\${SSH_MANAGER_ROLE_NAME}|$SSH_MANAGER_ROLE_NAME|g" \
-    -e "s|\${VAULT_AGENT_ROLE_AUTH_DIR}|$VAULT_AGENT_ROLE_AUTH_DIR|g" \
-    -e "s|\${VAULT_SERVER_ROLE_AUTH_DIR}|$VAULT_SERVER_ROLE_AUTH_DIR|g" \
-    -e "s|\${VAULT_ANSIBLE_SSH_KEYS_DIR}|$VAULT_ANSIBLE_SSH_KEYS_DIR|g" \
-    "$AGENT_CONFIG_DIR/vault_agent_combined.hcl" > "$AGENT_CONFIG_DIR/vault_agent.hcl"
-
+# Substitute variables in HCL using sed - env lists all environment variables.
+env | while IFS='=' read -r var value; do
+  # Only process variables that are not empty
+  if [ -n "$value" ]; then
+    sed -i "s|\${$var}|$value|g" "$AGENT_CONFIG_DIR/vault_agent_combined.hcl"
+  fi
+done
+cp "$AGENT_CONFIG_DIR/vault_agent_combined.hcl" "$AGENT_CONFIG_DIR/vault_agent.hcl"
 rm -f "$AGENT_CONFIG_DIR/vault_agent_combined.hcl"
 
 # Start the Vault Agent
