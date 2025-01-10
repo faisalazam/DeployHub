@@ -48,15 +48,15 @@ Add the following in the docker compose of vault server:
       VAULT_CACERT: /vault/certs/ca.crt
     volumes:
       - ./certs/vaultCA/cacert.pem:/vault/certs/ca.crt:ro
-      - ./certs/vaultCA/server_key.pem:/vault/certs/server.key:ro
-      - ./certs/vaultCA/full_chain.pem:/vault/certs/full_chain.pem:ro
+      - ./certs/vaultCA/server/server_key.pem:/vault/certs/server.key:ro
+      - ./certs/vaultCA/server/full_chain.pem:/vault/certs/full_chain.pem:ro
 ```
 
 and:
 
 ```hcl
 listener "tcp" {
-  address       = "0.0.0.0:${VAULT_EXTERNAL_PORT}"  # Binding Vault to all network interfaces
+  address = "0.0.0.0:8200"  # Binding Vault to all network interfaces
   tls_key_file  = "/vault/certs/server.key"
   tls_cert_file = "/vault/certs/full_chain.pem"
 }
@@ -69,4 +69,73 @@ environment:
   VAULT_CACERT: /vault/certs/ca.crt
 volumes:
   - ../vault_server/certs/vaultCA/cacert.pem:/vault/certs/ca.crt:ro
+```
+
+Additional setting to enable mTLS after setting up the TLS on Vault Server:
+
+Add the following in the docker compose of vault server:
+
+```yml
+    environment:
+      VAULT_CLIENT_KEY: /vault/certs/server.key
+      VAULT_CLIENT_CERT: /vault/certs/server.crt
+    volumes:
+      - ./certs/vaultCA/server/server_crt.pem:/vault/certs/server.crt
+```
+
+So the environment and volume sections may look like:
+
+```yml
+    environment:
+      VAULT_CACERT: /vault/certs/ca.crt
+      VAULT_CLIENT_KEY: /vault/certs/server.key
+      VAULT_CLIENT_CERT: /vault/certs/server.crt
+    volumes:
+      - ./certs/vaultCA/cacert.pem:/vault/certs/ca.crt:ro
+      - ./certs/vaultCA/server/server_crt.pem:/vault/certs/server.crt:ro
+      - ./certs/vaultCA/server/server_key.pem:/vault/certs/server.key:ro
+      - ./certs/vaultCA/server/full_chain.pem:/vault/certs/full_chain.pem:ro
+```
+
+and add the following to the listener in the hcl file:
+
+```hcl
+tls_client_ca_file = "/vault/certs/ca.crt" # Path to the cert file
+tls_require_and_verify_client_cert = "true" 
+```
+
+And the full listener block may look like:
+
+```hcl
+listener "tcp" {
+  address = "0.0.0.0:8200"  # Binding Vault to all network interfaces
+  tls_key_file                       = "/vault/certs/server.key"
+  tls_cert_file                      = "/vault/certs/full_chain.pem"
+  tls_client_ca_file                 = "/vault/certs/ca.crt"
+  tls_require_and_verify_client_cert = "true"
+}
+```
+
+Add the following in the docker compose of vault agent:
+
+```yml
+environment:
+  VAULT_CLIENT_KEY: /vault/certs/agent_key.pem
+  VAULT_CLIENT_CERT: /vault/certs/agent_cert.pem
+volumes:
+  - ../vault_server/certs/vaultCA/server/server_key.pem:/vault/certs/agent_key.pem:ro
+  - ../vault_server/certs/vaultCA/server/full_chain.pem:/vault/certs/agent_cert.pem:ro
+```
+
+So the environment and volume sections may look like:
+
+```yml
+environment:
+  VAULT_CACERT: /vault/certs/ca.crt
+  VAULT_CLIENT_KEY: /vault/certs/agent_key.pem
+  VAULT_CLIENT_CERT: /vault/certs/agent_cert.pem
+volumes:
+  - ../vault_server/certs/vaultCA/cacert.pem:/vault/certs/ca.crt:ro
+  - ../vault_server/certs/vaultCA/server/server_key.pem:/vault/certs/agent_key.pem:ro
+  - ../vault_server/certs/vaultCA/server/full_chain.pem:/vault/certs/agent_cert.pem:ro
 ```
