@@ -76,9 +76,8 @@ generate_key_and_request() {
   TEMP_KEY="$SERVER_DIR/temp/tempkey.pem"
   TEMP_REQ="$SERVER_DIR/temp/tempreq.pem"
 
-  RANDOM_UID=$(uuidgen)
   log "Generate the key and request for $CERT_TYPE using $CONFIG_FILE"
-  if ! CN="$COMMON_NAME" UID="$RANDOM_UID" openssl req \
+  if ! CN="$COMMON_NAME" openssl req \
         -newkey rsa:$RSA_KEY_SIZE \
         -keyout "$TEMP_KEY" -keyform PEM \
         -out "$TEMP_REQ" -outform PEM \
