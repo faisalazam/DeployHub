@@ -77,10 +77,11 @@ Add the following in the docker compose of vault server:
 
 ```yml
     environment:
-      VAULT_CLIENT_KEY: /vault/certs/server.key
-      VAULT_CLIENT_CERT: /vault/certs/server.crt
+      VAULT_CLIENT_KEY: /vault/certs/agent.key
+      VAULT_CLIENT_CERT: /vault/certs/agent.crt
     volumes:
-      - ./certs/vaultCA/server/server_crt.pem:/vault/certs/server.crt
+      - ./certs/vaultCA/agent/server_crt.pem:/vault/certs/agent.crt:ro
+      - ./certs/vaultCA/agent/server_key.pem:/vault/certs/agent.key:ro
 ```
 
 So the environment and volume sections may look like:
@@ -88,11 +89,11 @@ So the environment and volume sections may look like:
 ```yml
     environment:
       VAULT_CACERT: /vault/certs/ca.crt
-      VAULT_CLIENT_KEY: /vault/certs/server.key
-      VAULT_CLIENT_CERT: /vault/certs/server.crt
+      VAULT_CLIENT_KEY: /vault/certs/agent.key
+      VAULT_CLIENT_CERT: /vault/certs/agent.crt
     volumes:
-      - ./certs/vaultCA/cacert.pem:/vault/certs/ca.crt:ro
-      - ./certs/vaultCA/server/server_crt.pem:/vault/certs/server.crt:ro
+      - ./certs/vaultCA/agent/server_crt.pem:/vault/certs/agent.crt:ro
+      - ./certs/vaultCA/agent/server_key.pem:/vault/certs/agent.key:ro
       - ./certs/vaultCA/server/server_key.pem:/vault/certs/server.key:ro
       - ./certs/vaultCA/server/full_chain.pem:/vault/certs/full_chain.pem:ro
 ```
@@ -123,8 +124,8 @@ environment:
   VAULT_CLIENT_KEY: /vault/certs/agent_key.pem
   VAULT_CLIENT_CERT: /vault/certs/agent_cert.pem
 volumes:
-  - ../vault_server/certs/vaultCA/server/server_key.pem:/vault/certs/agent_key.pem:ro
-  - ../vault_server/certs/vaultCA/server/full_chain.pem:/vault/certs/agent_cert.pem:ro
+  - ../vault_server/certs/vaultCA/agent/server_key.pem:/vault/certs/agent_key.pem:ro
+  - ../vault_server/certs/vaultCA/agent/full_chain.pem:/vault/certs/agent_cert.pem:ro
 ```
 
 So the environment and volume sections may look like:
@@ -136,6 +137,6 @@ environment:
   VAULT_CLIENT_CERT: /vault/certs/agent_cert.pem
 volumes:
   - ../vault_server/certs/vaultCA/cacert.pem:/vault/certs/ca.crt:ro
-  - ../vault_server/certs/vaultCA/server/server_key.pem:/vault/certs/agent_key.pem:ro
-  - ../vault_server/certs/vaultCA/server/full_chain.pem:/vault/certs/agent_cert.pem:ro
+  - ../vault_server/certs/vaultCA/agent/server_key.pem:/vault/certs/agent_key.pem:ro
+  - ../vault_server/certs/vaultCA/agent/full_chain.pem:/vault/certs/agent_cert.pem:ro
 ```

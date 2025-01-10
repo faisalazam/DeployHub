@@ -15,8 +15,8 @@ services:
       VAULT_ADDR: "https://127.0.0.1:8200"
       VAULT_CACERT: /vault/certs/ca.crt
       ######## For mTLS start ##################
-      VAULT_CLIENT_KEY: /vault/certs/server.key
-      VAULT_CLIENT_CERT: /vault/certs/server.crt
+      VAULT_CLIENT_KEY: /vault/certs/agent.key
+      VAULT_CLIENT_CERT: /vault/certs/agent.crt
       ######## For mTLS end ####################
       SSH_MANAGER_ROLE_NAME: ${SSH_MANAGER_ROLE_NAME:-ssh_manager_role}
     volumes:
@@ -26,7 +26,8 @@ services:
       - ./secrets:/vault/secrets
       # NOTE: Run the scripts/generate_certificate.sh on the host first, to generate the cert
       - ./certs/vaultCA/cacert.pem:/vault/certs/ca.crt:ro
-      - ./certs/vaultCA/server/server_crt.pem:/vault/certs/server.crt:ro
+      - ./certs/vaultCA/agent/server_crt.pem:/vault/certs/agent.crt:ro
+      - ./certs/vaultCA/agent/server_key.pem:/vault/certs/agent.key:ro
       - ./certs/vaultCA/server/server_key.pem:/vault/certs/server.key:ro
       - ./certs/vaultCA/server/full_chain.pem:/vault/certs/full_chain.pem:ro
       - vault_ssh_manager_role:/vault/secrets/auth/${SSH_MANAGER_ROLE_NAME}
