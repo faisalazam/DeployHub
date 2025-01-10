@@ -181,4 +181,5 @@ generate_certificate() {
 }
 
 generate_root_certificate
-generate_certificate "server" "localhost"
+generate_certificate "server" "vault_server"
+generate_certificate "agent" "vault_agent"
