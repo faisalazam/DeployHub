@@ -38,6 +38,15 @@ create_dirs_and_files() {
   fi
 }
 
+verify_root_certificate() {
+  log "Validating the root certificate"
+  if ! openssl x509 -in "$ROOT_CA_CERT" -noout -text | grep -q "Certificate:"; then
+    log "Root certificate validation failed" "ERROR"
+    exit 1
+  fi
+  log "Root certificate validation successful"
+}
+
 generate_root_certificate() {
   if [ -f "$ROOT_CA_CERT" ] && [ -f "$ROOT_CA_KEY" ]; then
     log "Root certificate already exists. Skipping generation process." "INFO"
@@ -55,6 +64,7 @@ generate_root_certificate() {
     log "Failed to generate root certificate" "ERROR"
     exit 1
   fi
+  verify_root_certificate
   log "Root certificate generated successfully"
 }
 
@@ -121,6 +131,19 @@ combine_certificates_into_full_chain() {
   log "$SERVER_DIR full chain certificate created successfully"
 }
 
+verify_certificate() {
+  CERT_TYPE=$1
+  CERT_PATH=$2
+  CA_CERT_PATH=$3
+
+  log "Verifying the $CERT_TYPE certificate at $CERT_PATH"
+  if ! openssl verify -CAfile "$CA_CERT_PATH" "$CERT_PATH"; then
+    log "$CERT_TYPE certificate verification failed" "ERROR"
+    exit 1
+  fi
+  log "$CERT_TYPE certificate verification successful"
+}
+
 clean_temp_files() {
   SERVER_DIR=$1
 
@@ -147,6 +170,8 @@ generate_certificate() {
   extract_private_key "$SERVER_DIR"
   sign_certificate_with_root_ca "$SERVER_DIR"
   combine_certificates_into_full_chain "$SERVER_DIR"
+  verify_certificate "server" "$SERVER_DIR/server_crt.pem" "$ROOT_CA_CERT"
+  verify_certificate "full chain" "$SERVER_DIR/full_chain.pem" "$ROOT_CA_CERT"
   clean_temp_files "$SERVER_DIR"
 
   log "$CERT_TYPE certificate generation and signing process completed successfully"
