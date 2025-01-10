@@ -3,28 +3,29 @@
 . ./scripts/common.sh
 log "NOTE: THIS SCRIPT RUNS ON THE HOST..."
 
-# Define variables
 BASE_DIR="certs/vaultCA"
+SERVER_DIR="$BASE_DIR/server"
 CONFIG_DIR="certs/config"
+DATABASE_DIR="$CONFIG_DIR/database"
 # TODO: Store the passphrase somewhere secure.
 PASSPHRASE="your_secure_passphrase"
 ROOT_CA_KEY="$BASE_DIR/private/cakey.pem"
 ROOT_CA_CERT="$BASE_DIR/cacert.pem"
-TEMP_KEY="$BASE_DIR/tempkey.pem"
-TEMP_REQ="$BASE_DIR/tempreq.pem"
-SERVER_KEY="$BASE_DIR/server_key.pem"
-SERVER_CERT="$BASE_DIR/server_crt.pem"
-FULL_CHAIN="$BASE_DIR/full_chain.pem"
+TEMP_KEY="$SERVER_DIR/temp/tempkey.pem"
+TEMP_REQ="$SERVER_DIR/temp/tempreq.pem"
+SERVER_KEY="$SERVER_DIR/server_key.pem"
+SERVER_CERT="$SERVER_DIR/server_crt.pem"
+FULL_CHAIN="$SERVER_DIR/full_chain.pem"
 
 log "Create necessary directories and files"
-mkdir -p "$BASE_DIR/signedcerts" "$BASE_DIR/private"
+mkdir -p "$BASE_DIR/private" "$SERVER_DIR/signedcerts" "$SERVER_DIR/temp" "$DATABASE_DIR"
 
-if [ ! -f "$CONFIG_DIR/serial" ]; then
-  echo '01' > "$CONFIG_DIR/serial"
+if [ ! -f "$DATABASE_DIR/serial" ]; then
+  echo '01' > "$DATABASE_DIR/serial"
 fi
 
-if [ ! -f "$CONFIG_DIR/index.txt" ]; then
-  touch "$CONFIG_DIR/index.txt"
+if [ ! -f "$DATABASE_DIR/index.txt" ]; then
+  touch "$DATABASE_DIR/index.txt"
 fi
 
 log "Generate the root certificate"
