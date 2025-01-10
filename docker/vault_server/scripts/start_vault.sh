@@ -19,12 +19,12 @@ trap terminate_vault INT TERM EXIT
 log "Starting Vault server..."
 if [ "$SERVER_MODE" = "prod" ]; then
   export VAULT_EXTERNAL_PORT=8200
-  sed "s|\${VAULT_EXTERNAL_PORT}|$VAULT_EXTERNAL_PORT|g" /vault/config/vault_config.hcl > /vault/config/vault_config_substituted.hcl
-  vault server -config=/vault/config/vault_config_substituted.hcl &
+  sed "s|\${VAULT_EXTERNAL_PORT}|$VAULT_EXTERNAL_PORT|g" /vault/config/vault_server.hcl > /vault/config/vault_server_substituted.hcl
+  vault server -config=/vault/config/vault_server_substituted.hcl &
 else
   export VAULT_EXTERNAL_PORT=8300
-  sed "s|\${VAULT_EXTERNAL_PORT}|$VAULT_EXTERNAL_PORT|g" /vault/config/vault_config.hcl > /vault/config/vault_config_substituted.hcl
-  vault server -dev -config=/vault/config/vault_config_substituted.hcl &
+  sed "s|\${VAULT_EXTERNAL_PORT}|$VAULT_EXTERNAL_PORT|g" /vault/config/vault_server.hcl > /vault/config/vault_server_substituted.hcl
+  vault server -dev -config=/vault/config/vault_server_substituted.hcl &
 fi
 VAULT_PID=$!  # Capture the process ID of the Vault server
 

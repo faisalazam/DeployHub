@@ -32,7 +32,7 @@ services:
       - vault_ssh_manager_role:/vault/secrets/auth/${SSH_MANAGER_ROLE_NAME}
       - ./scripts:/vault/scripts
       - ./policies:/vault/policies:ro
-      - ./config/vault_config.hcl:/vault/config/vault_config.hcl:ro
+      - ./config/vault_server.hcl:/vault/config/vault_server.hcl:ro
     entrypoint: [ "sh", "/vault/scripts/vault_startup.sh" ]
     networks:
       - ansible_network
