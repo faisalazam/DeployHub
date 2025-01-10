@@ -14,10 +14,10 @@ storage "raft" {
 }
 
 # Cluster communication address (use 8201 for internal cluster communication)
-cluster_addr = "http://127.0.0.1:8201" # Cluster address for Raft communication
+cluster_addr = "https://127.0.0.1:8201" # Cluster address for Raft communication
 
 # API Address Configuration
-api_addr = "http://127.0.0.1:8200"  # Internal Vault API address
+api_addr = "https://127.0.0.1:8200"  # Internal Vault API address
 
 # Disable Mlock for development
 # TODO: change this for prod
