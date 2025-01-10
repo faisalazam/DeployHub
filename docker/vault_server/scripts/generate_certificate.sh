@@ -20,6 +20,11 @@ FULL_CHAIN="$SERVER_DIR/full_chain.pem"
 RSA_KEY_SIZE=4096
 CERT_EXPIRY_DAYS=1825
 
+if [ -f "$SERVER_CERT" ]; then
+  log "Certificate already exists. Skipping generation and signing process." "INFO"
+  exit 0
+fi
+
 log "Create necessary directories and files"
 mkdir -p "$BASE_DIR/private" "$SERVER_DIR/signedcerts" "$SERVER_DIR/temp" "$DATABASE_DIR"
 
