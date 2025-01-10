@@ -10,7 +10,6 @@ services:
     env_file:
       - .env
     environment:
-      SKIP_SETCAP: false
       VAULT_CACERT: /vault/certs/ca.crt
     networks:
       - ansible_network
@@ -26,7 +25,7 @@ services:
     entrypoint: [ "sh", "/vault/scripts/agent_startup.sh" ]
     # TODO: Run the service with vault user instead of the root user
     # 100:1000 is the UID:GID of the vault user in the container.
-    # user: "100:1000"  # Ensure container runs as 'vault' user
+#    user: "100:1000"  # Ensure container runs as 'vault' user
     healthcheck:
       test:
         [
