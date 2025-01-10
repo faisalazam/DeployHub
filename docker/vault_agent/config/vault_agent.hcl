@@ -18,6 +18,7 @@ auto_auth {
       path = "auth/approle/login"
       policies = ["default"]  # Specify the Vault policies to apply.
       ttl = "1h"              # Token TTL.
+      remove_secret_id_file_after_reading = false
       role_id_file_path   = "${VAULT_SERVER_ROLE_AUTH_DIR}/role_id"
       secret_id_file_path = "${VAULT_SERVER_ROLE_AUTH_DIR}/secret_id"
     }
