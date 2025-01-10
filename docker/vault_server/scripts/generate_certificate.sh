@@ -17,6 +17,9 @@ SERVER_KEY="$SERVER_DIR/server_key.pem"
 SERVER_CERT="$SERVER_DIR/server_crt.pem"
 FULL_CHAIN="$SERVER_DIR/full_chain.pem"
 
+RSA_KEY_SIZE=4096
+CERT_EXPIRY_DAYS=1825
+
 log "Create necessary directories and files"
 mkdir -p "$BASE_DIR/private" "$SERVER_DIR/signedcerts" "$SERVER_DIR/temp" "$DATABASE_DIR"
 
@@ -31,8 +34,8 @@ if ! [ -f "$DATABASE_DIR/index.txt" ]; then
 fi
 
 log "Generate the root certificate"
-if ! openssl req -x509 -newkey rsa:2048 \
-  -out "$ROOT_CA_CERT" -outform PEM -days 1825 \
+if ! openssl req -x509 -newkey rsa:$RSA_KEY_SIZE \
+  -out "$ROOT_CA_CERT" -outform PEM -days $CERT_EXPIRY_DAYS \
   -keyout "$ROOT_CA_KEY" \
   -passout pass:$PASSPHRASE \
   -config "$CONFIG_DIR/caconfig.cnf"; then
@@ -42,7 +45,7 @@ fi
 log "Root certificate generated successfully"
 
 log "Generate the key and request using localhost configuration"
-if ! openssl req -newkey rsa:2048 \
+if ! openssl req -newkey rsa:$RSA_KEY_SIZE \
   -keyout "$TEMP_KEY" -keyform PEM \
   -out "$TEMP_REQ" -outform PEM \
   -passout pass:$PASSPHRASE \
