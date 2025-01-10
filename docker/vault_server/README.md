@@ -1,4 +1,3 @@
-
 Folder structure of the secrets directory in Vault Server:
 
 ```
@@ -19,7 +18,8 @@ vault_server/secrets/
 
 The main directory on host will be `vault_server/secrets/`, whereas it'll be `/vault/secrets` inside the container.
 
-To see the full directory structure, comment out the `vault_ssh_manager_role:/vault/secrets/auth/${SSH_MANAGER_ROLE_NAME}` in
+To see the full directory structure, comment out the
+`vault_ssh_manager_role:/vault/secrets/auth/${SSH_MANAGER_ROLE_NAME}` in
 docker-compose.yml, as the named volumes won't show the files in explorer.
 
 Run the `docker/vault_server/scripts/generate_certificate.sh` script from within the `docker/vault_server` directory
@@ -37,4 +37,36 @@ sslscan 127.0.0.1:8200
 sslscan localhost:8200
 sslscan vault_server:8200
 sslscan 172.18.0.1:8200
+```
+
+To enable TLS on Vault Server:
+
+Add the following in the docker compose of vault server:
+
+```yml
+    environment:
+      VAULT_CACERT: /vault/certs/ca.crt
+    volumes:
+      - ./certs/vaultCA/cacert.pem:/vault/certs/ca.crt:ro
+      - ./certs/vaultCA/server_key.pem:/vault/certs/server.key:ro
+      - ./certs/vaultCA/full_chain.pem:/vault/certs/full_chain.pem:ro
+```
+
+and:
+
+```hcl
+listener "tcp" {
+  address       = "0.0.0.0:${VAULT_EXTERNAL_PORT}"  # Binding Vault to all network interfaces
+  tls_key_file  = "/vault/certs/server.key"
+  tls_cert_file = "/vault/certs/full_chain.pem"
+}
+```
+
+Add the following in the docker compose of vault agent:
+
+```yml
+environment:
+  VAULT_CACERT: /vault/certs/ca.crt
+volumes:
+  - ../vault_server/certs/vaultCA/cacert.pem:/vault/certs/ca.crt:ro
 ```
