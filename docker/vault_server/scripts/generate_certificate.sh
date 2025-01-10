@@ -16,7 +16,16 @@ CERT_EXPIRY_DAYS=1825
 
 create_dirs_and_files() {
   log "Create necessary directories and files"
-  mkdir -p "$BASE_DIR/private" "$SERVER_DIR/signedcerts" "$SERVER_DIR/temp" "$DATABASE_DIR"
+
+  # Create directories for the root certificate
+  mkdir -p "$BASE_DIR/private" "$DATABASE_DIR"
+
+  # Ensure directories for server/agent certificates are created dynamically
+  if [ -n "$1" ]; then
+    CERT_TYPE=$1
+    mkdir -p "$BASE_DIR/$CERT_TYPE/signedcerts" "$BASE_DIR/$CERT_TYPE/temp"
+    log "Created directories for $CERT_TYPE"
+  fi
 
   if ! [ -f "$DATABASE_DIR/serial" ]; then
     echo '01' > "$DATABASE_DIR/serial"
@@ -34,6 +43,8 @@ generate_root_certificate() {
     log "Root certificate already exists. Skipping generation process." "INFO"
     return
   fi
+
+  create_dirs_and_files
 
   log "Generate the root certificate"
   if ! openssl req -x509 -newkey rsa:$RSA_KEY_SIZE \
@@ -121,7 +132,6 @@ clean_temp_files() {
   log "Temporary directory for $SERVER_DIR removed successfully"
 }
 
-# The main process for both server and agent
 generate_certificate() {
   CERT_TYPE=$1
   SERVER_DIR="$BASE_DIR/$CERT_TYPE"
@@ -132,6 +142,7 @@ generate_certificate() {
     return
   fi
 
+  create_dirs_and_files "$CERT_TYPE"
   generate_key_and_request "$CERT_TYPE" "$SERVER_DIR" "$CONFIG_FILE"
   extract_private_key "$SERVER_DIR"
   sign_certificate_with_root_ca "$SERVER_DIR"
@@ -141,6 +152,5 @@ generate_certificate() {
   log "$CERT_TYPE certificate generation and signing process completed successfully"
 }
 
-create_dirs_and_files
 generate_root_certificate
 generate_certificate "server"
