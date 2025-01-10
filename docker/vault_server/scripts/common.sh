@@ -25,9 +25,7 @@ check_vault_status() {
     log "'nc' (Netcat) command not found. Please install it to proceed." "ERROR"
     exit 1
   fi
-  until printf 'GET /v1/sys/health HTTP/1.1\r\nHost: localhost\r\n\r\n' \
-                | nc -w 5 127.0.0.1 8200 \
-                | grep -E "${STATUS_TEXT}" > /dev/null 2>&1; do
+  until vault status | grep -E "${STATUS_TEXT}" > /dev/null 2>&1; do
     # Check if we've exceeded the maximum number of retries
     if [ $RETRY_COUNT -ge $MAX_RETRIES ]; then
       log "Vault readiness check timed out after $MAX_RETRIES retries."

@@ -44,5 +44,5 @@ fi
 
 # Wait for Vault readiness
 log "Waiting for Vault to become ready..."
-check_vault_status '"sealed":false'
+check_vault_status 'Sealed\s*false'
 log "Vault is unsealed and ready."

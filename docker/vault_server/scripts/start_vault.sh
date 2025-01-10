@@ -29,4 +29,4 @@ fi
 VAULT_PID=$!  # Capture the process ID of the Vault server
 
 log "Waiting for Vault to be ready..."
-check_vault_status "200 OK|initialized"
+check_vault_status "Initialized"
