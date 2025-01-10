@@ -3,7 +3,7 @@ services:
     image: hashicorp/vault:1.18.3
     container_name: vault_server
     ports:
-      - "127.0.0.1:8200:8200" # Restrict port mapping to localhost
+      - "8200:8200"
     cap_add:
       - IPC_LOCK  # Allow Vault to lock memory for production-like setups
     env_file:
@@ -12,13 +12,23 @@ services:
       ENVIRONMENT: ${ENVIRONMENT}
       SERVER_MODE: ${SERVER_MODE:-prod}
       VAULT_DEV_ROOT_TOKEN_ID: "root"
-      VAULT_ADDR: "http://127.0.0.1:8200"
+      VAULT_ADDR: "https://127.0.0.1:8200"
+      VAULT_CACERT: /vault/certs/ca.crt
+      VAULT_CLIENT_CERT: /vault/certs/server.crt
+      VAULT_CLIENT_KEY: /vault/certs/server.key
       SSH_MANAGER_ROLE_NAME: ${SSH_MANAGER_ROLE_NAME:-ssh_manager_role}
     volumes:
       - raft_data:/vault/raft
       - vault_file:/vault/file
       - vault_logs:/vault/logs
       - ./secrets:/vault/secrets
+      # NOTE: Run the scripts/generate_certificate.sh on the host first, to generate the cert
+      - ./certs/vaultCA/cacert.pem:/vault/certs/ca.crt
+#      - ./certs/vaultCA/cacert.pem:/vault/certs/cacert.pem
+#      - ./certs/vaultCA/signedcerts/01.pem:/vault/certs/01.pem
+      - ./certs/vaultCA/server_crt.pem:/vault/certs/server.crt
+      - ./certs/vaultCA/server_key.pem:/vault/certs/server.key
+      - ./certs/vaultCA/full_chain.pem:/vault/certs/full_chain.pem
       - vault_ssh_manager_role:/vault/secrets/auth/${SSH_MANAGER_ROLE_NAME}
       - ./scripts:/vault/scripts
       - ./policies:/vault/policies:ro
