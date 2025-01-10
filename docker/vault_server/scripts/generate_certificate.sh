@@ -72,7 +72,7 @@ generate_key_and_request() {
   CERT_TYPE=$1
   SERVER_DIR=$2
   CONFIG_FILE=$3
-  COMMON_NAME="localhost"
+  COMMON_NAME=$4
   TEMP_KEY="$SERVER_DIR/temp/tempkey.pem"
   TEMP_REQ="$SERVER_DIR/temp/tempreq.pem"
 
@@ -160,6 +160,7 @@ clean_temp_files() {
 
 generate_certificate() {
   CERT_TYPE=$1
+  COMMON_NAME=$2
   SERVER_DIR="$BASE_DIR/$CERT_TYPE"
   CONFIG_FILE="$CONFIG_DIR/$CERT_TYPE.cnf"
 
@@ -169,7 +170,7 @@ generate_certificate() {
   fi
 
   create_dirs_and_files "$CERT_TYPE"
-  generate_key_and_request "$CERT_TYPE" "$SERVER_DIR" "$CONFIG_FILE"
+  generate_key_and_request "$CERT_TYPE" "$SERVER_DIR" "$CONFIG_FILE" "$COMMON_NAME"
   extract_private_key "$SERVER_DIR"
   sign_certificate_with_root_ca "$SERVER_DIR"
   combine_certificates_into_full_chain "$SERVER_DIR"
@@ -181,4 +182,4 @@ generate_certificate() {
 }
 
 generate_root_certificate
-generate_certificate "server"
+generate_certificate "server" "localhost"
