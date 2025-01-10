@@ -1,0 +1,26 @@
+[ req ]
+prompt = no
+distinguished_name = server_distinguished_name
+req_extensions = v3_req
+
+[ server_distinguished_name ]
+commonName = localhost
+stateOrProvinceName = NSW
+countryName = AU
+emailAddress = support@example.com
+organizationName = Example Org
+organizationalUnitName = Development
+
+[ v3_req ]
+basicConstraints = CA:FALSE
+keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+subjectAltName = @alt_names
+
+[ alt_names ]
+DNS.0 = localhost
+DNS.1 = vault_server
+IP.0 = 127.0.0.1
+# IP of Docker Gateway. Some internal traffic for vault gets generated
+# through Docker Gateway, so the IP '172.18.0.1' has to be part of the
+# SAN for the TLS handshake to succeed.
+IP.1 = 172.18.0.1

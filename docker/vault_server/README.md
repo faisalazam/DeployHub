@@ -21,3 +21,18 @@ The main directory on host will be `vault_server/secrets/`, whereas it'll be `/v
 
 To see the full directory structure, comment out the `vault_ssh_manager_role:/vault/secrets/auth/${SSH_MANAGER_ROLE_NAME}` in
 docker-compose.yml, as the named volumes won't show the files in explorer.
+
+Run the `docker/vault_server/scripts/generate_certificate.sh` script from within the `docker/vault_server` directory
+before starting the vault server to generate the certs.
+
+```shell
+curl --cacert /vault/certs/cacert.pem https://127.0.0.1:8200/v1/sys/health
+curl --cacert /vault/certs/cacert.pem https://localhost:8200/v1/sys/health
+curl --cacert /vault/certs/cacert.pem https://vault_server:8200/v1/sys/health
+curl --cacert /vault/certs/cacert.pem https://172.18.0.1:8200/v1/sys/health
+
+sslscan 127.0.0.1:8200
+sslscan localhost:8200
+sslscan vault_server:8200
+sslscan 172.18.0.1:8200
+```
