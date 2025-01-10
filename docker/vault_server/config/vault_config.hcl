@@ -5,7 +5,6 @@ listener "tcp" {
   address       = "0.0.0.0:${VAULT_EXTERNAL_PORT}"  # Binding Vault to all network interfaces
   tls_key_file  = "/vault/certs/server.key"
   tls_cert_file = "/vault/certs/full_chain.pem"
-  # tls_client_ca_file  = "/vault/certs/cacert.pem"
 }
 
 # Enable the Raft storage backend
