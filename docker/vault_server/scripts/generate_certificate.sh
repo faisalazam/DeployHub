@@ -56,7 +56,7 @@ generate_root_certificate() {
   create_dirs_and_files
 
   log "Generate the root certificate"
-  if ! openssl req -x509 -newkey rsa:$RSA_KEY_SIZE \
+  if ! SIGNED_CERTS_DIR="" openssl req -x509 -newkey rsa:$RSA_KEY_SIZE \
       -out "$ROOT_CA_CERT" -outform PEM -days $CERT_EXPIRY_DAYS \
       -keyout "$ROOT_CA_KEY" \
       -passout pass:$PASSPHRASE \
@@ -107,9 +107,10 @@ sign_certificate_with_root_ca() {
   SERVER_DIR=$1
   TEMP_REQ="$SERVER_DIR/temp/tempreq.pem"
   SERVER_CERT="$SERVER_DIR/server_crt.pem"
+  SIGNED_CERTS_DIR="$SERVER_DIR/signedcerts"
 
   log "Sign the certificate for $SERVER_DIR with root CA"
-  if ! openssl ca -in "$TEMP_REQ" \
+  if ! SIGNED_CERTS_DIR="$SIGNED_CERTS_DIR" openssl ca -in "$TEMP_REQ" \
       -out "$SERVER_CERT" \
       -config "$CONFIG_DIR/caconfig.cnf" \
       -batch \

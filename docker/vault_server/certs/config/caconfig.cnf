@@ -6,7 +6,7 @@ ca_dir = certs/vaultCA
 database_dir = certs/config/database
 certificate = $ca_dir/cacert.pem
 private_key = $ca_dir/private/cakey.pem
-new_certs_dir = $ca_dir/server/signedcerts
+new_certs_dir = $ENV::SIGNED_CERTS_DIR
 serial = $database_dir/serial
 database = $database_dir/index.txt
 
