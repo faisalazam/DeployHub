@@ -17,13 +17,13 @@ INTERMEDIATE_CA_CSR="$INTERMEDIATE_DIR/temp/intermediate.csr"
 
 export ROOT_CA_CERT="$ROOT_CA_DIR/cacert.pem"
 export ROOT_CA_KEY="$ROOT_CA_DIR/private/cakey.pem"
-export ROOT_SERIAL_FILE="$DATABASE_DIR/root/serial"
-export ROOT_DATABASE_FILE="$DATABASE_DIR/root/index.db"
+export ROOT_DATABASE_FILE="$DATABASE_DIR/root/root_ca.db"
+export ROOT_SERIAL_FILE="$DATABASE_DIR/root/root_ca.serial"
 
 export INTERMEDIATE_CA_CERT="$INTERMEDIATE_DIR/cacert.pem"
-export INTERMEDIATE_SERIAL_FILE="$DATABASE_DIR/intermediate/serial"
-export INTERMEDIATE_DATABASE_FILE="$DATABASE_DIR/intermediate/index.db"
 export INTERMEDIATE_CA_KEY="$INTERMEDIATE_DIR/private/intermediate_key.pem"
+export INTERMEDIATE_DATABASE_FILE="$DATABASE_DIR/intermediate/intermediate_ca.db"
+export INTERMEDIATE_SERIAL_FILE="$DATABASE_DIR/intermediate/intermediate_ca.serial"
 
 export RSA_KEY_SIZE=4096
 export ROOT_CERT_EXPIRY_DAYS=7300
