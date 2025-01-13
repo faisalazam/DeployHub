@@ -48,9 +48,3 @@ emailAddress = support@security.com
 stateOrProvinceName = New South Wales
 organizationName = Security Organization
 organizationalUnitName = Certificate Authority
-
-[ intermediate_ca_extensions ]
-basicConstraints = CA:true
-keyUsage = cRLSign, keyCertSign
-authorityInfoAccess = OCSP;URI:http://ocsp.security.com
-crlDistributionPoints = URI:http://crl.security.com/intermediate-ca.crl
