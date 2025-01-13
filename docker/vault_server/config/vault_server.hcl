@@ -24,8 +24,7 @@ cluster_addr = "https://127.0.0.1:8201" # Cluster address for Raft communication
 api_addr = "https://127.0.0.1:8200"  # Internal Vault API address
 
 # Disable Mlock for development
-# TODO: change this for prod
-disable_mlock = true
+disable_mlock = false
 
 # Enable Vault UI (TODO: web access doesn't work when server has started in dev mode)
 ui = true
