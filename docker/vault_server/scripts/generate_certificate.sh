@@ -205,6 +205,12 @@ verify_certificate() {
   CERT_PATH=$2
   CA_CERT_PATH=$3
 
+  log "Verifying the Issuer of $CERT_PATH certificate is actually $CA_CERT_PATH"
+  if ! openssl verify -no-CAfile -no-CApath -partial_chain "$CA_CERT_PATH" "$CERT_PATH"; then
+    log "$CERT_TYPE certificate verification failed" "ERROR"
+    exit 1
+  fi
+
   log "Verifying the $CERT_TYPE certificate at $CERT_PATH"
   if ! openssl verify -CAfile "$CA_CERT_PATH" "$CERT_PATH"; then
     log "$CERT_TYPE certificate verification failed" "ERROR"
