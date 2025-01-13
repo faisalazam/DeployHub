@@ -133,7 +133,7 @@ generate_intermediate_certificate() {
   log "Sign the intermediate certificate with the root certificate"
   if ! SIGNED_CERTS_DIR="$SIGNED_CERTS_DIR" openssl ca -in "$INTERMEDIATE_CA_CSR" -out "$INTERMEDIATE_CA_CERT" \
       -cert "$ROOT_CA_CERT" -keyfile "$ROOT_CA_KEY" \
-      -passin pass:$PASSPHRASE -config "$CONFIG_DIR/intermediate_signing.cnf" -batch; then
+      -passin pass:$PASSPHRASE -config "$CONFIG_DIR/root_ca.cnf" -batch; then
     log "Failed to sign intermediate certificate with root CA" "ERROR"
     exit 1
   fi
