@@ -1,6 +1,9 @@
 #!/bin/sh
 
-. ./scripts/common.sh
+log() {
+  log_level="${2:-INFO}" # Default to INFO if no log level is provided
+  echo "$(date --utc '+%Y-%m-%dT%H:%M:%S.%3NZ') [$log_level] $1"
+}
 
 log "NOTE: THIS SCRIPT RUNS ON THE HOST..."
 
