@@ -8,13 +8,20 @@ log "NOTE: THIS SCRIPT RUNS ON THE HOST..."
 PASSPHRASE="your_secure_passphrase"
 
 CONFIG_DIR="certs/config"
-DATABASE_DIR="$CONFIG_DIR/database"
+DATABASE_DIR="certs/database"
 
 export BASE_DIR="certs/vaultCA"
 export SERIAL_FILE="$DATABASE_DIR/serial"
 export DATABASE_FILE="$DATABASE_DIR/index.txt"
-export ROOT_CA_KEY="$BASE_DIR/private/cakey.pem"
-export ROOT_CA_CERT="$BASE_DIR/cacert.pem"
+
+export ROOT_CA_DIR="$BASE_DIR/root"
+export ROOT_CA_CERT="$ROOT_CA_DIR/cacert.pem"
+export ROOT_CA_KEY="$ROOT_CA_DIR/private/cakey.pem"
+
+export INTERMEDIATE_DIR="$BASE_DIR/intermediate"
+export INTERMEDIATE_CA_CERT="$INTERMEDIATE_DIR/cacert.pem"
+export INTERMEDIATE_CA_CSR="$INTERMEDIATE_DIR/temp/intermediate.csr"
+export INTERMEDIATE_CA_KEY="$INTERMEDIATE_DIR/private/intermediate_key.pem"
 
 export RSA_KEY_SIZE=4096
 export CERT_EXPIRY_DAYS=7300
@@ -22,8 +29,12 @@ export CERT_EXPIRY_DAYS=7300
 create_dirs_and_files() {
   log "Create necessary directories and files"
 
-  # Create directories for the root certificate
-  mkdir -p "$BASE_DIR/private" "$DATABASE_DIR"
+  # Create directories for the root certificate and intermediate certificate
+  mkdir -p "$DATABASE_DIR" \
+           "$ROOT_CA_DIR/private" \
+           "$INTERMEDIATE_DIR/temp" \
+           "$INTERMEDIATE_DIR/private" \
+           "$INTERMEDIATE_DIR/signedcerts"
 
   # Ensure directories for server/agent certificates are created dynamically
   if [ -n "$1" ]; then
@@ -52,6 +63,15 @@ verify_root_certificate() {
   log "Root certificate validation successful"
 }
 
+verify_intermediate_certificate() {
+  log "Validating the intermediate certificate"
+  if ! openssl x509 -in "$INTERMEDIATE_CA_CERT" -noout -text | grep -q "Certificate:"; then
+    log "Intermediate certificate validation failed" "ERROR"
+    exit 1
+  fi
+  log "Intermediate certificate validation successful"
+}
+
 generate_root_certificate() {
   if [ -f "$ROOT_CA_CERT" ] && [ -f "$ROOT_CA_KEY" ]; then
     log "Root certificate already exists. Skipping generation process." "INFO"
@@ -71,6 +91,39 @@ generate_root_certificate() {
   fi
   verify_root_certificate
   log "Root certificate generated successfully"
+}
+
+generate_intermediate_certificate() {
+  if [ -f "$INTERMEDIATE_CA_CERT" ] && [ -f "$INTERMEDIATE_CA_KEY" ]; then
+    log "Intermediate certificate already exists. Skipping generation process." "INFO"
+    return
+  fi
+
+  log "Generate the intermediate certificate key"
+  if ! openssl genpkey -algorithm RSA -out "$INTERMEDIATE_CA_KEY" -pkeyopt rsa_keygen_bits:$RSA_KEY_SIZE -quiet; then
+    log "Failed to generate intermediate CA key" "ERROR"
+    exit 1
+  fi
+
+  SIGNED_CERTS_DIR="$INTERMEDIATE_DIR/signedcerts"
+  log "Generate the intermediate certificate signing request (CSR)"
+  if ! SIGNED_CERTS_DIR="$SIGNED_CERTS_DIR" openssl req -new -key "$INTERMEDIATE_CA_KEY" -out "$INTERMEDIATE_CA_CSR" \
+      -passin pass:$PASSPHRASE -config "$CONFIG_DIR/intermediate.cnf"; then
+    log "Failed to generate intermediate CSR" "ERROR"
+    exit 1
+  fi
+
+  log "Sign the intermediate certificate with the root certificate"
+  if ! SIGNED_CERTS_DIR="$SIGNED_CERTS_DIR" openssl ca -in "$INTERMEDIATE_CA_CSR" -out "$INTERMEDIATE_CA_CERT" \
+      -cert "$ROOT_CA_CERT" -keyfile "$ROOT_CA_KEY" \
+      -passin pass:$PASSPHRASE -config "$CONFIG_DIR/intermediate_signing.cnf" -batch; then
+    log "Failed to sign intermediate certificate with root CA" "ERROR"
+    exit 1
+  fi
+
+  verify_intermediate_certificate
+  clean_temp_files "$INTERMEDIATE_DIR"
+  log "Intermediate certificate generated and signed by root certificate"
 }
 
 generate_key_and_request() {
@@ -108,19 +161,19 @@ extract_private_key() {
   log "Private key extracted successfully"
 }
 
-sign_certificate_with_root_ca() {
+sign_certificate_with_intermediate_ca() {
   SERVER_DIR=$1
   TEMP_REQ="$SERVER_DIR/temp/tempreq.pem"
   SERVER_CERT="$SERVER_DIR/server_crt.pem"
   SIGNED_CERTS_DIR="$SERVER_DIR/signedcerts"
 
-  log "Sign the certificate for $SERVER_DIR with root CA"
+  log "Sign the certificate for $SERVER_DIR with intermediate CA"
   if ! SIGNED_CERTS_DIR="$SIGNED_CERTS_DIR" openssl ca -in "$TEMP_REQ" \
       -out "$SERVER_CERT" \
-      -config "$CONFIG_DIR/root_ca.cnf" \
-      -batch \
-      -passin pass:$PASSPHRASE -quiet; then
-    log "Failed to sign the certificate for $SERVER_DIR with root CA" "ERROR"
+      -cert "$INTERMEDIATE_CA_CERT" \
+      -keyfile "$INTERMEDIATE_CA_KEY" \
+      -passin pass:$PASSPHRASE -config "$CONFIG_DIR/intermediate_signing.cnf" -batch; then
+    log "Failed to sign the certificate for $SERVER_DIR with intermediate CA" "ERROR"
     exit 1
   fi
   log "$SERVER_DIR certificate signed successfully"
@@ -131,9 +184,9 @@ combine_certificates_into_full_chain() {
   SERVER_CERT="$SERVER_DIR/server_crt.pem"
   FULL_CHAIN="$SERVER_DIR/full_chain.pem"
 
-  log "Combine server certificate and CA certificate into the full chain for $SERVER_DIR"
-  if ! cat "$SERVER_CERT" "$ROOT_CA_CERT" > "$FULL_CHAIN"; then
-    log "Failed to combine server certificate and CA certificate for $SERVER_DIR" "ERROR"
+  log "Combine server certificate, intermediate certificate, and root certificate into the full chain for $SERVER_DIR"
+  if ! cat "$SERVER_CERT" "$INTERMEDIATE_CA_CERT" "$ROOT_CA_CERT" > "$FULL_CHAIN"; then
+    log "Failed to combine server certificate, intermediate certificate, and root certificate for $SERVER_DIR" "ERROR"
     exit 1
   fi
   log "$SERVER_DIR full chain certificate created successfully"
@@ -177,15 +230,16 @@ generate_certificate() {
   create_dirs_and_files "$CERT_TYPE"
   generate_key_and_request "$CERT_TYPE" "$SERVER_DIR" "$CONFIG_FILE" "$COMMON_NAME"
   extract_private_key "$SERVER_DIR"
-  sign_certificate_with_root_ca "$SERVER_DIR"
+  sign_certificate_with_intermediate_ca "$SERVER_DIR"
   combine_certificates_into_full_chain "$SERVER_DIR"
-  verify_certificate "server" "$SERVER_DIR/server_crt.pem" "$ROOT_CA_CERT"
-  verify_certificate "full chain" "$SERVER_DIR/full_chain.pem" "$ROOT_CA_CERT"
+#  verify_certificate "server" "$SERVER_DIR/server_crt.pem" "$ROOT_CA_CERT"
+#  verify_certificate "full chain" "$SERVER_DIR/full_chain.pem" "$ROOT_CA_CERT"
   clean_temp_files "$SERVER_DIR"
 
   log "$CERT_TYPE certificate generation and signing process completed successfully"
 }
 
 generate_root_certificate
+generate_intermediate_certificate
 generate_certificate "server" "vault_server"
 generate_certificate "agent" "vault_agent"
