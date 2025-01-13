@@ -207,15 +207,21 @@ verify_certificate() {
   CERT_TYPE=$1
   CERT_PATH=$2
   CA_CERT_PATH=$3
+  INTERMEDIATE_CA_CERT=$4
 
-  log "Verifying the Issuer of $CERT_PATH certificate is actually $CA_CERT_PATH"
-  if ! openssl verify -no-CAfile -no-CApath -partial_chain "$CA_CERT_PATH" "$CERT_PATH"; then
-    log "$CERT_TYPE certificate verification failed" "ERROR"
-    exit 1
+#  log "Verifying the Issuer of $CERT_PATH certificate is actually $CA_CERT_PATH"
+#  if ! openssl verify -no-CAfile -no-CApath -partial_chain "$CA_CERT_PATH" "$CERT_PATH"; then
+#    log "$CERT_TYPE certificate verification failed" "ERROR"
+#    exit 1
+#  fi
+
+  CERT_CHAIN_PATHS="$CERT_PATH"
+  if [ -n "$INTERMEDIATE_CA_CERT" ]; then
+    CERT_CHAIN_PATHS="-untrusted $INTERMEDIATE_CA_CERT $CERT_PATH"
   fi
 
   log "Verifying the $CERT_TYPE certificate at $CERT_PATH"
-  if ! openssl verify -CAfile "$CA_CERT_PATH" "$CERT_PATH"; then
+  if ! eval openssl verify -CAfile "$CA_CERT_PATH" "$CERT_CHAIN_PATHS"; then
     log "$CERT_TYPE certificate verification failed" "ERROR"
     exit 1
   fi
@@ -249,8 +255,8 @@ generate_certificate() {
   extract_private_key "$SERVER_DIR"
   sign_certificate_with_intermediate_ca "$SERVER_DIR"
   combine_certificates_into_full_chain "$SERVER_DIR"
-#  verify_certificate "server" "$SERVER_DIR/server_crt.pem" "$ROOT_CA_CERT"
-#  verify_certificate "full chain" "$SERVER_DIR/full_chain.pem" "$ROOT_CA_CERT"
+  verify_certificate "server" "$SERVER_DIR/server_crt.pem" "$ROOT_CA_CERT" "$INTERMEDIATE_CA_CERT"
+  verify_certificate "full chain" "$SERVER_DIR/full_chain.pem" "$ROOT_CA_CERT" "$INTERMEDIATE_CA_CERT"
   clean_temp_files "$SERVER_DIR"
 
   log "$CERT_TYPE certificate generation and signing process completed successfully"
