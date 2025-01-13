@@ -78,15 +78,6 @@ verify_root_certificate() {
   log "Root certificate validation successful"
 }
 
-verify_intermediate_certificate() {
-  log "Validating the intermediate certificate"
-  if ! openssl x509 -in "$INTERMEDIATE_CA_CERT" -noout -text | grep -q "Certificate:"; then
-    log "Intermediate certificate validation failed" "ERROR"
-    exit 1
-  fi
-  log "Intermediate certificate validation successful"
-}
-
 generate_root_certificate() {
   if [ -f "$ROOT_CA_CERT" ] && [ -f "$ROOT_CA_KEY" ]; then
     log "Root certificate already exists. Skipping generation process." "INFO"
@@ -138,7 +129,7 @@ generate_intermediate_certificate() {
     exit 1
   fi
 
-  verify_intermediate_certificate
+  verify_certificate "intermediate" "$INTERMEDIATE_CA_CERT" "$ROOT_CA_CERT"
   clean_temp_files "$INTERMEDIATE_DIR"
   log "Intermediate certificate generated and signed by root certificate"
 }
