@@ -10,47 +10,62 @@ PASSPHRASE="your_secure_passphrase"
 CONFIG_DIR="certs/config"
 DATABASE_DIR="certs/database"
 
-export BASE_DIR="certs/vaultCA"
-export SERIAL_FILE="$DATABASE_DIR/serial"
-export DATABASE_FILE="$DATABASE_DIR/index.txt"
+BASE_DIR="certs/vaultCA"
+ROOT_CA_DIR="$BASE_DIR/root"
+INTERMEDIATE_DIR="$BASE_DIR/intermediate"
+INTERMEDIATE_CA_CSR="$INTERMEDIATE_DIR/temp/intermediate.csr"
 
-export ROOT_CA_DIR="$BASE_DIR/root"
 export ROOT_CA_CERT="$ROOT_CA_DIR/cacert.pem"
 export ROOT_CA_KEY="$ROOT_CA_DIR/private/cakey.pem"
+export ROOT_SERIAL_FILE="$DATABASE_DIR/root/serial"
+export ROOT_DATABASE_FILE="$DATABASE_DIR/root/index.db"
 
-export INTERMEDIATE_DIR="$BASE_DIR/intermediate"
 export INTERMEDIATE_CA_CERT="$INTERMEDIATE_DIR/cacert.pem"
-export INTERMEDIATE_CA_CSR="$INTERMEDIATE_DIR/temp/intermediate.csr"
+export INTERMEDIATE_SERIAL_FILE="$DATABASE_DIR/intermediate/serial"
+export INTERMEDIATE_DATABASE_FILE="$DATABASE_DIR/intermediate/index.db"
 export INTERMEDIATE_CA_KEY="$INTERMEDIATE_DIR/private/intermediate_key.pem"
 
 export RSA_KEY_SIZE=4096
-export CERT_EXPIRY_DAYS=7300
+export ROOT_CERT_EXPIRY_DAYS=7300
+export INTERMEDIATE_CERT_EXPIRY_DAYS=730
+
+create_serial_file() {
+  FILE_PATH="$1"
+  if ! [ -f "$FILE_PATH" ]; then
+    echo '01' > "$FILE_PATH"
+    log "Created $FILE_PATH serial file with initial value 01"
+  fi
+}
+
+create_db_file() {
+  FILE_PATH="$1"
+  if ! [ -f "$FILE_PATH" ]; then
+    touch "$FILE_PATH"
+    log "Created $FILE_PATH file"
+  fi
+}
 
 create_dirs_and_files() {
   log "Create necessary directories and files"
-
-  # Create directories for the root certificate and intermediate certificate
-  mkdir -p "$DATABASE_DIR" \
-           "$ROOT_CA_DIR/private" \
-           "$INTERMEDIATE_DIR/temp" \
-           "$INTERMEDIATE_DIR/private" \
-           "$INTERMEDIATE_DIR/signedcerts"
-
-  # Ensure directories for server/agent certificates are created dynamically
+  # Ensure directories for root/intermediate/server/agent certificates are created dynamically
   if [ -n "$1" ]; then
     CERT_TYPE=$1
-    mkdir -p "$BASE_DIR/$CERT_TYPE/signedcerts" "$BASE_DIR/$CERT_TYPE/temp"
-    log "Created directories for $CERT_TYPE"
-  fi
 
-  if ! [ -f "$SERIAL_FILE" ]; then
-    echo '01' > "$SERIAL_FILE"
-    log "Created serial file with initial value 01"
-  fi
-
-  if ! [ -f "$DATABASE_FILE" ]; then
-    touch "$DATABASE_FILE"
-    log "Created $DATABASE_FILE file"
+    if [ "$CERT_TYPE" = "root" ]; then
+      mkdir -p "$DATABASE_DIR/root" "$ROOT_CA_DIR/private"
+      create_db_file "$ROOT_DATABASE_FILE"
+      create_serial_file "$ROOT_SERIAL_FILE"
+    elif [ "$CERT_TYPE" = "intermediate" ]; then
+      mkdir -p "$DATABASE_DIR/intermediate" \
+               "$INTERMEDIATE_DIR/temp" \
+               "$INTERMEDIATE_DIR/private" \
+               "$INTERMEDIATE_DIR/signedcerts"
+      create_db_file "$INTERMEDIATE_DATABASE_FILE"
+      create_serial_file "$INTERMEDIATE_SERIAL_FILE"
+    else
+      mkdir -p "$BASE_DIR/$CERT_TYPE/signedcerts" "$BASE_DIR/$CERT_TYPE/temp"
+      log "Created directories for $CERT_TYPE"
+    fi
   fi
 }
 
@@ -78,11 +93,11 @@ generate_root_certificate() {
     return
   fi
 
-  create_dirs_and_files
+  create_dirs_and_files "root"
 
   log "Generate the root certificate"
   if ! SIGNED_CERTS_DIR="" openssl req -x509 -newkey rsa:$RSA_KEY_SIZE \
-      -out "$ROOT_CA_CERT" -outform PEM -days $CERT_EXPIRY_DAYS \
+      -out "$ROOT_CA_CERT" -outform PEM -days $ROOT_CERT_EXPIRY_DAYS \
       -keyout "$ROOT_CA_KEY" \
       -passout pass:$PASSPHRASE \
       -config "$CONFIG_DIR/root_ca.cnf" -quiet; then
@@ -98,6 +113,8 @@ generate_intermediate_certificate() {
     log "Intermediate certificate already exists. Skipping generation process." "INFO"
     return
   fi
+
+  create_dirs_and_files "intermediate"
 
   log "Generate the intermediate certificate key"
   if ! openssl genpkey -algorithm RSA -out "$INTERMEDIATE_CA_KEY" -pkeyopt rsa_keygen_bits:$RSA_KEY_SIZE -quiet; then
