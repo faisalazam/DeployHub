@@ -4,15 +4,20 @@
 
 log "NOTE: THIS SCRIPT RUNS ON THE HOST..."
 
-BASE_DIR="certs/vaultCA"
-CONFIG_DIR="certs/config"
-DATABASE_DIR="$CONFIG_DIR/database"
 # TODO: Store the passphrase somewhere secure.
 PASSPHRASE="your_secure_passphrase"
-ROOT_CA_KEY="$BASE_DIR/private/cakey.pem"
-ROOT_CA_CERT="$BASE_DIR/cacert.pem"
-RSA_KEY_SIZE=4096
-CERT_EXPIRY_DAYS=1825
+
+CONFIG_DIR="certs/config"
+DATABASE_DIR="$CONFIG_DIR/database"
+
+export BASE_DIR="certs/vaultCA"
+export SERIAL_FILE="$DATABASE_DIR/serial"
+export DATABASE_FILE="$DATABASE_DIR/index.txt"
+export ROOT_CA_KEY="$BASE_DIR/private/cakey.pem"
+export ROOT_CA_CERT="$BASE_DIR/cacert.pem"
+
+export RSA_KEY_SIZE=4096
+export CERT_EXPIRY_DAYS=7300
 
 create_dirs_and_files() {
   log "Create necessary directories and files"
@@ -27,14 +32,14 @@ create_dirs_and_files() {
     log "Created directories for $CERT_TYPE"
   fi
 
-  if ! [ -f "$DATABASE_DIR/serial" ]; then
-    echo '01' > "$DATABASE_DIR/serial"
+  if ! [ -f "$SERIAL_FILE" ]; then
+    echo '01' > "$SERIAL_FILE"
     log "Created serial file with initial value 01"
   fi
 
-  if ! [ -f "$DATABASE_DIR/index.txt" ]; then
-    touch "$DATABASE_DIR/index.txt"
-    log "Created index.txt file"
+  if ! [ -f "$DATABASE_FILE" ]; then
+    touch "$DATABASE_FILE"
+    log "Created $DATABASE_FILE file"
   fi
 }
 
