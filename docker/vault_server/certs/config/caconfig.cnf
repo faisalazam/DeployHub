@@ -10,41 +10,47 @@ new_certs_dir = $ENV::SIGNED_CERTS_DIR
 serial = $database_dir/serial
 database = $database_dir/index.txt
 
-default_crl_days = 365
-default_days = 1825
 default_md = sha256
+default_days = 7300
+default_crl_days = 365
 
 policy = local_ca_policy
+req_section = root_ca_request
 x509_extensions = local_ca_extensions
 
 copy_extensions = copy
 
 [ local_ca_policy ]
 commonName = supplied
-stateOrProvinceName = supplied
 countryName = supplied
 emailAddress = supplied
 organizationName = supplied
+stateOrProvinceName = supplied
 organizationalUnitName = supplied
 
 [ local_ca_extensions ]
 basicConstraints = CA:false
+keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth, clientAuth
 
 [ req ]
-default_bits = 2048
-default_keyfile = certs/vaultCA/private/cakey.pem
-default_md = sha256
 prompt = no
-distinguished_name = root_ca_distinguished_name
+default_md = sha256
+default_bits = 4096
 x509_extensions = root_ca_extensions
+distinguished_name = root_ca_distinguished_name
+default_keyfile = certs/vaultCA/private/cakey.pem
 
 [ root_ca_distinguished_name ]
-commonName = My Root Certificate Authority
-stateOrProvinceName = NSW
+commonName = Root Certificate Authority
 countryName = AU
-emailAddress = support@example.com
-organizationName = Example Org
-organizationalUnitName = Development
+emailAddress = support@security.com
+stateOrProvinceName = New South Wales
+organizationName = Security Organization
+organizationalUnitName = Certificate Authority
 
 [ root_ca_extensions ]
 basicConstraints = CA:true
+keyUsage = cRLSign, keyCertSign
+authorityInfoAccess = OCSP;URI:http://ocsp.security.com
+crlDistributionPoints = URI:http://crl.security.com/root-ca.crl
