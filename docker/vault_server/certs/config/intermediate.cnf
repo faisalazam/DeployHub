@@ -26,14 +26,15 @@ stateOrProvinceName = supplied
 organizationalUnitName = supplied
 
 [ intermediate_ca_extensions ]
-basicConstraints = CA:true
+# Extensions for intermediate CA operations (e.g., signing)
 subjectKeyIdentifier = hash
-keyUsage = cRLSign, keyCertSign
-extendedKeyUsage = serverAuth, clientAuth
-authorityKeyIdentifier = keyid,issuer:always
+basicConstraints = critical,CA:TRUE,pathlen:0
+keyUsage = critical, keyCertSign, cRLSign
+authorityKeyIdentifier = keyid:always,issuer
 crlDistributionPoints = URI:http://crl.security.com/intermediate-ca.crl
 
 [ req ]
+# Settings for generating the intermediate CA certificate
 prompt = no
 default_md = sha256
 default_bits = $ENV::RSA_KEY_SIZE

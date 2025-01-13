@@ -13,7 +13,7 @@ default_crl_days = 365
 default_days = $ENV::ROOT_CERT_EXPIRY_DAYS
 
 policy = local_ca_policy
-x509_extensions = local_ca_extensions
+x509_extensions = root_ca_extensions
 
 copy_extensions = copy
 
@@ -25,10 +25,11 @@ organizationName = supplied
 stateOrProvinceName = supplied
 organizationalUnitName = supplied
 
-[ local_ca_extensions ]
-basicConstraints = CA:false
-keyUsage = nonRepudiation, digitalSignature, keyEncipherment
-extendedKeyUsage = serverAuth, clientAuth
+[ root_ca_extensions ]
+basicConstraints = critical, CA:true, pathlen:1
+keyUsage = critical, keyCertSign, cRLSign
+authorityInfoAccess = OCSP;URI:http://ocsp.security.com
+crlDistributionPoints = URI:http://crl.security.com/root-ca.crl
 
 [ req ]
 prompt = no
@@ -45,9 +46,3 @@ emailAddress = support@security.com
 stateOrProvinceName = New South Wales
 organizationName = Security Organization
 organizationalUnitName = Certificate Authority
-
-[ root_ca_extensions ]
-basicConstraints = critical,CA:TRUE,pathlen:0
-keyUsage = critical, keyCertSign, cRLSign
-authorityInfoAccess = OCSP;URI:http://ocsp.security.com
-crlDistributionPoints = URI:http://crl.security.com/root-ca.crl
