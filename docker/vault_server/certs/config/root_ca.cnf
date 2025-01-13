@@ -47,7 +47,7 @@ organizationName = Security Organization
 organizationalUnitName = Certificate Authority
 
 [ root_ca_extensions ]
-basicConstraints = CA:true
-keyUsage = cRLSign, keyCertSign
+basicConstraints = critical,CA:TRUE,pathlen:0
+keyUsage = critical, keyCertSign, cRLSign
 authorityInfoAccess = OCSP;URI:http://ocsp.security.com
 crlDistributionPoints = URI:http://crl.security.com/root-ca.crl
