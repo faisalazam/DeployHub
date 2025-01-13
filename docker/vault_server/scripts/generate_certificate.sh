@@ -65,7 +65,7 @@ generate_root_certificate() {
       -out "$ROOT_CA_CERT" -outform PEM -days $CERT_EXPIRY_DAYS \
       -keyout "$ROOT_CA_KEY" \
       -passout pass:$PASSPHRASE \
-      -config "$CONFIG_DIR/caconfig.cnf" -quiet; then
+      -config "$CONFIG_DIR/root_ca.cnf" -quiet; then
     log "Failed to generate root certificate" "ERROR"
     exit 1
   fi
@@ -117,7 +117,7 @@ sign_certificate_with_root_ca() {
   log "Sign the certificate for $SERVER_DIR with root CA"
   if ! SIGNED_CERTS_DIR="$SIGNED_CERTS_DIR" openssl ca -in "$TEMP_REQ" \
       -out "$SERVER_CERT" \
-      -config "$CONFIG_DIR/caconfig.cnf" \
+      -config "$CONFIG_DIR/root_ca.cnf" \
       -batch \
       -passin pass:$PASSPHRASE -quiet; then
     log "Failed to sign the certificate for $SERVER_DIR with root CA" "ERROR"
