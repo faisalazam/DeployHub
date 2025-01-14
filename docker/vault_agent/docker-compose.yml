@@ -23,7 +23,7 @@ services:
       - ./config:/vault/config:ro
       - ../vault_server/certs/vaultCA/intermediate/cacert.pem:/vault/certs/ca.crt:ro
       - ../vault_server/certs/vaultCA/agent/server_key.pem:/vault/certs/agent_key.pem:ro
-      - ../vault_server/certs/vaultCA/agent/full_chain.pem:/vault/certs/agent_cert.pem:ro
+      - ../vault_server/certs/vaultCA/agent/intermediate_and_leaf_chain.pem:/vault/certs/agent_cert.pem:ro
       # If the following dir/volume is missing, then start the vault_server first to create the auth dir contents
       - vault_ssh_manager_role:${VAULT_SERVER_ROLE_AUTH_DIR}:ro
     entrypoint: [ "sh", "/vault/scripts/agent_startup.sh" ]

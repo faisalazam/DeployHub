@@ -251,14 +251,14 @@ sign_certificate_with_intermediate_ca() {
 combine_certificates_into_full_chain() {
   SERVER_DIR=$1
   SERVER_CERT="$SERVER_DIR/server_crt.pem"
-  FULL_CHAIN="$SERVER_DIR/full_chain.pem"
+  FULL_CHAIN="$SERVER_DIR/intermediate_and_leaf_chain.pem"
 
-  log "Combine server certificate, intermediate certificate, and root certificate into the full chain for $SERVER_DIR"
-  if ! cat "$SERVER_CERT" "$INTERMEDIATE_CA_CERT" "$ROOT_CA_CERT" > "$FULL_CHAIN"; then
-    log "Failed to combine server certificate, intermediate certificate, and root certificate for $SERVER_DIR" "ERROR"
+  log "Combine server certificate, and intermediate certificate into the chain for $SERVER_DIR"
+  if ! cat "$SERVER_CERT" "$INTERMEDIATE_CA_CERT" > "$FULL_CHAIN"; then
+    log "Failed to combine server certificate, and intermediate certificate for $SERVER_DIR" "ERROR"
     exit 1
   fi
-  log "$SERVER_DIR full chain certificate created successfully"
+  log "$SERVER_DIR chain certificate created successfully"
   set_permissions "$FULL_CHAIN" "644"
 }
 
@@ -331,7 +331,7 @@ generate_certificate() {
   combine_certificates_into_full_chain "$SERVER_DIR"
   combined_non_leaf_certs_into_tempn_ca
   verify_certificate "server" "$SERVER_DIR/server_crt.pem"
-  verify_certificate "full chain" "$SERVER_DIR/full_chain.pem"
+  verify_certificate "full chain" "$SERVER_DIR/intermediate_and_leaf_chain.pem"
   clean_temp_files "$SERVER_DIR"
 
   log "$CERT_TYPE certificate generation and signing process completed successfully"

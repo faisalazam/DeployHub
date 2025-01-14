@@ -29,7 +29,7 @@ services:
       - ./certs/vaultCA/agent/server_crt.pem:/vault/certs/agent.crt:ro
       - ./certs/vaultCA/agent/server_key.pem:/vault/certs/agent.key:ro
       - ./certs/vaultCA/server/server_key.pem:/vault/certs/server.key:ro
-      - ./certs/vaultCA/server/full_chain.pem:/vault/certs/full_chain.pem:ro
+      - ./certs/vaultCA/server/intermediate_and_leaf_chain.pem:/vault/certs/intermediate_and_leaf_chain.pem:ro
       - vault_ssh_manager_role:/vault/secrets/auth/${SSH_MANAGER_ROLE_NAME}
       - ./scripts:/vault/scripts
       - ./policies:/vault/policies:ro
