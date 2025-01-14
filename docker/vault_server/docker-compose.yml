@@ -25,7 +25,7 @@ services:
       - vault_logs:/vault/logs
       - ./secrets:/vault/secrets
       # NOTE: Run the scripts/generate_certificate.sh on the host first, to generate the cert
-      - ./certs/vaultCA/cacert.pem:/vault/certs/ca.crt:ro
+      - ./certs/vaultCA/intermediate/cacert.pem:/vault/certs/ca.crt:ro
       - ./certs/vaultCA/agent/server_crt.pem:/vault/certs/agent.crt:ro
       - ./certs/vaultCA/agent/server_key.pem:/vault/certs/agent.key:ro
       - ./certs/vaultCA/server/server_key.pem:/vault/certs/server.key:ro
