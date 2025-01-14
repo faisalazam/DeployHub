@@ -72,8 +72,7 @@ create_dirs_and_files() {
     CERT_TYPE=$1
 
     if [ "$CERT_TYPE" = "root" ]; then
-      mkdir -p "$BASE_DIR/temp" \
-               "$DATABASE_DIR/root" \
+      mkdir -p "$DATABASE_DIR/root" \
                "$ROOT_CA_DIR/private"
       create_db_file "$ROOT_DATABASE_FILE"
       create_serial_file "$ROOT_SERIAL_FILE"
@@ -239,6 +238,7 @@ combine_certificates_into_full_chain() {
 
 combined_non_leaf_certs_into_temp_ca() {
   log "Combine root CA and intermediate CA certificates into a temporary CA file"
+  mkdir -p "$BASE_DIR/temp"
   if ! cat "$ROOT_CA_CERT" "$INTERMEDIATE_CA_CERT" > "$COMBINED_NON_LEAF_CERTS_TEMP_FILE"; then
     log "Failed to combine root $ROOT_CA_CERT CA and intermediate $INTERMEDIATE_CA_CERT CA certificates" "ERROR"
     exit 1
