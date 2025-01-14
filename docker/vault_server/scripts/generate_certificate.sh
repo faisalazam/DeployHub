@@ -151,7 +151,7 @@ generate_root_certificate() {
       -out "$ROOT_CA_CERT" -outform PEM -days $ROOT_CERT_EXPIRY_DAYS \
       -keyout "$ROOT_CA_KEY" \
       -passout pass:$ROOT_PASSPHRASE \
-      -config "$CONFIG_DIR/root_ca.cnf" -quiet; then
+      -config "$CONFIG_DIR/root_ca.cnf" -quiet > /dev/null 2>&1; then
     log "Failed to generate root certificate" "ERROR"
     exit 1
   fi
@@ -178,7 +178,7 @@ generate_intermediate_certificate() {
   SIGNED_CERTS_DIR="$INTERMEDIATE_DIR/signedcerts"
   log "Generate the intermediate certificate signing request (CSR)"
   if ! SIGNED_CERTS_DIR="$SIGNED_CERTS_DIR" openssl req -new -key "$INTERMEDIATE_CA_KEY" -out "$INTERMEDIATE_CA_CSR" \
-      -passin pass:$INTERMEDIATE_PASSPHRASE -config "$CONFIG_DIR/intermediate.cnf"; then
+      -passin pass:$INTERMEDIATE_PASSPHRASE -config "$CONFIG_DIR/intermediate.cnf" > /dev/null 2>&1; then
     log "Failed to generate intermediate CSR" "ERROR"
     exit 1
   fi
@@ -186,7 +186,7 @@ generate_intermediate_certificate() {
   log "Sign the intermediate certificate with the root certificate"
   if ! SIGNED_CERTS_DIR="$SIGNED_CERTS_DIR" openssl ca -in "$INTERMEDIATE_CA_CSR" -out "$INTERMEDIATE_CA_CERT" \
       -cert "$ROOT_CA_CERT" -keyfile "$ROOT_CA_KEY" \
-      -passin pass:$ROOT_PASSPHRASE -config "$CONFIG_DIR/root_ca.cnf" -batch; then
+      -passin pass:$ROOT_PASSPHRASE -config "$CONFIG_DIR/root_ca.cnf" -batch > /dev/null 2>&1; then
     log "Failed to sign intermediate certificate with root CA" "ERROR"
     exit 1
   fi
@@ -213,7 +213,7 @@ generate_key_and_request() {
         -keyout "$TEMP_KEY" -keyform PEM \
         -out "$TEMP_REQ" -outform PEM \
         -passout pass:$INTERMEDIATE_PASSPHRASE \
-        -config "$CONFIG_FILE" -quiet; then
+        -config "$CONFIG_FILE" -quiet > /dev/null 2>&1; then
       log "Failed to generate temporary key and certificate request for $CERT_TYPE" "ERROR"
       exit 1
   fi
@@ -248,7 +248,7 @@ sign_certificate_with_intermediate_ca() {
       -out "$SERVER_CERT" \
       -cert "$INTERMEDIATE_CA_CERT" \
       -keyfile "$INTERMEDIATE_CA_KEY" \
-      -passin pass:$INTERMEDIATE_PASSPHRASE -config "$CONFIG_DIR/intermediate_signing.cnf" -batch; then
+      -passin pass:$INTERMEDIATE_PASSPHRASE -config "$CONFIG_DIR/intermediate_signing.cnf" -batch > /dev/null 2>&1; then
     log "Failed to sign the certificate for $SERVER_DIR with intermediate CA" "ERROR"
     exit 1
   fi
@@ -297,13 +297,13 @@ verify_certificate() {
 
   log "Verifying the $CERT_TYPE certificate at $CERT_PATH with $VERIFY_WITH"
   # Chain of trust verification
-  if ! openssl verify -CAfile "$VERIFY_WITH" "$CERT_PATH"; then
+  if ! openssl verify -CAfile "$VERIFY_WITH" "$CERT_PATH" > /dev/null 2>&1; then
     log "$CERT_TYPE certificate verification failed" "ERROR"
     exit 1
   fi
 
   # Date validity check
-  if ! openssl x509 -in "$CERT_PATH" -noout -checkend 0; then
+  if ! openssl x509 -in "$CERT_PATH" -noout -checkend 0 > /dev/null 2>&1; then
     log "$CERT_TYPE certificate is expired or not yet valid" "ERROR"
     exit 1
   fi
