@@ -137,7 +137,7 @@ environment:
   VAULT_CLIENT_KEY: /vault/certs/agent_key.pem
   VAULT_CLIENT_CERT: /vault/certs/agent_cert.bundle
 volumes:
-  - ../vault_server/certs/vaultCA/cacert.pem:/vault/certs/ca.crt:ro
+  - ../vault_server/certs/vaultCA/cert_chain/root_and_intermediate_chain.bundle:/vault/certs/ca.crt:ro
   - ../vault_server/certs/vaultCA/agent/server_key.pem:/vault/certs/agent_key.pem:ro
   - ../vault_server/certs/vaultCA/agent/intermediate_and_leaf_chain.bundle:/vault/certs/agent_cert.bundle:ro
 ```
