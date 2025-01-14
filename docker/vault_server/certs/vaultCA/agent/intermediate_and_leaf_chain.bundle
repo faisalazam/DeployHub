@@ -1,6 +1,137 @@
 Certificate:
     Data:
         Version: 3 (0x2)
+        Serial Number: 2 (0x2)
+        Signature Algorithm: sha256WithRSAEncryption
+        Issuer: CN=Intermediate Certificate Authority, C=AU/emailAddress=support@security.com, O=Security Organization, ST=New South Wales, OU=Certificate Authority
+        Validity
+            Not Before: Jan 14 17:25:43 2025 GMT
+            Not After : Jan 14 17:25:43 2027 GMT
+        Subject: CN=vault_agent, C=AU/emailAddress=support@crazy.com, O=Crazy Org, ST=New South Wales, OU=Development
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                Public-Key: (4096 bit)
+                Modulus:
+                    00:86:e8:1a:eb:c3:bd:dd:34:75:cc:2c:1f:fe:11:
+                    7a:90:16:75:7b:21:74:e9:91:2b:08:f2:64:d5:bf:
+                    87:93:07:3c:7a:72:27:94:73:b4:f2:04:37:6b:0f:
+                    07:33:f2:80:f8:1c:97:04:1b:70:97:f3:9b:e4:52:
+                    d4:ea:96:e7:ff:40:fa:8b:11:c3:16:3f:d5:3d:cd:
+                    9e:46:b8:13:42:d3:95:c8:44:43:4b:5f:00:a5:b1:
+                    e5:83:25:72:b7:e4:7b:dc:12:81:ec:0c:77:35:52:
+                    29:8e:cf:42:40:b4:1a:b1:0b:52:38:9f:ea:f8:fb:
+                    94:93:00:a5:3c:81:d9:80:61:5a:d8:e4:f6:c5:02:
+                    35:09:a3:42:89:0d:9f:7e:ca:84:aa:a7:c5:73:17:
+                    2d:7a:cf:83:31:c1:53:65:4a:c1:43:74:db:2c:e9:
+                    99:71:23:e6:aa:17:53:57:54:72:3e:a9:ed:4b:57:
+                    57:94:9e:ed:ff:c1:68:28:bb:55:8a:20:9c:72:bf:
+                    3d:0c:cf:30:42:e1:5a:bc:30:92:0f:b4:1f:9b:1e:
+                    97:1e:78:10:a8:a3:a4:a4:d9:14:57:97:33:f5:3a:
+                    2f:7b:ac:5f:57:8e:82:8a:ec:d2:9f:99:99:33:c0:
+                    3b:2e:9a:d6:42:eb:14:bd:ad:b5:7f:59:e0:63:85:
+                    2a:06:f0:c4:c4:98:be:e1:b1:87:b8:63:85:64:ce:
+                    34:ce:16:3b:18:8d:47:5e:99:bc:29:12:93:a2:c6:
+                    99:14:09:36:07:01:f0:a3:0c:08:5d:71:e1:83:1e:
+                    3f:8c:83:fd:26:f2:d2:db:d6:ee:d2:c1:74:c3:ea:
+                    34:af:04:5f:6f:0b:d1:95:1a:ed:43:86:73:a6:da:
+                    3f:76:cb:3f:cb:e9:30:aa:70:d7:17:b4:06:f5:70:
+                    c3:37:59:e1:47:22:2e:92:0b:5b:74:0a:3c:21:7e:
+                    b1:43:d0:9a:eb:7b:9f:a8:46:e1:de:0a:ea:37:f7:
+                    fd:ee:43:d4:f3:62:f7:52:06:8a:dc:5a:c4:6b:68:
+                    af:1f:99:f4:92:c4:8d:5f:d4:2b:67:00:c7:86:03:
+                    78:ca:c8:f3:32:f7:32:e2:74:03:75:12:01:98:42:
+                    74:0b:3a:a6:96:35:2d:79:56:c7:90:9c:f5:80:7d:
+                    d1:69:f1:73:15:39:32:7e:44:cd:e9:10:9f:1b:c3:
+                    ef:7c:62:9f:59:f3:af:64:13:0e:d3:a5:b6:89:9c:
+                    f4:0e:53:7f:0a:ce:18:8e:0a:02:32:4c:24:38:6c:
+                    5d:98:bf:27:f8:9c:61:fe:51:ed:f9:2e:b4:8b:bf:
+                    44:ae:a2:f1:21:6d:8f:0e:1f:43:d9:5e:d3:4d:3a:
+                    e7:21:61
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Basic Constraints: 
+                CA:FALSE
+            X509v3 Key Usage: 
+                Digital Signature, Key Encipherment
+            X509v3 Extended Key Usage: 
+                TLS Web Server Authentication, TLS Web Client Authentication
+            X509v3 Subject Key Identifier: 
+                B7:FE:70:25:68:FE:7C:8E:22:01:67:99:E7:01:0E:E2:F9:F1:33:73
+            X509v3 Authority Key Identifier: 
+                5D:22:56:17:CF:3F:2E:6D:A6:D9:18:C3:AF:01:FD:94:B1:85:89:DE
+            X509v3 Subject Alternative Name: 
+                DNS:localhost, DNS:vault_agent, IP Address:127.0.0.1
+    Signature Algorithm: sha256WithRSAEncryption
+    Signature Value:
+        5c:6b:af:45:83:09:06:79:32:d4:a8:f5:8f:5e:6e:77:bc:3c:
+        43:6a:84:e8:51:11:db:c4:12:50:f2:ce:1f:d1:e5:88:a4:b4:
+        67:5f:6c:ba:2b:a6:23:52:7b:22:02:be:a6:ae:26:71:3d:e8:
+        65:29:9d:d7:12:0c:44:33:fb:8f:a8:c2:26:3e:b5:dd:53:de:
+        bf:99:fe:5b:5b:8f:fe:c3:61:66:ec:c7:17:e3:c9:ed:6c:19:
+        94:6c:03:e4:ea:75:5d:fa:94:fc:be:82:ae:73:c1:d6:f5:88:
+        5d:78:24:37:f3:7e:0f:39:27:53:56:84:62:eb:86:37:22:61:
+        de:85:5c:5d:66:67:46:2a:46:cc:b5:40:a1:99:e0:05:ff:a7:
+        bb:e0:30:b4:80:20:71:9b:51:9f:22:6e:ad:36:49:06:73:42:
+        de:90:f3:0c:24:5e:5c:16:ef:5a:8f:10:0d:56:3a:f6:f7:10:
+        a3:48:95:9a:8e:f4:1a:ce:35:21:be:56:22:c4:88:e2:47:15:
+        95:2f:86:66:de:df:16:a0:f7:d8:f8:0f:f4:5a:22:ff:51:f0:
+        58:64:e1:39:38:6c:81:e7:7f:37:12:ee:c2:7a:f2:0a:f4:59:
+        0c:c0:b8:a3:40:39:1e:16:28:2d:6e:a8:16:56:94:41:0a:f7:
+        9d:6e:92:79:c1:65:5d:39:a7:59:ef:84:50:1a:53:3a:1f:c7:
+        75:db:b1:94:dd:f2:3e:0b:b9:f6:30:c7:55:33:d5:a7:d3:41:
+        9e:bd:d9:1d:af:01:e2:7c:01:a4:28:fb:6d:39:c1:2e:90:4b:
+        af:0a:67:a5:67:03:0f:bd:a5:04:e9:94:70:1d:01:e4:21:04:
+        d8:1f:49:b1:dd:bf:06:90:01:bc:83:42:13:f8:38:db:01:91:
+        95:14:36:35:28:eb:d8:37:07:6e:1c:b2:11:7a:5b:1c:28:e1:
+        4a:7b:4e:1b:7d:83:76:50:07:4d:d7:e5:58:67:ad:72:3b:59:
+        78:d4:e4:84:f8:89:30:97:4e:d0:0b:3f:ac:37:53:d4:69:94:
+        18:0f:7f:99:2c:3d:5f:2d:88:88:1f:d7:10:59:77:54:26:67:
+        24:1e:fb:4d:9b:a9:f3:9d:15:4f:0a:c8:c7:08:41:96:7e:cd:
+        34:ef:69:68:30:cc:0f:39:65:d3:ad:b0:da:98:c7:d7:2a:cd:
+        85:80:8e:5c:b2:6c:ee:1b:d9:d2:6a:a5:85:49:a5:98:5b:a2:
+        2c:d4:86:3f:be:58:75:b1:f2:53:c0:d9:9a:90:42:cf:a9:3c:
+        78:4b:e4:b3:94:42:c9:18:45:1a:92:3f:ef:51:9a:00:4e:f1:
+        d8:7b:2c:d3:3c:c0:03:c7
+-----BEGIN CERTIFICATE-----
+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
+eyzTPMADxw==
+-----END CERTIFICATE-----
+Certificate:
+    Data:
+        Version: 3 (0x2)
         Serial Number: 1 (0x1)
         Signature Algorithm: sha256WithRSAEncryption
         Issuer: CN=Root Certificate Authority, C=AU/emailAddress=support@security.com, ST=New South Wales, O=Security Organization, OU=Certificate Authority
