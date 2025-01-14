@@ -17,6 +17,7 @@ BASE_DIR="certs/vaultCA"
 ROOT_CA_DIR="$BASE_DIR/root"
 INTERMEDIATE_DIR="$BASE_DIR/intermediate"
 INTERMEDIATE_CA_CSR="$INTERMEDIATE_DIR/temp/intermediate.csr"
+COMBINED_NON_LEAF_CERTS_TEMP_FILE="$BASE_DIR/temp/combined_non_leaf_certs.pem"
 
 export ROOT_CA_CERT="$ROOT_CA_DIR/cacert.pem"
 export ROOT_CA_KEY="$ROOT_CA_DIR/private/cakey.pem"
@@ -55,9 +56,12 @@ create_dirs_and_files() {
     CERT_TYPE=$1
 
     if [ "$CERT_TYPE" = "root" ]; then
-      mkdir -p "$DATABASE_DIR/root" "$ROOT_CA_DIR/private"
+      mkdir -p "$BASE_DIR/temp" \
+               "$DATABASE_DIR/root" \
+               "$ROOT_CA_DIR/private"
       create_db_file "$ROOT_DATABASE_FILE"
       create_serial_file "$ROOT_SERIAL_FILE"
+      log "Created directories for root ca"
     elif [ "$CERT_TYPE" = "intermediate" ]; then
       mkdir -p "$DATABASE_DIR/intermediate" \
                "$INTERMEDIATE_DIR/temp" \
@@ -65,8 +69,10 @@ create_dirs_and_files() {
                "$INTERMEDIATE_DIR/signedcerts"
       create_db_file "$INTERMEDIATE_DATABASE_FILE"
       create_serial_file "$INTERMEDIATE_SERIAL_FILE"
+      log "Created directories for intermediate ca"
     else
-      mkdir -p "$BASE_DIR/$CERT_TYPE/signedcerts" "$BASE_DIR/$CERT_TYPE/temp"
+      mkdir -p "$BASE_DIR/$CERT_TYPE/temp" \
+               "$BASE_DIR/$CERT_TYPE/signedcerts"
       log "Created directories for $CERT_TYPE"
     fi
   fi
@@ -203,11 +209,19 @@ combine_certificates_into_full_chain() {
   log "$SERVER_DIR full chain certificate created successfully"
 }
 
+combined_non_leaf_certs_into_temp_ca() {
+  log "Combine root CA and intermediate CA certificates into a temporary CA file"
+  if ! cat "$ROOT_CA_CERT" "$INTERMEDIATE_CA_CERT" > "$COMBINED_NON_LEAF_CERTS_TEMP_FILE"; then
+    log "Failed to combine root $ROOT_CA_CERT CA and intermediate $INTERMEDIATE_CA_CERT CA certificates" "ERROR"
+    exit 1
+  fi
+  log "Temporary CA file created successfully at $COMBINED_NON_LEAF_CERTS_TEMP_FILE"
+}
+
 verify_certificate() {
   CERT_TYPE=$1
   CERT_PATH=$2
   CA_CERT_PATH=$3
-  INTERMEDIATE_CA_CERT=$4
 
 #  log "Verifying the Issuer of $CERT_PATH certificate is actually $CA_CERT_PATH"
 #  if ! openssl verify -no-CAfile -no-CApath -partial_chain "$CA_CERT_PATH" "$CERT_PATH"; then
@@ -215,13 +229,8 @@ verify_certificate() {
 #    exit 1
 #  fi
 
-  CERT_CHAIN_PATHS="$CERT_PATH"
-  if [ -n "$INTERMEDIATE_CA_CERT" ]; then
-    CERT_CHAIN_PATHS="-untrusted $INTERMEDIATE_CA_CERT $CERT_PATH"
-  fi
-
   log "Verifying the $CERT_TYPE certificate at $CERT_PATH"
-  if ! eval openssl verify -CAfile "$CA_CERT_PATH" "$CERT_CHAIN_PATHS"; then
+  if ! eval openssl verify -CAfile "$COMBINED_NON_LEAF_CERTS_TEMP_FILE" "$CERT_PATH"; then
     log "$CERT_TYPE certificate verification failed" "ERROR"
     exit 1
   fi
@@ -255,8 +264,8 @@ generate_certificate() {
   extract_private_key "$SERVER_DIR"
   sign_certificate_with_intermediate_ca "$SERVER_DIR"
   combine_certificates_into_full_chain "$SERVER_DIR"
-  verify_certificate "server" "$SERVER_DIR/server_crt.pem" "$ROOT_CA_CERT" "$INTERMEDIATE_CA_CERT"
-  verify_certificate "full chain" "$SERVER_DIR/full_chain.pem" "$ROOT_CA_CERT" "$INTERMEDIATE_CA_CERT"
+  verify_certificate "server" "$SERVER_DIR/server_crt.pem" "$ROOT_CA_CERT"
+  verify_certificate "full chain" "$SERVER_DIR/full_chain.pem" "$ROOT_CA_CERT"
   clean_temp_files "$SERVER_DIR"
 
   log "$CERT_TYPE certificate generation and signing process completed successfully"
@@ -264,5 +273,9 @@ generate_certificate() {
 
 generate_root_certificate
 generate_intermediate_certificate
+combined_non_leaf_certs_into_temp_ca
 generate_certificate "server" "vault_server"
 generate_certificate "agent" "vault_agent"
+
+log "Clean up after generating all leaf certs..."
+clean_temp_files "$BASE_DIR"
