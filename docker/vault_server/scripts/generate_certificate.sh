@@ -8,7 +8,8 @@ log() {
 log "NOTE: THIS SCRIPT RUNS ON THE HOST..."
 
 # TODO: Store the passphrase somewhere secure.
-PASSPHRASE="your_secure_passphrase"
+ROOT_PASSPHRASE="your_root_secure_passphrase"
+INTERMEDIATE_PASSPHRASE="your_intermediate_secure_passphrase"
 
 CONFIG_DIR="certs/config"
 DATABASE_DIR="certs/database"
@@ -115,7 +116,7 @@ generate_root_certificate() {
   if ! SIGNED_CERTS_DIR="" openssl req -x509 -newkey rsa:$RSA_KEY_SIZE \
       -out "$ROOT_CA_CERT" -outform PEM -days $ROOT_CERT_EXPIRY_DAYS \
       -keyout "$ROOT_CA_KEY" \
-      -passout pass:$PASSPHRASE \
+      -passout pass:$ROOT_PASSPHRASE \
       -config "$CONFIG_DIR/root_ca.cnf" -quiet; then
     log "Failed to generate root certificate" "ERROR"
     exit 1
@@ -143,7 +144,7 @@ generate_intermediate_certificate() {
   SIGNED_CERTS_DIR="$INTERMEDIATE_DIR/signedcerts"
   log "Generate the intermediate certificate signing request (CSR)"
   if ! SIGNED_CERTS_DIR="$SIGNED_CERTS_DIR" openssl req -new -key "$INTERMEDIATE_CA_KEY" -out "$INTERMEDIATE_CA_CSR" \
-      -passin pass:$PASSPHRASE -config "$CONFIG_DIR/intermediate.cnf"; then
+      -passin pass:$INTERMEDIATE_PASSPHRASE -config "$CONFIG_DIR/intermediate.cnf"; then
     log "Failed to generate intermediate CSR" "ERROR"
     exit 1
   fi
@@ -151,7 +152,7 @@ generate_intermediate_certificate() {
   log "Sign the intermediate certificate with the root certificate"
   if ! SIGNED_CERTS_DIR="$SIGNED_CERTS_DIR" openssl ca -in "$INTERMEDIATE_CA_CSR" -out "$INTERMEDIATE_CA_CERT" \
       -cert "$ROOT_CA_CERT" -keyfile "$ROOT_CA_KEY" \
-      -passin pass:$PASSPHRASE -config "$CONFIG_DIR/root_ca.cnf" -batch; then
+      -passin pass:$ROOT_PASSPHRASE -config "$CONFIG_DIR/root_ca.cnf" -batch; then
     log "Failed to sign intermediate certificate with root CA" "ERROR"
     exit 1
   fi
@@ -176,7 +177,7 @@ generate_key_and_request() {
         -newkey rsa:$RSA_KEY_SIZE \
         -keyout "$TEMP_KEY" -keyform PEM \
         -out "$TEMP_REQ" -outform PEM \
-        -passout pass:$PASSPHRASE \
+        -passout pass:$INTERMEDIATE_PASSPHRASE \
         -config "$CONFIG_FILE" -quiet; then
       log "Failed to generate temporary key and certificate request for $CERT_TYPE" "ERROR"
       exit 1
@@ -193,7 +194,7 @@ extract_private_key() {
 
   log "Extract the private key for $SERVER_DIR"
   if ! openssl rsa -in "$TEMP_KEY" -out "$SERVER_KEY" \
-      -passin pass:$PASSPHRASE; then
+      -passin pass:$INTERMEDIATE_PASSPHRASE; then
     log "Failed to extract the private key" "ERROR"
     exit 1
   fi
@@ -212,7 +213,7 @@ sign_certificate_with_intermediate_ca() {
       -out "$SERVER_CERT" \
       -cert "$INTERMEDIATE_CA_CERT" \
       -keyfile "$INTERMEDIATE_CA_KEY" \
-      -passin pass:$PASSPHRASE -config "$CONFIG_DIR/intermediate_signing.cnf" -batch; then
+      -passin pass:$INTERMEDIATE_PASSPHRASE -config "$CONFIG_DIR/intermediate_signing.cnf" -batch; then
     log "Failed to sign the certificate for $SERVER_DIR with intermediate CA" "ERROR"
     exit 1
   fi
