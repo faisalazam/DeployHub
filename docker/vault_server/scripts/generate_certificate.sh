@@ -138,7 +138,7 @@ generate_intermediate_certificate() {
     exit 1
   fi
 
-  verify_certificate "intermediate" "$INTERMEDIATE_CA_CERT" "$ROOT_CA_CERT"
+  verify_certificate "intermediate" "$INTERMEDIATE_CA_CERT"
   clean_temp_files "$INTERMEDIATE_DIR"
   log "Intermediate certificate generated and signed by root certificate"
 }
@@ -221,16 +221,14 @@ combined_non_leaf_certs_into_temp_ca() {
 verify_certificate() {
   CERT_TYPE=$1
   CERT_PATH=$2
-  CA_CERT_PATH=$3
+  VERIFY_WITH=$COMBINED_NON_LEAF_CERTS_TEMP_FILE
 
-#  log "Verifying the Issuer of $CERT_PATH certificate is actually $CA_CERT_PATH"
-#  if ! openssl verify -no-CAfile -no-CApath -partial_chain "$CA_CERT_PATH" "$CERT_PATH"; then
-#    log "$CERT_TYPE certificate verification failed" "ERROR"
-#    exit 1
-#  fi
+  if [ "$CERT_TYPE" = "intermediate" ]; then
+    VERIFY_WITH=$ROOT_CA_CERT
+  fi
 
-  log "Verifying the $CERT_TYPE certificate at $CERT_PATH"
-  if ! eval openssl verify -CAfile "$COMBINED_NON_LEAF_CERTS_TEMP_FILE" "$CERT_PATH"; then
+  log "Verifying the $CERT_TYPE certificate at $CERT_PATH with $VERIFY_WITH"
+  if ! openssl verify -CAfile "$VERIFY_WITH" "$CERT_PATH"; then
     log "$CERT_TYPE certificate verification failed" "ERROR"
     exit 1
   fi
@@ -264,8 +262,8 @@ generate_certificate() {
   extract_private_key "$SERVER_DIR"
   sign_certificate_with_intermediate_ca "$SERVER_DIR"
   combine_certificates_into_full_chain "$SERVER_DIR"
-  verify_certificate "server" "$SERVER_DIR/server_crt.pem" "$ROOT_CA_CERT"
-  verify_certificate "full chain" "$SERVER_DIR/full_chain.pem" "$ROOT_CA_CERT"
+  verify_certificate "server" "$SERVER_DIR/server_crt.pem"
+  verify_certificate "full chain" "$SERVER_DIR/full_chain.pem"
   clean_temp_files "$SERVER_DIR"
 
   log "$CERT_TYPE certificate generation and signing process completed successfully"
