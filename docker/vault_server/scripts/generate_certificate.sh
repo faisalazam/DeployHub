@@ -262,8 +262,15 @@ verify_certificate() {
   fi
 
   log "Verifying the $CERT_TYPE certificate at $CERT_PATH with $VERIFY_WITH"
+  # Chain of trust verification
   if ! openssl verify -CAfile "$VERIFY_WITH" "$CERT_PATH"; then
     log "$CERT_TYPE certificate verification failed" "ERROR"
+    exit 1
+  fi
+
+  # Date validity check
+  if ! openssl x509 -in "$CERT_PATH" -noout -checkend 0; then
+    log "$CERT_TYPE certificate is expired or not yet valid" "ERROR"
     exit 1
   fi
   log "$CERT_TYPE certificate verification successful"
