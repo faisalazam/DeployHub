@@ -237,6 +237,11 @@ combine_certificates_into_full_chain() {
 }
 
 combined_non_leaf_certs_into_temp_ca() {
+  if [ -f "$COMBINED_NON_LEAF_CERTS_TEMP_FILE" ]; then
+    log "Combined certificate already exists. Skipping combining top level certificates."
+    return
+  fi
+
   log "Combine root CA and intermediate CA certificates into a temporary CA file"
   mkdir -p "$BASE_DIR/temp"
   if ! cat "$ROOT_CA_CERT" "$INTERMEDIATE_CA_CERT" > "$COMBINED_NON_LEAF_CERTS_TEMP_FILE"; then
@@ -282,7 +287,7 @@ generate_certificate() {
   CONFIG_FILE="$CONFIG_DIR/$CERT_TYPE.cnf"
 
   if [ -f "$SERVER_DIR/server_crt.pem" ]; then
-    log "$CERT_TYPE certificate already exists. Skipping generation and signing process." "INFO"
+    log "$CERT_TYPE certificate already exists. Skipping generation and signing process."
     return
   fi
 
@@ -291,6 +296,7 @@ generate_certificate() {
   extract_private_key "$SERVER_DIR"
   sign_certificate_with_intermediate_ca "$SERVER_DIR"
   combine_certificates_into_full_chain "$SERVER_DIR"
+  combined_non_leaf_certs_into_tempn_ca
   verify_certificate "server" "$SERVER_DIR/server_crt.pem"
   verify_certificate "full chain" "$SERVER_DIR/full_chain.pem"
   clean_temp_files "$SERVER_DIR"
@@ -300,7 +306,6 @@ generate_certificate() {
 
 generate_root_certificate
 generate_intermediate_certificate
-combined_non_leaf_certs_into_temp_ca
 generate_certificate "server" "vault_server"
 generate_certificate "agent" "vault_agent"
 
