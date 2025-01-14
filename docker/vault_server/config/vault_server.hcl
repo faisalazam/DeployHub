@@ -4,7 +4,7 @@ listener "tcp" {
   # NOTE: Web interface doesn't work if address is set to 127.0.0.1
   address       = "0.0.0.0:${VAULT_EXTERNAL_PORT}"  # Binding Vault to all network interfaces
   tls_key_file  = "/vault/certs/server.key"
-  tls_cert_file = "/vault/certs/intermediate_and_leaf_chain.pem"
+  tls_cert_file = "/vault/certs/intermediate_and_leaf_chain.bundle"
   ######## For mTLS start ##################
   tls_client_ca_file = "/vault/certs/ca.crt"
   tls_require_and_verify_client_cert = "true"

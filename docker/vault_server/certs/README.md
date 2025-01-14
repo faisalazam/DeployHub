@@ -38,7 +38,7 @@ cd vault_server/scripts
 - Root CA Certificate: `certs/vaultCA/cacert.pem`
 - Server Key: `certs/vaultCA/server/server_key.pem`
 - Server Certificate: `certs/vaultCA/server/server_crt.pem`
-- Full Chain: `certs/vaultCA/server/intermediate_and_leaf_chain.pem`
+- Full Chain: `certs/vaultCA/server/intermediate_and_leaf_chain.bundle`
 
 ## **Validation**
 
