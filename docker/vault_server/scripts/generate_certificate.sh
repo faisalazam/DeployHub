@@ -98,8 +98,34 @@ create_dirs_and_files() {
 
 verify_root_certificate() {
   log "Validating the root certificate"
-  if ! openssl x509 -in "$ROOT_CA_CERT" -noout -text | grep -q "Certificate:"; then
-    log "Root certificate validation failed" "ERROR"
+  # Verify that the root certificate is self-signed (issuer matches subject)
+  if ! openssl x509 -in "$ROOT_CA_CERT" -noout -issuer -subject | awk -F '=' '
+      /issuer/ {issuer=$NF}
+      /subject/ {subject=$NF}
+      END {exit !(issuer == subject)}
+  '; then
+    log "Root certificate is not self-signed (issuer does not match subject)" "ERROR"
+    exit 1
+  fi
+
+  # Check the validity period (ensure it is not expired or not valid yet)
+  if ! openssl x509 -in "$ROOT_CA_CERT" -noout -dates | awk -F '=' '
+      /notBefore/ {notBefore=$2}
+      /notAfter/ {notAfter=$2}
+      END {
+        cmd = "date +\"%b %e %H:%M:%S %Y GMT\""
+        cmd | getline current
+        close(cmd)
+        exit !(current >= notBefore && current <= notAfter)
+      }
+  '; then
+    log "Root certificate is expired or not yet valid" "ERROR"
+    exit 1
+  fi
+
+  # Verify that the root certificate can validate itself
+  if ! openssl verify -CAfile "$ROOT_CA_CERT" "$ROOT_CA_CERT" >/dev/null 2>&1; then
+    log "Root certificate failed self-verification" "ERROR"
     exit 1
   fi
   log "Root certificate validation successful"
