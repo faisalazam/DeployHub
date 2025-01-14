@@ -11,10 +11,12 @@ log "NOTE: THIS SCRIPT RUNS ON THE HOST..."
 ROOT_PASSPHRASE="your_root_secure_passphrase"
 INTERMEDIATE_PASSPHRASE="your_intermediate_secure_passphrase"
 
-CONFIG_DIR="certs/config"
-DATABASE_DIR="certs/database"
+SCRIPT_DIR=$(dirname "$0")
+CERTS_DIR="$SCRIPT_DIR/../certs"
+CONFIG_DIR="$CERTS_DIR/config"
+DATABASE_DIR="$CERTS_DIR/database"
 
-BASE_DIR="certs/vaultCA"
+BASE_DIR="$CERTS_DIR/vaultCA"
 ROOT_CA_DIR="$BASE_DIR/root"
 INTERMEDIATE_DIR="$BASE_DIR/intermediate"
 INTERMEDIATE_CA_CSR="$INTERMEDIATE_DIR/temp/intermediate.csr"
