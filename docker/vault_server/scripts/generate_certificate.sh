@@ -33,11 +33,23 @@ export RSA_KEY_SIZE=4096
 export ROOT_CERT_EXPIRY_DAYS=7300
 export INTERMEDIATE_CERT_EXPIRY_DAYS=730
 
+set_permissions() {
+  FILE_PATH="$1"
+  PERMISSIONS="$2"
+  if chmod "$PERMISSIONS" "$FILE_PATH"; then
+    log "Set permissions $PERMISSIONS for $FILE_PATH"
+  else
+    log "Error: Failed to set permissions $PERMISSIONS for $FILE_PATH"
+    exit 1
+  fi
+}
+
 create_serial_file() {
   FILE_PATH="$1"
   if ! [ -f "$FILE_PATH" ]; then
     echo '01' > "$FILE_PATH"
     log "Created $FILE_PATH serial file with initial value 01"
+    set_permissions "$FILE_PATH" "644"
   fi
 }
 
@@ -46,6 +58,7 @@ create_db_file() {
   if ! [ -f "$FILE_PATH" ]; then
     touch "$FILE_PATH"
     log "Created $FILE_PATH file"
+    set_permissions "$FILE_PATH" "600"
   fi
 }
 
@@ -62,6 +75,7 @@ create_dirs_and_files() {
       create_db_file "$ROOT_DATABASE_FILE"
       create_serial_file "$ROOT_SERIAL_FILE"
       log "Created directories for root ca"
+      set_permissions "$ROOT_CA_DIR/private" "700"
     elif [ "$CERT_TYPE" = "intermediate" ]; then
       mkdir -p "$DATABASE_DIR/intermediate" \
                "$INTERMEDIATE_DIR/temp" \
@@ -70,10 +84,12 @@ create_dirs_and_files() {
       create_db_file "$INTERMEDIATE_DATABASE_FILE"
       create_serial_file "$INTERMEDIATE_SERIAL_FILE"
       log "Created directories for intermediate ca"
+      set_permissions "$INTERMEDIATE_DIR/private" "700"
     else
       mkdir -p "$BASE_DIR/$CERT_TYPE/temp" \
                "$BASE_DIR/$CERT_TYPE/signedcerts"
       log "Created directories for $CERT_TYPE"
+      set_permissions "$BASE_DIR/$CERT_TYPE" "700"
     fi
   fi
 }
@@ -106,6 +122,8 @@ generate_root_certificate() {
   fi
   verify_root_certificate
   log "Root certificate generated successfully"
+  set_permissions "$ROOT_CA_KEY" "644"
+  set_permissions "$ROOT_CA_CERT" "644"
 }
 
 generate_intermediate_certificate() {
@@ -141,6 +159,8 @@ generate_intermediate_certificate() {
   verify_certificate "intermediate" "$INTERMEDIATE_CA_CERT"
   clean_temp_files "$INTERMEDIATE_DIR"
   log "Intermediate certificate generated and signed by root certificate"
+  set_permissions "$INTERMEDIATE_CA_KEY" "644"
+  set_permissions "$INTERMEDIATE_CA_CERT" "644"
 }
 
 generate_key_and_request() {
@@ -162,6 +182,8 @@ generate_key_and_request() {
       exit 1
   fi
   log "$CERT_TYPE temporary key and certificate request generated successfully"
+  set_permissions "$TEMP_KEY" "600"
+  set_permissions "$TEMP_REQ" "644"
 }
 
 extract_private_key() {
@@ -176,6 +198,7 @@ extract_private_key() {
     exit 1
   fi
   log "Private key extracted successfully"
+  set_permissions "$SERVER_KEY" "600"
 }
 
 sign_certificate_with_intermediate_ca() {
@@ -194,6 +217,7 @@ sign_certificate_with_intermediate_ca() {
     exit 1
   fi
   log "$SERVER_DIR certificate signed successfully"
+  set_permissions "$SERVER_CERT" "644"
 }
 
 combine_certificates_into_full_chain() {
@@ -207,6 +231,7 @@ combine_certificates_into_full_chain() {
     exit 1
   fi
   log "$SERVER_DIR full chain certificate created successfully"
+  set_permissions "$FULL_CHAIN" "644"
 }
 
 combined_non_leaf_certs_into_temp_ca() {
@@ -216,6 +241,7 @@ combined_non_leaf_certs_into_temp_ca() {
     exit 1
   fi
   log "Temporary CA file created successfully at $COMBINED_NON_LEAF_CERTS_TEMP_FILE"
+  set_permissions "$COMBINED_NON_LEAF_CERTS_TEMP_FILE" "644"
 }
 
 verify_certificate() {
