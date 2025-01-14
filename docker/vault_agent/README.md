@@ -33,3 +33,19 @@ The main directory on host will be `vault_agent/secrets/`, whereas it'll be `/va
 To see the full directory structure, replace the `vault_ssh_manager_role:${VAULT_SERVER_ROLE_AUTH_DIR}:ro` in
 docker-compose.yml with `../vault_server/secrets/auth/${SSH_MANAGER_ROLE_NAME}:${VAULT_SERVER_ROLE_AUTH_DIR}:ro`,
 as the named volumes won't show the files in explorer.
+
+
+```shell
+curl -k --cert /vault/certs/agent_cert.pem --key /vault/certs/agent_key.pem https://vault_server:8200/v1/sys/health
+```
+
+Verify mTLS:
+
+```shell
+curl -v --cacert /vault/certs/ca.crt https://vault_server:8200
+curl -v --cacert /vault/certs/ca.crt --cert /vault/certs/agent_cert.bundle --key /vault/certs/agent_key.pem https://vault_server:8200
+curl -v --cacert /vault/certs//vault/certs/intermediate_and_leaf_chain.bundle --cert /vault/certs/agent_cert.bundle --key /vault/certs/agent_key.pem https://vault_server:8200
+
+openssl s_client -connect vault_server:8200 -CAfile /vault/certs/ca.crt
+openssl s_client -connect vault_server:8200 -CAfile /vault/certs/ca.crt -cert /vault/certs/agent_cert.bundle -key /vault/certs/agent_key.pem
+```
