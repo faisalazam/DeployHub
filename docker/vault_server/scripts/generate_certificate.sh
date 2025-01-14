@@ -97,6 +97,25 @@ create_dirs_and_files() {
   fi
 }
 
+verify_cert_date_validity() {
+  CERT_FILE=$1
+
+  # Get notBefore and notAfter dates from the certificate
+  notBefore=$(openssl x509 -in "$CERT_FILE" -noout -startdate | cut -d= -f2)
+  notAfter=$(openssl x509 -in "$CERT_FILE" -noout -enddate | cut -d= -f2)
+
+  # Convert the dates to Unix timestamps
+  notBeforeTimestamp=$(date -d "$notBefore" +%s)
+  notAfterTimestamp=$(date -d "$notAfter" +%s)
+  currentTimestamp=$(date +%s)
+
+  # Check if current date is within the validity period
+  if [ "$currentTimestamp" -lt "$notBeforeTimestamp" ] || [ "$currentTimestamp" -gt "$notAfterTimestamp" ]; then
+    log "$CERT_FILE certificate is expired or not yet valid" "ERROR"
+    exit 1
+  fi
+}
+
 verify_root_certificate() {
   log "Validating the root certificate"
   # Verify that the root certificate is self-signed (issuer matches subject)
@@ -109,20 +128,7 @@ verify_root_certificate() {
     exit 1
   fi
 
-  # Check the validity period (ensure it is not expired or not valid yet)
-  if ! openssl x509 -in "$ROOT_CA_CERT" -noout -dates | awk -F '=' '
-      /notBefore/ {notBefore=$2}
-      /notAfter/ {notAfter=$2}
-      END {
-        cmd = "date +\"%b %e %H:%M:%S %Y GMT\""
-        cmd | getline current
-        close(cmd)
-        exit !(current >= notBefore && current <= notAfter)
-      }
-  '; then
-    log "Root certificate is expired or not yet valid" "ERROR"
-    exit 1
-  fi
+  verify_cert_date_validity "$ROOT_CA_CERT"
 
   # Verify that the root certificate can validate itself
   if ! openssl verify -CAfile "$ROOT_CA_CERT" "$ROOT_CA_CERT" >/dev/null 2>&1; then
@@ -185,6 +191,7 @@ generate_intermediate_certificate() {
     exit 1
   fi
 
+  verify_cert_date_validity "$INTERMEDIATE_CA_CERT"
   verify_certificate "intermediate" "$INTERMEDIATE_CA_CERT"
   clean_temp_files "$INTERMEDIATE_DIR"
   log "Intermediate certificate generated and signed by root certificate"
@@ -330,6 +337,7 @@ generate_certificate() {
   extract_private_key "$SERVER_DIR"
   sign_certificate_with_intermediate_ca "$SERVER_DIR"
   combined_intermediate_and_leaf_into_chain "$SERVER_DIR"
+  verify_cert_date_validity "$SERVER_DIR/server_crt.pem"
   verify_certificate "server" "$SERVER_DIR/server_crt.pem"
   verify_certificate "full chain" "$SERVER_DIR/intermediate_and_leaf_chain.bundle"
   clean_temp_files "$SERVER_DIR"
