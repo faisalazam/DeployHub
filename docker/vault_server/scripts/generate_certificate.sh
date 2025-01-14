@@ -18,9 +18,10 @@ DATABASE_DIR="$CERTS_DIR/database"
 
 BASE_DIR="$CERTS_DIR/vaultCA"
 ROOT_CA_DIR="$BASE_DIR/root"
+CERT_CHAIN="$BASE_DIR/cert_chain"
 INTERMEDIATE_DIR="$BASE_DIR/intermediate"
 INTERMEDIATE_CA_CSR="$INTERMEDIATE_DIR/temp/intermediate.csr"
-COMBINED_NON_LEAF_CERTS_TEMP_FILE="$BASE_DIR/temp/combined_non_leaf_certs.pem"
+ROOT_AND_INTERMEDIATE_CHAIN="$CERT_CHAIN/root_and_intermediate_chain.bundle"
 
 export ROOT_CA_CERT="$ROOT_CA_DIR/cacert.pem"
 export ROOT_CA_KEY="$ROOT_CA_DIR/private/cakey.pem"
@@ -262,26 +263,26 @@ combined_intermediate_and_leaf_into_chain() {
   set_permissions "$FULL_CHAIN" "644"
 }
 
-combined_non_leaf_certs_into_temp_ca() {
-  if [ -f "$COMBINED_NON_LEAF_CERTS_TEMP_FILE" ]; then
-    log "Combined certificate already exists. Skipping combining top level certificates."
+combined_root_and_intermediate_into_chain() {
+  if [ -f "$ROOT_AND_INTERMEDIATE_CHAIN" ]; then
+    log "Root and intermediate chain already exists. Skipping combining top level certificates."
     return
   fi
 
-  log "Combine root CA and intermediate CA certificates into a temporary CA file"
-  mkdir -p "$BASE_DIR/temp"
-  if ! cat "$ROOT_CA_CERT" "$INTERMEDIATE_CA_CERT" > "$COMBINED_NON_LEAF_CERTS_TEMP_FILE"; then
+  log "Combine root CA and intermediate CA certificates into a chain file"
+  mkdir -p "$CERT_CHAIN"
+  if ! cat "$ROOT_CA_CERT" "$INTERMEDIATE_CA_CERT" > "$ROOT_AND_INTERMEDIATE_CHAIN"; then
     log "Failed to combine root $ROOT_CA_CERT CA and intermediate $INTERMEDIATE_CA_CERT CA certificates" "ERROR"
     exit 1
   fi
-  log "Temporary CA file created successfully at $COMBINED_NON_LEAF_CERTS_TEMP_FILE"
-  set_permissions "$COMBINED_NON_LEAF_CERTS_TEMP_FILE" "644"
+  log "Root and intermediate chain file created successfully at $ROOT_AND_INTERMEDIATE_CHAIN"
+  set_permissions "$ROOT_AND_INTERMEDIATE_CHAIN" "644"
 }
 
 verify_certificate() {
   CERT_TYPE=$1
   CERT_PATH=$2
-  VERIFY_WITH=$COMBINED_NON_LEAF_CERTS_TEMP_FILE
+  VERIFY_WITH=$ROOT_AND_INTERMEDIATE_CHAIN
 
   if [ "$CERT_TYPE" = "intermediate" ]; then
     VERIFY_WITH=$ROOT_CA_CERT
@@ -338,8 +339,6 @@ generate_certificate() {
 
 generate_root_certificate
 generate_intermediate_certificate
+combined_root_and_intermediate_into_chain
 generate_certificate "server" "vault_server"
 generate_certificate "agent" "vault_agent"
-
-log "Clean up after generating all leaf certs..."
-clean_temp_files "$BASE_DIR"
