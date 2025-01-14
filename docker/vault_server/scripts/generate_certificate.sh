@@ -248,7 +248,7 @@ sign_certificate_with_intermediate_ca() {
   set_permissions "$SERVER_CERT" "644"
 }
 
-combine_certificates_into_full_chain() {
+combined_intermediate_and_leaf_into_chain() {
   SERVER_DIR=$1
   SERVER_CERT="$SERVER_DIR/server_crt.pem"
   FULL_CHAIN="$SERVER_DIR/intermediate_and_leaf_chain.bundle"
@@ -328,8 +328,7 @@ generate_certificate() {
   generate_key_and_request "$CERT_TYPE" "$SERVER_DIR" "$CONFIG_FILE" "$COMMON_NAME"
   extract_private_key "$SERVER_DIR"
   sign_certificate_with_intermediate_ca "$SERVER_DIR"
-  combine_certificates_into_full_chain "$SERVER_DIR"
-  combined_non_leaf_certs_into_tempn_ca
+  combined_intermediate_and_leaf_into_chain "$SERVER_DIR"
   verify_certificate "server" "$SERVER_DIR/server_crt.pem"
   verify_certificate "full chain" "$SERVER_DIR/intermediate_and_leaf_chain.bundle"
   clean_temp_files "$SERVER_DIR"
