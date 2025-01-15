@@ -6,6 +6,9 @@ listener "tcp" {
   tls_key_file  = "/vault/certs/server.key"
   tls_cert_file = "/vault/certs/intermediate_and_leaf_chain.bundle"
   ######## For mTLS start ##################
+  # NOTE: Once mTLS is enabled, accessing https://127.0.0.1:8200 from browser will
+  # require adding the certificate from where you are hitting https://127.0.0.1:8200.
+  # Otherwise, you'll get the ERR_BAD_SSL_CLIENT_AUTH_CERT error.
   tls_client_ca_file = "/vault/certs/ca.crt"
   tls_require_and_verify_client_cert = "true"
   ######## For mTLS end ####################
