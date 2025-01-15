@@ -36,8 +36,8 @@ cd DeployHub/scripts
 ## **Output**
 
 - Root CA Certificate: `certs/vaultCA/cacert.pem`
-- Server Key: `certs/vaultCA/server/server_key.pem`
-- Server Certificate: `certs/vaultCA/server/server_crt.pem`
+- Server Key: `certs/vaultCA/server/private_key.pem`
+- Server Certificate: `certs/vaultCA/server/certificate.pem`
 - Full Chain: `certs/vaultCA/server/intermediate_and_leaf_chain.bundle`
 
 ## **Validation**

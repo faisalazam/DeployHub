@@ -231,7 +231,7 @@ generate_key_and_request() {
 extract_private_key() {
   SERVER_DIR=$1
   TEMP_KEY="$SERVER_DIR/temp/tempkey.pem"
-  SERVER_KEY="$SERVER_DIR/server_key.pem"
+  SERVER_KEY="$SERVER_DIR/private_key.pem"
 
   log "Extract the private key for $SERVER_DIR"
   if ! openssl rsa -in "$TEMP_KEY" -out "$SERVER_KEY" \
@@ -246,7 +246,7 @@ extract_private_key() {
 sign_certificate_with_intermediate_ca() {
   SERVER_DIR=$1
   TEMP_REQ="$SERVER_DIR/temp/tempreq.pem"
-  SERVER_CERT="$SERVER_DIR/server_crt.pem"
+  SERVER_CERT="$SERVER_DIR/certificate.pem"
   SIGNED_CERTS_DIR="$SERVER_DIR/signedcerts"
 
   log "Sign the certificate for $SERVER_DIR with intermediate CA"
@@ -265,7 +265,7 @@ sign_certificate_with_intermediate_ca() {
 
 combined_intermediate_and_leaf_into_chain() {
   SERVER_DIR=$1
-  SERVER_CERT="$SERVER_DIR/server_crt.pem"
+  SERVER_CERT="$SERVER_DIR/certificate.pem"
   FULL_CHAIN="$SERVER_DIR/intermediate_and_leaf_chain.bundle"
 
   log "Combine server certificate, and intermediate certificate into the chain for $SERVER_DIR"
@@ -334,7 +334,7 @@ generate_certificate() {
   SERVER_DIR="$LEAF_CERTS_DIR/$CERT_TYPE"
   CONFIG_FILE="$CONFIG_DIR/$CERT_TYPE.cnf"
 
-  if [ -f "$SERVER_DIR/server_crt.pem" ]; then
+  if [ -f "$SERVER_DIR/certificate.pem" ]; then
     log "$CERT_TYPE certificate already exists. Skipping generation and signing process."
     return
   fi
@@ -344,8 +344,8 @@ generate_certificate() {
   extract_private_key "$SERVER_DIR"
   sign_certificate_with_intermediate_ca "$SERVER_DIR"
   combined_intermediate_and_leaf_into_chain "$SERVER_DIR"
-  verify_cert_date_validity "$SERVER_DIR/server_crt.pem"
-  verify_certificate "server" "$SERVER_DIR/server_crt.pem"
+  verify_cert_date_validity "$SERVER_DIR/certificate.pem"
+  verify_certificate "server" "$SERVER_DIR/certificate.pem"
   verify_certificate "trust chain" "$SERVER_DIR/intermediate_and_leaf_chain.bundle"
   clean_temp_files "$SERVER_DIR"
 

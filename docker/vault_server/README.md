@@ -48,7 +48,7 @@ Add the following in the docker compose of vault server:
       VAULT_CACERT: /vault/certs/ca.crt
     volumes:
       - ../../certs/end_entity/cacert.pem:/vault/certs/ca.crt:ro
-      - ../../certs/end_entity/server/server_key.pem:/vault/certs/server.key:ro
+      - ../../certs/end_entity/server/private_key.pem:/vault/certs/server.key:ro
       - ../../certs/end_entity/server/intermediate_and_leaf_chain.bundle:/vault/certs/intermediate_and_leaf_chain.bundle:ro
 ```
 
@@ -80,8 +80,8 @@ Add the following in the docker compose of vault server:
       VAULT_CLIENT_KEY: /vault/certs/agent.key
       VAULT_CLIENT_CERT: /vault/certs/agent.crt
     volumes:
-      - ../../certs/end_entity/agent/server_crt.pem:/vault/certs/agent.crt:ro
-      - ../../certs/end_entity/agent/server_key.pem:/vault/certs/agent.key:ro
+      - ../../certs/end_entity/agent/certificate.pem:/vault/certs/agent.crt:ro
+      - ../../certs/end_entity/agent/private_key.pem:/vault/certs/agent.key:ro
 ```
 
 So the environment and volume sections may look like:
@@ -93,9 +93,9 @@ So the environment and volume sections may look like:
       VAULT_CLIENT_CERT: /vault/certs/agent.crt
     volumes:
       - ../../certs/end_entity/cacert.pem:/vault/certs/ca.crt:ro
-      - ../../certs/end_entity/agent/server_crt.pem:/vault/certs/agent.crt:ro
-      - ../../certs/end_entity/agent/server_key.pem:/vault/certs/agent.key:ro
-      - ../../certs/end_entity/server/server_key.pem:/vault/certs/server.key:ro
+      - ../../certs/end_entity/agent/certificate.pem:/vault/certs/agent.crt:ro
+      - ../../certs/end_entity/agent/private_key.pem:/vault/certs/agent.key:ro
+      - ../../certs/end_entity/server/private_key.pem:/vault/certs/server.key:ro
       - ../../certs/end_entity/server/intermediate_and_leaf_chain.bundle:/vault/certs/intermediate_and_leaf_chain.bundle:ro
 ```
 
@@ -125,7 +125,7 @@ environment:
   VAULT_CLIENT_KEY: /vault/certs/agent_key.pem
   VAULT_CLIENT_CERT: /vault/certs/agent_cert.bundle
 volumes:
-  - ../../certs/end_entity/agent/server_key.pem:/vault/certs/agent_key.pem:ro
+  - ../../certs/end_entity/agent/private_key.pem:/vault/certs/agent_key.pem:ro
   - ../../certs/end_entity/agent/intermediate_and_leaf_chain.bundle:/vault/certs/agent_cert.bundle:ro
 ```
 
@@ -138,6 +138,6 @@ environment:
   VAULT_CLIENT_CERT: /vault/certs/agent_cert.bundle
 volumes:
   - ../../certs/certificate_authority/certificate_chains/root_and_intermediate_chain.bundle:/vault/certs/ca.crt:ro
-  - ../../certs/end_entity/agent/server_key.pem:/vault/certs/agent_key.pem:ro
+  - ../../certs/end_entity/agent/private_key.pem:/vault/certs/agent_key.pem:ro
   - ../../certs/end_entity/agent/intermediate_and_leaf_chain.bundle:/vault/certs/agent_cert.bundle:ro
 ```
