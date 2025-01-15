@@ -47,7 +47,7 @@ Add the following in the docker compose of vault server:
     environment:
       VAULT_CACERT: /vault/certs/ca.crt
     volumes:
-      - ../../certs/end_entity/cacert.pem:/vault/certs/ca.crt:ro
+      - ../../certs/certificate_authority/intermediate/cacert.pem:/vault/certs/ca.crt:ro
       - ../../certs/end_entity/vault_server/private_key.pem:/vault/certs/server.key:ro
       - ../../certs/end_entity/vault_server/intermediate_and_leaf_chain.bundle:/vault/certs/intermediate_and_leaf_chain.bundle:ro
 ```
@@ -68,7 +68,7 @@ Add the following in the docker compose of vault agent:
 environment:
   VAULT_CACERT: /vault/certs/ca.crt
 volumes:
-  - ../../certs/end_entity/cacert.pem:/vault/certs/ca.crt:ro
+  - ../../certs/certificate_authority/intermediate/cacert.pem:/vault/certs/ca.crt:ro
 ```
 
 Additional setting to enable mTLS after setting up the TLS on Vault Server:
@@ -92,7 +92,7 @@ So the environment and volume sections may look like:
       VAULT_CLIENT_KEY: /vault/certs/agent.key
       VAULT_CLIENT_CERT: /vault/certs/agent.crt
     volumes:
-      - ../../certs/end_entity/cacert.pem:/vault/certs/ca.crt:ro
+      - ../../certs/certificate_authority/intermediate/cacert.pem:/vault/certs/ca.crt:ro
       - ../../certs/end_entity/vault_agent/certificate.pem:/vault/certs/agent.crt:ro
       - ../../certs/end_entity/vault_agent/private_key.pem:/vault/certs/agent.key:ro
       - ../../certs/end_entity/vault_server/private_key.pem:/vault/certs/server.key:ro
