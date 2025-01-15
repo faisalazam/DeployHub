@@ -13,19 +13,36 @@ terminate_vault() {
   fi
 }
 
+substitute_variables_in_file() {
+  template_file="$1"
+
+  # Loop through environment variables and substitute them in the target or template file
+  env | while IFS='=' read -r var value; do
+    # Only process variables that are not empty
+    if [ -n "$value" ]; then
+      sed -i "s|\${$var}|$value|g" "$template_file"
+    fi
+  done
+}
+
 trap terminate_vault INT TERM EXIT
 
-# Start Vault server in the background
-log "Starting Vault server..."
+# shellcheck disable=SC2153
+SERVER_CONFIG_DIR="$SERVER_DIR/config"
+mkdir -p "$SERVER_CONFIG_DIR"
+cp "/vault/config/vault_server.hcl" "$SERVER_CONFIG_DIR/vault_server.hcl"
+
+log "Starting Vault server in the background..."
 if [ "$SERVER_MODE" = "prod" ]; then
   export VAULT_EXTERNAL_PORT=8200
-  sed "s|\${VAULT_EXTERNAL_PORT}|$VAULT_EXTERNAL_PORT|g" /vault/config/vault_server.hcl > /vault/config/vault_server_substituted.hcl
-  vault server -config=/vault/config/vault_server_substituted.hcl &
+  substitute_variables_in_file "$SERVER_CONFIG_DIR/vault_server.hcl"
+  vault server -config="$SERVER_CONFIG_DIR/vault_server.hcl" &
 else
   export VAULT_EXTERNAL_PORT=8300
-  sed "s|\${VAULT_EXTERNAL_PORT}|$VAULT_EXTERNAL_PORT|g" /vault/config/vault_server.hcl > /vault/config/vault_server_substituted.hcl
-  vault server -dev -config=/vault/config/vault_server_substituted.hcl &
+  substitute_variables_in_file "$SERVER_CONFIG_DIR/vault_server.hcl"
+  vault server -dev -config="$SERVER_CONFIG_DIR/vault_server.hcl" &
 fi
+
 VAULT_PID=$!  # Capture the process ID of the Vault server
 
 log "Waiting for Vault to be ready..."
