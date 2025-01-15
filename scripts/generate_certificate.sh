@@ -83,15 +83,13 @@ create_dirs_and_files() {
     elif [ "$CERT_TYPE" = "intermediate" ]; then
       mkdir -p "$DATABASE_DIR/intermediate" \
                "$INTERMEDIATE_DIR/temp" \
-               "$INTERMEDIATE_DIR/private" \
-               "$INTERMEDIATE_DIR/signedcerts"
+               "$INTERMEDIATE_DIR/private"
       create_db_file "$INTERMEDIATE_DATABASE_FILE"
       create_serial_file "$INTERMEDIATE_SERIAL_FILE"
       log "Created directories for intermediate ca"
       set_permissions "$INTERMEDIATE_DIR/private" "700"
     else
-      mkdir -p "$LEAF_CERTS_DIR/$CERT_TYPE/temp" \
-               "$LEAF_CERTS_DIR/$CERT_TYPE/signedcerts"
+      mkdir -p "$LEAF_CERTS_DIR/$CERT_TYPE/temp"
       log "Created directories for $CERT_TYPE"
       set_permissions "$LEAF_CERTS_DIR/$CERT_TYPE" "700"
     fi
@@ -177,9 +175,8 @@ generate_intermediate_certificate() {
     exit 1
   fi
 
-  SIGNED_CERTS_DIR="$INTERMEDIATE_DIR/signedcerts"
   log "Generate the intermediate certificate signing request (CSR)"
-  if ! SIGNED_CERTS_DIR="$SIGNED_CERTS_DIR" openssl req -new \
+  if ! SIGNED_CERTS_DIR="$INTERMEDIATE_DIR" openssl req -new \
           -key "$INTERMEDIATE_CA_KEY" -out "$INTERMEDIATE_CA_CSR" \
           -passin pass:$INTERMEDIATE_PASSPHRASE \
           -config "$CONFIG_DIR/intermediate.cnf" > /dev/null 2>&1; then
@@ -188,7 +185,7 @@ generate_intermediate_certificate() {
   fi
 
   log "Sign the intermediate certificate with the root certificate"
-  if ! SIGNED_CERTS_DIR="$SIGNED_CERTS_DIR" openssl ca -in "$INTERMEDIATE_CA_CSR" \
+  if ! SIGNED_CERTS_DIR="$INTERMEDIATE_DIR" openssl ca -in "$INTERMEDIATE_CA_CSR" \
           -out "$INTERMEDIATE_CA_CERT" \
           -cert "$ROOT_CA_CERT" -keyfile "$ROOT_CA_KEY" \
           -passin pass:$ROOT_PASSPHRASE \
@@ -247,10 +244,9 @@ sign_certificate_with_intermediate_ca() {
   SERVER_DIR=$1
   TEMP_REQ="$SERVER_DIR/temp/tempreq.pem"
   SERVER_CERT="$SERVER_DIR/certificate.pem"
-  SIGNED_CERTS_DIR="$SERVER_DIR/signedcerts"
 
   log "Sign the certificate for $SERVER_DIR with intermediate CA"
-  if ! SIGNED_CERTS_DIR="$SIGNED_CERTS_DIR" openssl ca -in "$TEMP_REQ" \
+  if ! SIGNED_CERTS_DIR="$SERVER_DIR" openssl ca -in "$TEMP_REQ" \
           -out "$SERVER_CERT" \
           -cert "$INTERMEDIATE_CA_CERT" \
           -keyfile "$INTERMEDIATE_CA_KEY" \
