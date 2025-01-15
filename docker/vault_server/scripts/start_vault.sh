@@ -29,18 +29,19 @@ trap terminate_vault INT TERM EXIT
 
 # shellcheck disable=SC2153
 SERVER_CONFIG_DIR="$SERVER_DIR/config"
+SERVER_CONFIG_FILE="$SERVER_CONFIG_DIR/vault_server.hcl"
 mkdir -p "$SERVER_CONFIG_DIR"
-cp "/vault/config/vault_server.hcl" "$SERVER_CONFIG_DIR/vault_server.hcl"
+cp "/vault/config/vault_server.hcl" "$SERVER_CONFIG_FILE"
 
 log "Starting Vault server in the background..."
 if [ "$SERVER_MODE" = "prod" ]; then
   export VAULT_EXTERNAL_PORT=8200
-  substitute_variables_in_file "$SERVER_CONFIG_DIR/vault_server.hcl"
-  vault server -config="$SERVER_CONFIG_DIR/vault_server.hcl" &
+  substitute_variables_in_file "$SERVER_CONFIG_FILE"
+  vault server -config="$SERVER_CONFIG_FILE" &
 else
   export VAULT_EXTERNAL_PORT=8300
-  substitute_variables_in_file "$SERVER_CONFIG_DIR/vault_server.hcl"
-  vault server -dev -config="$SERVER_CONFIG_DIR/vault_server.hcl" &
+  substitute_variables_in_file "$SERVER_CONFIG_FILE"
+  vault server -dev -config="$SERVER_CONFIG_FILE" &
 fi
 
 VAULT_PID=$!  # Capture the process ID of the Vault server
