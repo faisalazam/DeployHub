@@ -1,7 +1,7 @@
 Folder structure of the secrets directory in Vault Server:
 
 ```
-vault_server/secrets/
+vault_server/secrets/server
 └── auth
     ├── admin
     │   ├── root
@@ -19,7 +19,7 @@ vault_server/secrets/
 The main directory on host will be `vault_server/secrets/`, whereas it'll be `/vault/secrets` inside the container.
 
 To see the full directory structure, comment out the
-`vault_ssh_manager_role:/vault/secrets/auth/${SSH_MANAGER_ROLE_NAME}` in
+`vault_ssh_manager_role:${VAULT_SERVER_ROLE_AUTH_DIR}` in
 docker-compose.yml, as the named volumes won't show the files in explorer.
 
 Run the `DeployHub/scripts/generate_certificate.sh` script before starting 

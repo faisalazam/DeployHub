@@ -29,7 +29,7 @@ services:
       - ../../certs/end_entity/vault_agent/private_key.pem:/vault/certs/agent.key:ro
       - ../../certs/end_entity/vault_server/private_key.pem:/vault/certs/server.key:ro
       - ../../certs/end_entity/vault_server/intermediate_and_leaf_chain.bundle:/vault/certs/intermediate_and_leaf_chain.bundle:ro
-      - vault_ssh_manager_role:/vault/secrets/auth/${SSH_MANAGER_ROLE_NAME}
+      - vault_ssh_manager_role:${VAULT_SERVER_ROLE_AUTH_DIR}
       - ./scripts:/vault/scripts
       - ./policies:/vault/policies:ro
       - ./config/vault_server.hcl:/vault/config/vault_server.hcl:ro

@@ -31,7 +31,7 @@ vault_agent/secrets/
 The main directory on host will be `vault_agent/secrets/`, whereas it'll be `/vault/secrets` inside the container.
 
 To see the full directory structure, replace the `vault_ssh_manager_role:${VAULT_SERVER_ROLE_AUTH_DIR}:ro` in
-docker-compose.yml with `../vault_server/secrets/auth/${SSH_MANAGER_ROLE_NAME}:${VAULT_SERVER_ROLE_AUTH_DIR}:ro`,
+docker-compose.yml with `../vault_server/secrets/server/auth/${SSH_MANAGER_ROLE_NAME}:${VAULT_SERVER_ROLE_AUTH_DIR}:ro`,
 as the named volumes won't show the files in explorer.
 
 
