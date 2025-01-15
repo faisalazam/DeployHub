@@ -18,11 +18,11 @@ environment. It ensures that the certificates follow industry standards for TLS 
 ## **Usage**
 
 1. Clone the repository and navigate to the script directory.
-2. Configure the necessary parameters in `vault_server/scripts/generate_cert.sh` and `certs/config/*.cnf` files.
+2. Configure the necessary parameters in `DeployHub/scripts/generate_certificate.sh` and `DeployHub/certs/config/*.cnf` files.
 3. Run the script:
 ```sh
-cd vault_server/scripts
-./generate_cert.sh
+cd DeployHub/scripts
+./generate_certificate.sh
 ```
 
 ## **Directory Structure**
