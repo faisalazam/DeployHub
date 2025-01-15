@@ -19,6 +19,18 @@ clean_directory() {
   fi
 }
 
+substitute_variables_in_file() {
+  template_file="$1"
+
+  # Loop through environment variables and substitute them in the target or template file
+  env | while IFS='=' read -r var value; do
+    # Only process variables that are not empty
+    if [ -n "$value" ]; then
+      sed -i "s|\${$var}|$value|g" "$template_file"
+    fi
+  done
+}
+
 # Delete any existing marker file from previous runs
 if ! rm -f "${HEALTH_CHECK_MARKER_FILE}"; then
   log "Couldn't delete the health check marker file ${HEALTH_CHECK_MARKER_FILE}. Exiting." "ERROR"
@@ -39,13 +51,7 @@ chmod -R 770 "$AGENT_DIR"
 # Combine all .hcl files in the /vault/config directory
 cat /vault/config/*.hcl > "$AGENT_CONFIG_DIR/vault_agent_combined.hcl"
 
-# Substitute variables in HCL using sed - env lists all environment variables.
-env | while IFS='=' read -r var value; do
-  # Only process variables that are not empty
-  if [ -n "$value" ]; then
-    sed -i "s|\${$var}|$value|g" "$AGENT_CONFIG_DIR/vault_agent_combined.hcl"
-  fi
-done
+substitute_variables_in_file "$AGENT_CONFIG_DIR/vault_agent_combined.hcl"
 cp "$AGENT_CONFIG_DIR/vault_agent_combined.hcl" "$AGENT_CONFIG_DIR/vault_agent.hcl"
 rm -f "$AGENT_CONFIG_DIR/vault_agent_combined.hcl"
 
