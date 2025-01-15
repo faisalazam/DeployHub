@@ -9,10 +9,10 @@ services:
     env_file:
       - .env
     environment:
+      VAULT_ADDR: ${VAULT_ADDR}
       ENVIRONMENT: ${ENVIRONMENT}
       SERVER_MODE: ${SERVER_MODE:-prod}
-      VAULT_DEV_ROOT_TOKEN_ID: "root"
-      VAULT_ADDR: "https://127.0.0.1:8200"
+      VAULT_DEV_ROOT_TOKEN_ID: ${VAULT_DEV_ROOT_TOKEN_ID}
       VAULT_CACERT: /vault/certs/ca.crt
       ######## For mTLS start ##################
       VAULT_CLIENT_KEY: /vault/certs/agent.key
