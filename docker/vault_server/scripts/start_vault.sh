@@ -35,11 +35,11 @@ cp "/vault/config/vault_server.hcl" "$SERVER_CONFIG_FILE"
 
 log "Starting Vault server in the background..."
 if [ "$SERVER_MODE" = "prod" ]; then
-  export VAULT_EXTERNAL_PORT=8200
+  export VAULT_EXTERNAL_PORT="${PROD_MODE_EXTERNAL_PORT}"
   substitute_variables_in_file "$SERVER_CONFIG_FILE"
   vault server -config="$SERVER_CONFIG_FILE" &
 else
-  export VAULT_EXTERNAL_PORT=8300
+  export VAULT_EXTERNAL_PORT="${DEV_MODE_EXTERNAL_PORT}"
   substitute_variables_in_file "$SERVER_CONFIG_FILE"
   vault server -dev -config="$SERVER_CONFIG_FILE" &
 fi

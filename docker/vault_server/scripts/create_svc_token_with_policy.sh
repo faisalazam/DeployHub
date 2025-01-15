@@ -1,21 +1,17 @@
 #!/bin/sh
 
-TOKEN_TTL="1h"
-TOKEN_MAX_TTL="24h"
 SSH_MANAGER_TOKEN_KEY="SSH_MANAGER_TOKEN"
 SSH_MANAGER_ROLE_ID_KEY="SSH_MANAGER_ROLE_ID"
 SSH_MANAGER_SECRET_ID_KEY="SSH_MANAGER_SECRET_ID"
-SSH_KEY_POLICY_NAME="ssh_key_policy"
-SSH_KEY_POLICY_PATH="/vault/policies/ssh_key_policy.hcl"
 
 . /vault/scripts/common.sh
 
 apply_vault_policy() {
   log "Applying Vault policy..."
-  if vault policy read ${SSH_KEY_POLICY_NAME} > /dev/null 2>&1; then
+  if vault policy read "${SSH_KEY_POLICY_NAME}" > /dev/null 2>&1; then
     log "Vault policy '${SSH_KEY_POLICY_NAME}' already exists. Skipping policy application..."
   else
-    if ! vault policy write ${SSH_KEY_POLICY_NAME} ${SSH_KEY_POLICY_PATH}; then
+    if ! vault policy write "${SSH_KEY_POLICY_NAME}" "${SSH_KEY_POLICY_PATH}"; then
       log "Failed to apply Vault policy '${SSH_KEY_POLICY_NAME}'. Exiting..." "ERROR"
       exit 1
     else
@@ -49,14 +45,14 @@ ROLE_ID=$(vault read -format=json auth/approle/role/"${SSH_MANAGER_ROLE_NAME}"/r
                               | sed -n 's/.*"role_id": "\([^"]*\)".*/\1/p')
 # TODO: store it somewhere secure instead of the file in the container.
 # May be in the CI's credentials manger, AWS KMS etc.
-save_key_value_to_file "$SSH_MANAGER_ROLE_ID_KEY" "$ROLE_ID" "/vault/secrets/auth/${SSH_MANAGER_ROLE_NAME}" "role_id"
+save_key_value_to_file "$SSH_MANAGER_ROLE_ID_KEY" "$ROLE_ID" "${SECRETS_DIR}/auth/${SSH_MANAGER_ROLE_NAME}" "role_id"
 
 log "Fetching SECRET_ID for ${SSH_MANAGER_ROLE_NAME}..."
 SECRET_ID=$(vault write -f auth/approle/role/"${SSH_MANAGER_ROLE_NAME}"/secret-id \
                               | sed -n 's/secret_id[[:space:]]*\([a-zA-Z0-9-]*\).*/\1/p')
 # TODO: store it somewhere secure instead of the file in the container.
 # May be in the CI's credentials manger, AWS KMS etc.
-save_key_value_to_file "$SSH_MANAGER_SECRET_ID_KEY" "$SECRET_ID" "/vault/secrets/auth/${SSH_MANAGER_ROLE_NAME}" "secret_id"
+save_key_value_to_file "$SSH_MANAGER_SECRET_ID_KEY" "$SECRET_ID" "${SECRETS_DIR}/auth/${SSH_MANAGER_ROLE_NAME}" "secret_id"
 
 log "Creating 'SSH_MANAGER_TOKEN' token with ${SSH_KEY_POLICY_NAME} policy..."
 SSH_MANAGER_TOKEN=$(vault write -format=json auth/approle/login \
@@ -66,4 +62,4 @@ SSH_MANAGER_TOKEN=$(vault write -format=json auth/approle/login \
                              | sed 's/.*"client_token": "\(.*\)",/\1/')
 # TODO: store it somewhere secure instead of the file in the container.
 # May be in the CI's credentials manger, AWS KMS etc.
-save_key_value_to_file "$SSH_MANAGER_TOKEN_KEY" "$SSH_MANAGER_TOKEN" "/vault/secrets/auth/${SSH_MANAGER_ROLE_NAME}" "vault_token"
+save_key_value_to_file "$SSH_MANAGER_TOKEN_KEY" "$SSH_MANAGER_TOKEN" "${SECRETS_DIR}/auth/${SSH_MANAGER_ROLE_NAME}" "vault_token"

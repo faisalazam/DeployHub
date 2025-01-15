@@ -4,10 +4,7 @@
 RETRY_COUNT=0
 MAX_RETRIES=10
 RETRY_INTERVAL=1
-# shellcheck disable=SC2034
-KEY_SHARES=3
-# shellcheck disable=SC2034
-KEY_THRESHOLD=2
+
 AUTH_DIR="/vault/secrets/auth/admin"
 # shellcheck disable=SC2034
 KEYS_FILE="$AUTH_DIR/unseal_keys/keys"
