@@ -13,13 +13,13 @@ INTERMEDIATE_PASSPHRASE="your_intermediate_secure_passphrase"
 
 SCRIPT_DIR=$(dirname "$0")
 CERTS_DIR="$SCRIPT_DIR/../certs"
-DATABASE_DIR="$CERTS_DIR/database"
+DATABASE_DIR="$CERTS_DIR/ca_database"
 CONFIG_DIR="$SCRIPT_DIR/../openssl/config"
 
-CA_DIR="$CERTS_DIR/CA"
+CA_DIR="$CERTS_DIR/certificate_authority"
 ROOT_CA_DIR="$CA_DIR/root"
-CERT_CHAIN="$CA_DIR/cert_chain"
-LEAF_CERTS_DIR="$CERTS_DIR/leaf"
+CERT_CHAIN="$CA_DIR/certificate_chains"
+LEAF_CERTS_DIR="$CERTS_DIR/end_entity"
 INTERMEDIATE_DIR="$CA_DIR/intermediate"
 INTERMEDIATE_CA_CSR="$INTERMEDIATE_DIR/temp/intermediate.csr"
 ROOT_AND_INTERMEDIATE_CHAIN="$CERT_CHAIN/root_and_intermediate_chain.bundle"
