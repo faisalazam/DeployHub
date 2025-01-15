@@ -21,7 +21,7 @@ elif echo "$VAULT_STATUS" | grep -qE "Initialized\s+false"; then
   # Extract unseal keys from lines 2, 3, ..., KEY_SHARES+1
   UNSEAL_KEYS=$(echo "$INIT_OUTPUT" | grep 'Unseal Key' | awk '{print $NF}' | head -n "$KEY_SHARES")
 
-  dir_name=$(dirname "$SERVER_AUTH_ADMIN_KEYS_FILE_DIR")
+  dir_name=$(dirname "$SERVER_AUTH_ADMIN_KEYS_FILE")
   if ! mkdir -p "$dir_name"; then
     log "Could not create $dir_name directory. Exiting..." "ERROR"
     exit 1
@@ -33,18 +33,18 @@ elif echo "$VAULT_STATUS" | grep -qE "Initialized\s+false"; then
   if ! {
     echo "Unseal_Keys:"
     echo "$UNSEAL_KEYS" | nl -w2 -s": "
-  } > "$SERVER_AUTH_ADMIN_KEYS_FILE_DIR" || [ ! -f "$SERVER_AUTH_ADMIN_KEYS_FILE_DIR" ] || [ ! -w "$SERVER_AUTH_ADMIN_KEYS_FILE_DIR" ]; then
-    log "Failed to write unseal keys to $SERVER_AUTH_ADMIN_KEYS_FILE_DIR or file is not writable. Exiting..." "ERROR"
+  } > "$SERVER_AUTH_ADMIN_KEYS_FILE" || [ ! -f "$SERVER_AUTH_ADMIN_KEYS_FILE" ] || [ ! -w "$SERVER_AUTH_ADMIN_KEYS_FILE" ]; then
+    log "Failed to write unseal keys to $SERVER_AUTH_ADMIN_KEYS_FILE or file is not writable. Exiting..." "ERROR"
     exit 1
   fi
 
   # Secure the file (e.g., read/write only for the owner)
   chmod 700 "$SERVER_AUTH_ADMIN_DIR"    # Restrict access to the keys directory
-  chmod 600 "$SERVER_AUTH_ADMIN_KEYS_FILE_DIR"   # Restrict access to the keys file
+  chmod 600 "$SERVER_AUTH_ADMIN_KEYS_FILE"   # Restrict access to the keys file
 
   # Change the owner to the vault user for both the directory and the keys file
-  if ! chown -R vault:vault "$SERVER_AUTH_ADMIN_DIR" "$SERVER_AUTH_ADMIN_KEYS_FILE_DIR"; then
-    log "Failed to change ownership to 'vault' for $SERVER_AUTH_ADMIN_DIR and $SERVER_AUTH_ADMIN_KEYS_FILE_DIR. Exiting..." "ERROR"
+  if ! chown -R vault:vault "$SERVER_AUTH_ADMIN_DIR" "$SERVER_AUTH_ADMIN_KEYS_FILE"; then
+    log "Failed to change ownership to 'vault' for $SERVER_AUTH_ADMIN_DIR and $SERVER_AUTH_ADMIN_KEYS_FILE. Exiting..." "ERROR"
     exit 1
   fi
 
@@ -52,7 +52,7 @@ elif echo "$VAULT_STATUS" | grep -qE "Initialized\s+false"; then
   ROOT_TOKEN=$(echo "$INIT_OUTPUT" | grep 'Initial Root Token' | awk '{print $NF}')
   save_key_value_to_file "$ROOT_TOKEN_KEY" "$ROOT_TOKEN" "${SERVER_AUTH_ADMIN_ROOT_TOKEN_DIR}" "vault_token"
 
-  log "Vault has been initialized. Keys saved to $SERVER_AUTH_ADMIN_KEYS_FILE_DIR."
+  log "Vault has been initialized. Keys saved to $SERVER_AUTH_ADMIN_KEYS_FILE."
 else
   log "Vault initialization status is unknown!"
   exit 1

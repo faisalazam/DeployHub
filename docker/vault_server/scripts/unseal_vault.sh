@@ -14,16 +14,16 @@ if echo "$VAULT_STATUS" | grep -qE "Sealed\s+true"; then
   log "Unsealing Vault..."
 
   # Read unseal keys from file
-  if [ -f "$SERVER_AUTH_ADMIN_KEYS_FILE_DIR" ]; then
+  if [ -f "$SERVER_AUTH_ADMIN_KEYS_FILE" ]; then
     # Unseal Vault with keys (only the first $KEY_SHARES unseal keys, excluding the root token)
-    UNSEAL_KEYS=$(awk '/^[[:space:]]*[0-9]+:/ {print $2}' "$SERVER_AUTH_ADMIN_KEYS_FILE_DIR" | head -n "$KEY_SHARES")
+    UNSEAL_KEYS=$(awk '/^[[:space:]]*[0-9]+:/ {print $2}' "$SERVER_AUTH_ADMIN_KEYS_FILE" | head -n "$KEY_SHARES")
     if [ -z "$UNSEAL_KEYS" ]; then
-      log "No unseal keys were retrieved. Check the $SERVER_AUTH_ADMIN_KEYS_FILE_DIR." "ERROR"
+      log "No unseal keys were retrieved. Check the $SERVER_AUTH_ADMIN_KEYS_FILE." "ERROR"
       exit 1
     fi
 
     if [ "$(echo "$UNSEAL_KEYS" | wc -w)" -lt "$KEY_SHARES" ]; then
-      log "Insufficient unseal keys retrieved. Check the $SERVER_AUTH_ADMIN_KEYS_FILE_DIR has $KEY_SHARES keys." "ERROR"
+      log "Insufficient unseal keys retrieved. Check the $SERVER_AUTH_ADMIN_KEYS_FILE has $KEY_SHARES keys." "ERROR"
       exit 1
     fi
 
