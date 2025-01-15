@@ -22,8 +22,8 @@ To see the full directory structure, comment out the
 `vault_ssh_manager_role:/vault/secrets/auth/${SSH_MANAGER_ROLE_NAME}` in
 docker-compose.yml, as the named volumes won't show the files in explorer.
 
-Run the `docker/vault_server/scripts/generate_certificate.sh` script from within the `docker/vault_server` directory
-before starting the vault server to generate the certs.
+Run the `DeployHub/scripts/generate_certificate.sh` script before starting 
+the vault server to generate the certs.
 
 ```shell
 curl --cacert /vault/certs/cacert.pem https://127.0.0.1:8200/v1/sys/health
@@ -47,9 +47,9 @@ Add the following in the docker compose of vault server:
     environment:
       VAULT_CACERT: /vault/certs/ca.crt
     volumes:
-      - ./certs/vaultCA/cacert.pem:/vault/certs/ca.crt:ro
-      - ./certs/vaultCA/server/server_key.pem:/vault/certs/server.key:ro
-      - ./certs/vaultCA/server/intermediate_and_leaf_chain.bundle:/vault/certs/intermediate_and_leaf_chain.bundle:ro
+      - ../../certs/vaultCA/cacert.pem:/vault/certs/ca.crt:ro
+      - ../../certs/vaultCA/server/server_key.pem:/vault/certs/server.key:ro
+      - ../../certs/vaultCA/server/intermediate_and_leaf_chain.bundle:/vault/certs/intermediate_and_leaf_chain.bundle:ro
 ```
 
 and:
@@ -68,7 +68,7 @@ Add the following in the docker compose of vault agent:
 environment:
   VAULT_CACERT: /vault/certs/ca.crt
 volumes:
-  - ../vault_server/certs/vaultCA/cacert.pem:/vault/certs/ca.crt:ro
+  - ../../certs/vaultCA/cacert.pem:/vault/certs/ca.crt:ro
 ```
 
 Additional setting to enable mTLS after setting up the TLS on Vault Server:
@@ -80,8 +80,8 @@ Add the following in the docker compose of vault server:
       VAULT_CLIENT_KEY: /vault/certs/agent.key
       VAULT_CLIENT_CERT: /vault/certs/agent.crt
     volumes:
-      - ./certs/vaultCA/agent/server_crt.pem:/vault/certs/agent.crt:ro
-      - ./certs/vaultCA/agent/server_key.pem:/vault/certs/agent.key:ro
+      - ../../certs/vaultCA/agent/server_crt.pem:/vault/certs/agent.crt:ro
+      - ../../certs/vaultCA/agent/server_key.pem:/vault/certs/agent.key:ro
 ```
 
 So the environment and volume sections may look like:
@@ -92,11 +92,11 @@ So the environment and volume sections may look like:
       VAULT_CLIENT_KEY: /vault/certs/agent.key
       VAULT_CLIENT_CERT: /vault/certs/agent.crt
     volumes:
-      - ./certs/vaultCA/cacert.pem:/vault/certs/ca.crt:ro
-      - ./certs/vaultCA/agent/server_crt.pem:/vault/certs/agent.crt:ro
-      - ./certs/vaultCA/agent/server_key.pem:/vault/certs/agent.key:ro
-      - ./certs/vaultCA/server/server_key.pem:/vault/certs/server.key:ro
-      - ./certs/vaultCA/server/intermediate_and_leaf_chain.bundle:/vault/certs/intermediate_and_leaf_chain.bundle:ro
+      - ../../certs/vaultCA/cacert.pem:/vault/certs/ca.crt:ro
+      - ../../certs/vaultCA/agent/server_crt.pem:/vault/certs/agent.crt:ro
+      - ../../certs/vaultCA/agent/server_key.pem:/vault/certs/agent.key:ro
+      - ../../certs/vaultCA/server/server_key.pem:/vault/certs/server.key:ro
+      - ../../certs/vaultCA/server/intermediate_and_leaf_chain.bundle:/vault/certs/intermediate_and_leaf_chain.bundle:ro
 ```
 
 and add the following to the listener in the hcl file:
@@ -125,8 +125,8 @@ environment:
   VAULT_CLIENT_KEY: /vault/certs/agent_key.pem
   VAULT_CLIENT_CERT: /vault/certs/agent_cert.bundle
 volumes:
-  - ../vault_server/certs/vaultCA/agent/server_key.pem:/vault/certs/agent_key.pem:ro
-  - ../vault_server/certs/vaultCA/agent/intermediate_and_leaf_chain.bundle:/vault/certs/agent_cert.bundle:ro
+  - ../../certs/vaultCA/agent/server_key.pem:/vault/certs/agent_key.pem:ro
+  - ../../certs/vaultCA/agent/intermediate_and_leaf_chain.bundle:/vault/certs/agent_cert.bundle:ro
 ```
 
 So the environment and volume sections may look like:
@@ -137,7 +137,7 @@ environment:
   VAULT_CLIENT_KEY: /vault/certs/agent_key.pem
   VAULT_CLIENT_CERT: /vault/certs/agent_cert.bundle
 volumes:
-  - ../vault_server/certs/vaultCA/cert_chain/root_and_intermediate_chain.bundle:/vault/certs/ca.crt:ro
-  - ../vault_server/certs/vaultCA/agent/server_key.pem:/vault/certs/agent_key.pem:ro
-  - ../vault_server/certs/vaultCA/agent/intermediate_and_leaf_chain.bundle:/vault/certs/agent_cert.bundle:ro
+  - ../../certs/vaultCA/cert_chain/root_and_intermediate_chain.bundle:/vault/certs/ca.crt:ro
+  - ../../certs/vaultCA/agent/server_key.pem:/vault/certs/agent_key.pem:ro
+  - ../../certs/vaultCA/agent/intermediate_and_leaf_chain.bundle:/vault/certs/agent_cert.bundle:ro
 ```
