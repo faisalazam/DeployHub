@@ -2,6 +2,7 @@
 default_ca = intermediate_ca_signing
 
 [ intermediate_ca_signing ]
+crl_dir = $ENV::INTERMEDIATE_CRL_DIR
 new_certs_dir = $ENV::SIGNED_CERTS_DIR
 serial = $ENV::INTERMEDIATE_SERIAL_FILE
 private_key = $ENV::INTERMEDIATE_CA_KEY
@@ -9,7 +10,7 @@ certificate = $ENV::INTERMEDIATE_CA_CERT
 database = $ENV::INTERMEDIATE_DATABASE_FILE
 
 default_md = sha256
-default_crl_days = 365
+default_crl_days = $ENV::CRL_EXPIRY_DAYS
 default_days = $ENV::INTERMEDIATE_CERT_EXPIRY_DAYS
 
 policy = intermediate_ca_signing_policy

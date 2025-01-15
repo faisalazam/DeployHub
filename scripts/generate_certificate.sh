@@ -24,17 +24,20 @@ INTERMEDIATE_DIR="$CA_DIR/intermediate"
 INTERMEDIATE_CA_CSR="$INTERMEDIATE_DIR/temp/intermediate.csr"
 ROOT_AND_INTERMEDIATE_CHAIN="$CERT_CHAIN/root_and_intermediate_chain.bundle"
 
+export ROOT_CRL_DIR="$ROOT_CA_DIR/crl"
 export ROOT_CA_CERT="$ROOT_CA_DIR/cacert.pem"
 export ROOT_CA_KEY="$ROOT_CA_DIR/private/cakey.pem"
 export ROOT_DATABASE_FILE="$DATABASE_DIR/root/root_ca.db"
 export ROOT_SERIAL_FILE="$DATABASE_DIR/root/root_ca.serial"
 
+export INTERMEDIATE_CRL_DIR="$INTERMEDIATE_DIR/crl"
 export INTERMEDIATE_CA_CERT="$INTERMEDIATE_DIR/cacert.pem"
 export INTERMEDIATE_CA_KEY="$INTERMEDIATE_DIR/private/intermediate_key.pem"
 export INTERMEDIATE_DATABASE_FILE="$DATABASE_DIR/intermediate/intermediate_ca.db"
 export INTERMEDIATE_SERIAL_FILE="$DATABASE_DIR/intermediate/intermediate_ca.serial"
 
 export RSA_KEY_SIZE=4096
+export CRL_EXPIRY_DAYS=30
 export ROOT_CERT_EXPIRY_DAYS=7300
 export INTERMEDIATE_CERT_EXPIRY_DAYS=730
 
@@ -75,6 +78,7 @@ create_dirs_and_files() {
 
     if [ "$CERT_TYPE" = "root" ]; then
       mkdir -p "$DATABASE_DIR/root" \
+               "$ROOT_CA_DIR/crl" \
                "$ROOT_CA_DIR/private"
       create_db_file "$ROOT_DATABASE_FILE"
       create_serial_file "$ROOT_SERIAL_FILE"
@@ -82,6 +86,7 @@ create_dirs_and_files() {
       set_permissions "$ROOT_CA_DIR/private" "700"
     elif [ "$CERT_TYPE" = "intermediate" ]; then
       mkdir -p "$DATABASE_DIR/intermediate" \
+               "$INTERMEDIATE_DIR/crl" \
                "$INTERMEDIATE_DIR/temp" \
                "$INTERMEDIATE_DIR/private"
       create_db_file "$INTERMEDIATE_DATABASE_FILE"
@@ -324,6 +329,101 @@ clean_temp_files() {
   log "Temporary directory for $SERVER_DIR removed successfully"
 }
 
+generate_crl() {
+  CA_TYPE=$1
+  CA_CERT=$2
+  CA_KEY=$3
+  DATABASE_FILE=$4
+  CRL_FILE=$5
+  CONFIG_FILE=$6
+  PASSPHRASE=$7
+
+  log "Generate CRL for $CA_TYPE"
+
+  if [ -f "$CRL_FILE" ]; then
+    log "CRL file already exists for $CA_TYPE: $CRL_FILE"
+    return 0
+  fi
+
+  # Check if CRL needs regeneration (based on expiration days or if the file doesn't exist)
+  if [ -f "$CRL_FILE" ]; then
+    # Check if the CRL is still valid (compare the expiry date with the current date)
+    CRL_EXPIRY_DATE=$(openssl crl -in "$CRL_FILE" -noout -text | grep 'Next Update' | sed 's/Next Update: //')
+    CURRENT_DATE=$(date -u +"%Y%m%d%H%M%S")
+    if [ "$(date -d "$CRL_EXPIRY_DATE" +"%Y%m%d%H%M%S")" -gt "$CURRENT_DATE" ]; then
+      log "CRL file is still valid for $CA_TYPE: $CRL_FILE"
+      return 0
+    fi
+  fi
+
+  if ! SIGNED_CERTS_DIR="" openssl ca -gencrl -config "$CONFIG_FILE" \
+          -out "$CRL_FILE" \
+          -cert "$CA_CERT" \
+          -keyfile "$CA_KEY" \
+          -passin pass:"$PASSPHRASE" > /dev/null 2>&1; then
+    log "Failed to generate CRL for $CA_TYPE" "ERROR"
+    exit 1
+  fi
+
+  log "$CA_TYPE CRL generated successfully"
+  set_permissions "$CRL_FILE" "644"
+}
+
+revoke_certificate() {
+  CA_TYPE=$1
+  CERT_FILE=$2
+  CA_CERT=$3
+  CA_KEY=$4
+  DATABASE_FILE=$5
+  CRL_FILE=$6
+  CONFIG_FILE=$7
+  PASSPHRASE=$8
+
+  log "Revoke certificate for $CA_TYPE: $CERT_FILE"
+
+  if grep -q "^R" "$DATABASE_FILE"; then
+    log "Certificate $CERT_FILE already revoked for $CA_TYPE"
+    return 0
+  fi
+
+  if ! openssl ca -revoke "$CERT_FILE" \
+        -config "$CONFIG_FILE" \
+        -cert "$CA_CERT" \
+        -keyfile "$CA_KEY" \
+        -passin pass:"$PASSPHRASE" > /dev/null 2>&1; then
+    log "Failed to revoke certificate $CERT_FILE for $CA_TYPE" "ERROR"
+    exit 1
+  fi
+
+  log "Certificate $CERT_FILE revoked successfully for $CA_TYPE"
+
+  generate_crl "$CA_TYPE" "$CA_CERT" "$CA_KEY" "$DATABASE_FILE" \
+    "$CRL_FILE" "$CONFIG_FILE" "$PASSPHRASE"
+}
+
+generate_root_crl() {
+  generate_crl "Root CA" "$ROOT_CA_CERT" "$ROOT_CA_KEY" "$ROOT_DATABASE_FILE" \
+      "$ROOT_CRL_DIR/root_ca.crl" "$CONFIG_DIR/root_ca.cnf" "$ROOT_PASSPHRASE"
+}
+
+generate_intermediate_crl() {
+  generate_crl "Intermediate CA" "$INTERMEDIATE_CA_CERT" "$INTERMEDIATE_CA_KEY" \
+      "$INTERMEDIATE_DATABASE_FILE" "$INTERMEDIATE_CRL_DIR/intermediate_ca.crl" \
+      "$CONFIG_DIR/intermediate.cnf" "$INTERMEDIATE_PASSPHRASE"
+}
+
+revoke_certificate_with_root() {
+  revoke_certificate "Root CA" "$1" "$ROOT_CA_CERT" "$ROOT_CA_KEY" \
+      "$ROOT_DATABASE_FILE" "$ROOT_CRL_DIR/root_ca.crl" "$CONFIG_DIR/root_ca.cnf" \
+      "$ROOT_PASSPHRASE"
+}
+
+revoke_certificate_with_intermediate() {
+  revoke_certificate "Intermediate CA" "$1" "$INTERMEDIATE_CA_CERT" \
+      "$INTERMEDIATE_CA_KEY" "$INTERMEDIATE_DATABASE_FILE" "$INTERMEDIATE_CRL_DIR/intermediate_ca.crl" \
+      "$CONFIG_DIR/intermediate.cnf" "$INTERMEDIATE_PASSPHRASE"
+}
+
 generate_certificate() {
   CERT_TYPE=$1
   COMMON_NAME=$2
@@ -349,7 +449,9 @@ generate_certificate() {
 }
 
 generate_root_certificate
+generate_root_crl
 generate_intermediate_certificate
+generate_intermediate_crl
 combined_root_and_intermediate_into_chain
 generate_certificate "server" "vault_server"
 generate_certificate "agent" "vault_agent"

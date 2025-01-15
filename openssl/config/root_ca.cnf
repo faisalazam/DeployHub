@@ -2,6 +2,7 @@
 default_ca = local_ca
 
 [ local_ca ]
+crl_dir = $ENV::ROOT_CRL_DIR
 serial = $ENV::ROOT_SERIAL_FILE
 private_key = $ENV::ROOT_CA_KEY
 certificate = $ENV::ROOT_CA_CERT
@@ -9,7 +10,7 @@ database = $ENV::ROOT_DATABASE_FILE
 new_certs_dir = $ENV::SIGNED_CERTS_DIR
 
 default_md = sha256
-default_crl_days = 365
+default_crl_days = $ENV::CRL_EXPIRY_DAYS
 default_days = $ENV::ROOT_CERT_EXPIRY_DAYS
 
 policy = local_ca_policy
