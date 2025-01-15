@@ -13,7 +13,7 @@ if [ "$SERVER_MODE" = "prod" ]; then
   . /vault/scripts/unseal_vault.sh
 
   log "Logging in as root token..."
-  login_with_token "${ROOT_TOKEN_KEY}" "${ADMIN_ROOT_TOKEN_DIR}" "vault_token"
+  login_with_token "${ROOT_TOKEN_KEY}" "${SERVER_AUTH_ADMIN_ROOT_TOKEN_DIR}" "vault_token"
 
   log "Enabling Secrets Engine at path=${SECRETS_PATH}..."
   if vault read "sys/mounts/${SECRETS_PATH}" > /dev/null 2>&1; then
@@ -26,10 +26,10 @@ if [ "$SERVER_MODE" = "prod" ]; then
     log "Secrets engine at path=${SECRETS_PATH} has been enabled."
   fi
 else
-  save_key_value_to_file "$ROOT_TOKEN_KEY" "$VAULT_DEV_ROOT_TOKEN_ID" "${ADMIN_ROOT_TOKEN_DIR}" "vault_token"
+  save_key_value_to_file "$ROOT_TOKEN_KEY" "$VAULT_DEV_ROOT_TOKEN_ID" "${SERVER_AUTH_ADMIN_ROOT_TOKEN_DIR}" "vault_token"
 
   log "Logging in as root token..."
-  login_with_token "${ROOT_TOKEN_KEY}" "${ADMIN_ROOT_TOKEN_DIR}" "vault_token"
+  login_with_token "${ROOT_TOKEN_KEY}" "${SERVER_AUTH_ADMIN_ROOT_TOKEN_DIR}" "vault_token"
 fi
 
 log "Enabling AppRole authentication method..."

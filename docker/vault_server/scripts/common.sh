@@ -5,11 +5,6 @@ RETRY_COUNT=0
 MAX_RETRIES=10
 RETRY_INTERVAL=1
 
-AUTH_DIR="/vault/secrets/auth/admin"
-# shellcheck disable=SC2034
-KEYS_FILE="$AUTH_DIR/unseal_keys/keys"
-: "${AUTH_DIR:=/vault/secrets/auth/admin}"
-
 log() {
   log_level="${2:-INFO}" # Default to INFO if no log level is provided
   echo "$(date --utc '+%Y-%m-%dT%H:%M:%S.%3NZ') [$log_level] $1"
