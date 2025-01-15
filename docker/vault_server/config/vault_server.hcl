@@ -10,7 +10,7 @@ listener "tcp" {
   # require adding the certificate from where you are hitting https://127.0.0.1:8200.
   # Otherwise, you'll get the ERR_BAD_SSL_CLIENT_AUTH_CERT error.
   tls_client_ca_file = "/vault/certs/ca.crt"
-  tls_require_and_verify_client_cert = "true"
+  tls_require_and_verify_client_cert = "${TLS_REQUIRE_AND_VERIFY_CLIENT_CERT}"
   ######## For mTLS end ####################
 }
 
