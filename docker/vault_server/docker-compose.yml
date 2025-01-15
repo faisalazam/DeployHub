@@ -26,10 +26,10 @@ services:
       - ./secrets:/vault/secrets
       # NOTE: Run the DeployHub/scripts/generate_certificate.sh on the host first, to generate the certs
       - ../../certs/certificate_authority/intermediate/cacert.pem:/vault/certs/ca.crt:ro
-      - ../../certs/end_entity/agent/certificate.pem:/vault/certs/agent.crt:ro
-      - ../../certs/end_entity/agent/private_key.pem:/vault/certs/agent.key:ro
-      - ../../certs/end_entity/server/private_key.pem:/vault/certs/server.key:ro
-      - ../../certs/end_entity/server/intermediate_and_leaf_chain.bundle:/vault/certs/intermediate_and_leaf_chain.bundle:ro
+      - ../../certs/end_entity/vault_agent/certificate.pem:/vault/certs/agent.crt:ro
+      - ../../certs/end_entity/vault_agent/private_key.pem:/vault/certs/agent.key:ro
+      - ../../certs/end_entity/vault_server/private_key.pem:/vault/certs/server.key:ro
+      - ../../certs/end_entity/vault_server/intermediate_and_leaf_chain.bundle:/vault/certs/intermediate_and_leaf_chain.bundle:ro
       - vault_ssh_manager_role:/vault/secrets/auth/${SSH_MANAGER_ROLE_NAME}
       - ./scripts:/vault/scripts
       - ./policies:/vault/policies:ro

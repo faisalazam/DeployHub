@@ -426,9 +426,10 @@ revoke_certificate_with_intermediate() {
 
 generate_certificate() {
   CERT_TYPE=$1
+  CNF_FILE_NAME=$1
   COMMON_NAME=$2
   SERVER_DIR="$LEAF_CERTS_DIR/$CERT_TYPE"
-  CONFIG_FILE="$CONFIG_DIR/$CERT_TYPE.cnf"
+  CONFIG_FILE="$CONFIG_DIR/$CNF_FILE_NAME.cnf"
 
   if [ -f "$SERVER_DIR/certificate.pem" ]; then
     log "$CERT_TYPE certificate already exists. Skipping generation and signing process."
@@ -453,5 +454,5 @@ generate_root_crl
 generate_intermediate_certificate
 generate_intermediate_crl
 combined_root_and_intermediate_into_chain
-generate_certificate "server" "vault_server"
-generate_certificate "agent" "vault_agent"
+generate_certificate "vault_server" "vault_server"
+generate_certificate "vault_agent" "vault_agent"
