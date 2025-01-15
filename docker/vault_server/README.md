@@ -47,9 +47,9 @@ Add the following in the docker compose of vault server:
     environment:
       VAULT_CACERT: /vault/certs/ca.crt
     volumes:
-      - ../../certs/vaultCA/cacert.pem:/vault/certs/ca.crt:ro
-      - ../../certs/vaultCA/server/server_key.pem:/vault/certs/server.key:ro
-      - ../../certs/vaultCA/server/intermediate_and_leaf_chain.bundle:/vault/certs/intermediate_and_leaf_chain.bundle:ro
+      - ../../certs/leaf/cacert.pem:/vault/certs/ca.crt:ro
+      - ../../certs/leaf/server/server_key.pem:/vault/certs/server.key:ro
+      - ../../certs/leaf/server/intermediate_and_leaf_chain.bundle:/vault/certs/intermediate_and_leaf_chain.bundle:ro
 ```
 
 and:
@@ -68,7 +68,7 @@ Add the following in the docker compose of vault agent:
 environment:
   VAULT_CACERT: /vault/certs/ca.crt
 volumes:
-  - ../../certs/vaultCA/cacert.pem:/vault/certs/ca.crt:ro
+  - ../../certs/leaf/cacert.pem:/vault/certs/ca.crt:ro
 ```
 
 Additional setting to enable mTLS after setting up the TLS on Vault Server:
@@ -80,8 +80,8 @@ Add the following in the docker compose of vault server:
       VAULT_CLIENT_KEY: /vault/certs/agent.key
       VAULT_CLIENT_CERT: /vault/certs/agent.crt
     volumes:
-      - ../../certs/vaultCA/agent/server_crt.pem:/vault/certs/agent.crt:ro
-      - ../../certs/vaultCA/agent/server_key.pem:/vault/certs/agent.key:ro
+      - ../../certs/leaf/agent/server_crt.pem:/vault/certs/agent.crt:ro
+      - ../../certs/leaf/agent/server_key.pem:/vault/certs/agent.key:ro
 ```
 
 So the environment and volume sections may look like:
@@ -92,11 +92,11 @@ So the environment and volume sections may look like:
       VAULT_CLIENT_KEY: /vault/certs/agent.key
       VAULT_CLIENT_CERT: /vault/certs/agent.crt
     volumes:
-      - ../../certs/vaultCA/cacert.pem:/vault/certs/ca.crt:ro
-      - ../../certs/vaultCA/agent/server_crt.pem:/vault/certs/agent.crt:ro
-      - ../../certs/vaultCA/agent/server_key.pem:/vault/certs/agent.key:ro
-      - ../../certs/vaultCA/server/server_key.pem:/vault/certs/server.key:ro
-      - ../../certs/vaultCA/server/intermediate_and_leaf_chain.bundle:/vault/certs/intermediate_and_leaf_chain.bundle:ro
+      - ../../certs/leaf/cacert.pem:/vault/certs/ca.crt:ro
+      - ../../certs/leaf/agent/server_crt.pem:/vault/certs/agent.crt:ro
+      - ../../certs/leaf/agent/server_key.pem:/vault/certs/agent.key:ro
+      - ../../certs/leaf/server/server_key.pem:/vault/certs/server.key:ro
+      - ../../certs/leaf/server/intermediate_and_leaf_chain.bundle:/vault/certs/intermediate_and_leaf_chain.bundle:ro
 ```
 
 and add the following to the listener in the hcl file:
@@ -125,8 +125,8 @@ environment:
   VAULT_CLIENT_KEY: /vault/certs/agent_key.pem
   VAULT_CLIENT_CERT: /vault/certs/agent_cert.bundle
 volumes:
-  - ../../certs/vaultCA/agent/server_key.pem:/vault/certs/agent_key.pem:ro
-  - ../../certs/vaultCA/agent/intermediate_and_leaf_chain.bundle:/vault/certs/agent_cert.bundle:ro
+  - ../../certs/leaf/agent/server_key.pem:/vault/certs/agent_key.pem:ro
+  - ../../certs/leaf/agent/intermediate_and_leaf_chain.bundle:/vault/certs/agent_cert.bundle:ro
 ```
 
 So the environment and volume sections may look like:
@@ -137,7 +137,7 @@ environment:
   VAULT_CLIENT_KEY: /vault/certs/agent_key.pem
   VAULT_CLIENT_CERT: /vault/certs/agent_cert.bundle
 volumes:
-  - ../../certs/vaultCA/cert_chain/root_and_intermediate_chain.bundle:/vault/certs/ca.crt:ro
-  - ../../certs/vaultCA/agent/server_key.pem:/vault/certs/agent_key.pem:ro
-  - ../../certs/vaultCA/agent/intermediate_and_leaf_chain.bundle:/vault/certs/agent_cert.bundle:ro
+  - ../../certs/CA/cert_chain/root_and_intermediate_chain.bundle:/vault/certs/ca.crt:ro
+  - ../../certs/leaf/agent/server_key.pem:/vault/certs/agent_key.pem:ro
+  - ../../certs/leaf/agent/intermediate_and_leaf_chain.bundle:/vault/certs/agent_cert.bundle:ro
 ```

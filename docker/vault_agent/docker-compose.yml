@@ -21,9 +21,9 @@ services:
       - ./scripts:/vault/scripts
       - ./secrets:${SECRETS_DIR}
       - ./config:/vault/config:ro
-      - ../../certs/vaultCA/cert_chain/root_and_intermediate_chain.bundle:/vault/certs/ca.crt:ro
-      - ../../certs/vaultCA/agent/server_key.pem:/vault/certs/agent_key.pem:ro
-      - ../../certs/vaultCA/agent/intermediate_and_leaf_chain.bundle:/vault/certs/agent_cert.bundle:ro
+      - ../../certs/CA/cert_chain/root_and_intermediate_chain.bundle:/vault/certs/ca.crt:ro
+      - ../../certs/leaf/agent/server_key.pem:/vault/certs/agent_key.pem:ro
+      - ../../certs/leaf/agent/intermediate_and_leaf_chain.bundle:/vault/certs/agent_cert.bundle:ro
       # If the following dir/volume is missing, then start the vault_server first to create the auth dir contents
       - vault_ssh_manager_role:${VAULT_SERVER_ROLE_AUTH_DIR}:ro
     entrypoint: [ "sh", "/vault/scripts/agent_startup.sh" ]

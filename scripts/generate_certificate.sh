@@ -16,10 +16,11 @@ CERTS_DIR="$SCRIPT_DIR/../certs"
 DATABASE_DIR="$CERTS_DIR/database"
 CONFIG_DIR="$SCRIPT_DIR/../openssl/config"
 
-BASE_DIR="$CERTS_DIR/vaultCA"
-ROOT_CA_DIR="$BASE_DIR/root"
-CERT_CHAIN="$BASE_DIR/cert_chain"
-INTERMEDIATE_DIR="$BASE_DIR/intermediate"
+CA_DIR="$CERTS_DIR/CA"
+ROOT_CA_DIR="$CA_DIR/root"
+CERT_CHAIN="$CA_DIR/cert_chain"
+LEAF_CERTS_DIR="$CERTS_DIR/leaf"
+INTERMEDIATE_DIR="$CA_DIR/intermediate"
 INTERMEDIATE_CA_CSR="$INTERMEDIATE_DIR/temp/intermediate.csr"
 ROOT_AND_INTERMEDIATE_CHAIN="$CERT_CHAIN/root_and_intermediate_chain.bundle"
 
@@ -89,10 +90,10 @@ create_dirs_and_files() {
       log "Created directories for intermediate ca"
       set_permissions "$INTERMEDIATE_DIR/private" "700"
     else
-      mkdir -p "$BASE_DIR/$CERT_TYPE/temp" \
-               "$BASE_DIR/$CERT_TYPE/signedcerts"
+      mkdir -p "$LEAF_CERTS_DIR/$CERT_TYPE/temp" \
+               "$LEAF_CERTS_DIR/$CERT_TYPE/signedcerts"
       log "Created directories for $CERT_TYPE"
-      set_permissions "$BASE_DIR/$CERT_TYPE" "700"
+      set_permissions "$LEAF_CERTS_DIR/$CERT_TYPE" "700"
     fi
   fi
 }
@@ -330,7 +331,7 @@ clean_temp_files() {
 generate_certificate() {
   CERT_TYPE=$1
   COMMON_NAME=$2
-  SERVER_DIR="$BASE_DIR/$CERT_TYPE"
+  SERVER_DIR="$LEAF_CERTS_DIR/$CERT_TYPE"
   CONFIG_FILE="$CONFIG_DIR/$CERT_TYPE.cnf"
 
   if [ -f "$SERVER_DIR/server_crt.pem" ]; then
@@ -345,7 +346,7 @@ generate_certificate() {
   combined_intermediate_and_leaf_into_chain "$SERVER_DIR"
   verify_cert_date_validity "$SERVER_DIR/server_crt.pem"
   verify_certificate "server" "$SERVER_DIR/server_crt.pem"
-  verify_certificate "full chain" "$SERVER_DIR/intermediate_and_leaf_chain.bundle"
+  verify_certificate "trust chain" "$SERVER_DIR/intermediate_and_leaf_chain.bundle"
   clean_temp_files "$SERVER_DIR"
 
   log "$CERT_TYPE certificate generation and signing process completed successfully"
