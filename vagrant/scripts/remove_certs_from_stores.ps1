@@ -1,5 +1,6 @@
 param (
-    [string]$FriendlyNamePattern = "SETTING IT ANY RANDOM STR SO THAT NOTHING GETS REMOVED UNTIL PATTERN IS PROVIDED"
+    [Parameter(Mandatory=$true)]
+    [string]$FriendlyNamePattern
 )
 
 # Define certificate store locations
