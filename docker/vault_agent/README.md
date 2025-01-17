@@ -44,8 +44,27 @@ Verify mTLS:
 ```shell
 curl -v --cacert /vault/certs/ca.crt https://vault_server:8200
 curl -v --cacert /vault/certs/ca.crt --cert /vault/certs/agent_cert.bundle --key /vault/certs/agent.key https://vault_server:8200
-curl -v --cacert /vault/certs//vault/certs/intermediate_and_leaf_chain.bundle --cert /vault/certs/agent_cert.bundle --key /vault/certs/agent.key https://vault_server:8200
+curl -v --cacert /vault/certs/vault/certs/intermediate_and_leaf_chain.bundle --cert /vault/certs/agent_cert.bundle --key /vault/certs/agent.key https://vault_server:8200
 
-openssl s_client -connect vault_server:8200 -CAfile /vault/certs/ca.crt
+openssl s_client -connect vault_server:8200 -CAfile /vault/certs/ca.crt | grep -E "handshake|Verification|Verify return code|CONNECTED"
 openssl s_client -connect vault_server:8200 -CAfile /vault/certs/ca.crt -cert /vault/certs/agent_cert.bundle -key /vault/certs/agent.key
+
+# Run thr following commands from host machine (from within docker folder or adjust CERTS_DIR if running from some other folder)
+CERTS_DIR="../certs"; openssl s_client -connect localhost:8200 \
+    -CAfile ${CERTS_DIR}/certificate_authority/certificate_chains/root_and_intermediate_chain.bundle \
+    | grep -E "handshake|Verification|Verify return code|CONNECTED"
+
+CERTS_DIR="../certs"; openssl s_client -connect localhost:8200 \
+    -CAfile ${CERTS_DIR}/certificate_authority/certificate_chains/root_and_intermediate_chain.bundle \
+    --cert ${CERTS_DIR}/end_entity/vault_agent/intermediate_and_leaf_chain.bundle \
+    -key ${CERTS_DIR}/end_entity/vault_agent/private_key.pem \
+    | grep -E "handshake|Verification|Verify return code|CONNECTED"
+
+# Or with http request:
+CERTS_DIR="../certs"; echo -e "GET / HTTP/1.1\r\nHost: localhost:8200\r\n\r\n" | \
+openssl s_client -connect localhost:8200 \
+    -CAfile ${CERTS_DIR}/certificate_authority/certificate_chains/root_and_intermediate_chain.bundle \
+    --cert ${CERTS_DIR}/end_entity/vault_agent/intermediate_and_leaf_chain.bundle \
+    -key ${CERTS_DIR}/end_entity/vault_agent/private_key.pem \
+    | grep -E "handshake|Verification|Verify return code|CONNECTED"
 ```
