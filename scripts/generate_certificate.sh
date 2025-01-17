@@ -9,6 +9,7 @@ log "NOTE: THIS SCRIPT RUNS ON THE HOST..."
 
 # TODO: Store the passphrase somewhere secure.
 ROOT_PASSPHRASE="your_root_secure_passphrase"
+CLIENT_CERT_PASSPHRASE="your_client_cert_secure_passphrase"
 INTERMEDIATE_PASSPHRASE="your_intermediate_secure_passphrase"
 
 SCRIPT_DIR=$(dirname "$0")
@@ -264,6 +265,35 @@ sign_certificate_with_intermediate_ca() {
   set_permissions "$SERVER_CERT" "644"
 }
 
+generate_mtls_client_certificate() {
+  # .p12 and .pfx are interchangeable, either works, but .p12 is slightly more standard
+  # in cross-platform OpenSSL workflows.
+  # NOTE: Ensure the .p12 file is distributed securely.
+  CLIENT=$1
+  CLIENT_CERTS_DIR="$LEAF_CERTS_DIR/$CLIENT"
+  MTLS_CLIENT_FILE="$CLIENT_CERTS_DIR/mtls_client_cert.p12"
+  MTLS_CLIENT_CERT_FRIENDLY_NAME="FAISAL-$CLIENT-Client-Certificate"
+
+  if [ -f "$MTLS_CLIENT_FILE" ]; then
+    log "The mTLS client certificate already exists. Skipping generation process."
+    return
+  fi
+
+  log "Generate the mTLS client certificate for $CLIENT"
+  if ! openssl pkcs12 -export \
+           -in "$CLIENT_CERTS_DIR/certificate.pem" \
+           -inkey "$CLIENT_CERTS_DIR/private_key.pem" \
+           -out "$MTLS_CLIENT_FILE" \
+           -name  "$MTLS_CLIENT_CERT_FRIENDLY_NAME" \
+           -CAfile "$INTERMEDIATE_CA_CERT" \
+           -password pass:$CLIENT_CERT_PASSPHRASE > /dev/null 2>&1; then
+    log "Failed to generated the mTLS client certificate for $CLIENT" "ERROR"
+    exit 1
+  fi
+  log "mTLS client certificate generated successfully"
+  set_permissions "$MTLS_CLIENT_FILE" "600"
+}
+
 combined_intermediate_and_leaf_into_chain() {
   SERVER_DIR=$1
   SERVER_CERT="$SERVER_DIR/certificate.pem"
@@ -456,3 +486,4 @@ generate_intermediate_crl
 combined_root_and_intermediate_into_chain
 generate_certificate "vault_server" "vault_server"
 generate_certificate "vault_agent" "vault_agent"
+generate_mtls_client_certificate "vault_agent"
