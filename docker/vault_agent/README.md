@@ -80,4 +80,4 @@ Chrome/Edge:
 
 Go to: `Settings → Privacy and Security → Security → Manage Certificates → Your Certificates → Manage imported
 certificates from Windows`.
-Import the agent_cert.p12 file, enter the export password, and complete the import.
+Import the mtls_client_cert.p12 file, enter the export password, and complete the import.
