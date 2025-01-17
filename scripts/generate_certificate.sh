@@ -5,7 +5,7 @@ log() {
   echo "$(date --utc '+%Y-%m-%dT%H:%M:%S.%3NZ') [$log_level] $1"
 }
 
-log "NOTE: THIS SCRIPT RUNS ON THE HOST..."
+log "NOTE: THIS SCRIPT NEEDS TO RUN ON THE HOST..."
 
 # TODO: Store the passphrase somewhere secure.
 ROOT_PASSPHRASE="your_root_secure_passphrase"
@@ -368,12 +368,12 @@ generate_crl() {
   CONFIG_FILE=$6
   PASSPHRASE=$7
 
-  log "Generate CRL for $CA_TYPE"
-
   if [ -f "$CRL_FILE" ]; then
-    log "CRL file already exists for $CA_TYPE: $CRL_FILE"
+    log "CRL file already exists for $CA_TYPE. Skipping generation process."
     return 0
   fi
+
+  log "Generate CRL for $CA_TYPE"
 
   # Check if CRL needs regeneration (based on expiration days or if the file doesn't exist)
   if [ -f "$CRL_FILE" ]; then
