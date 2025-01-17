@@ -1,16 +1,19 @@
 param (
-    [int]$KeyLength = 2048,
+    [int]$KeyLength = 4096,
     [int]$CertValidityYears = 1,
-    [string]$CertPath = "..\certs\local",
     [string]$CertCN = "localhost",
+    [string]$CertPath = "..\certs\local",
+    # TODO: Store/inject the password somewhere else - confidential
     [string]$CertPass = "YourCertPassword",
-    [string[]]$DnsNames = @($CertCN, "127.0.0.1", "local_windows_vm"),
     [string]$CertPfxExportFileName = "certificate.pfx",
     [string]$CertPemExportFileName = "certificate.pem",
-    [string]$CertStoreLocation = "Cert:\LocalMachine\My",
-    [string]$TrustedRootStoreLocation = "Cert:\LocalMachine\Root",
-    [string]$FriendlyName = "FAISAL-WinRM-SelfSigned-WinVM"
+    [string]$FriendlyName = "FAISAL-WinRM-SelfSigned-WinVM",
+    [string[]]$DnsNames = @($CertCN, "127.0.0.1", "local_windows_vm")
 )
+
+$CertStoreLocation = "Cert:\LocalMachine\My"
+$TrustedRootStoreLocation = "Cert:\LocalMachine\Root"
+$CertificationAuthorityStoreLocation = "Cert:\LocalMachine\CA"
 
 function Write-Log {
     param (
@@ -73,9 +76,22 @@ try {
         Handle-Error -errorMessage "Failed to generate certificate."
     }
 
-    # Step 4: Set FriendlyName to the certificate using the certificate's Thumbprint
-    Write-Log -message "Setting FriendlyName for the certificate..."
+    # Step 4: Set FriendlyName to the certificates using the certificate's Thumbprint
+    Write-Log -message "Setting FriendlyName for the certificates..."
     $cert.FriendlyName = $FriendlyName
+
+    # New-SelfSignedCertificate generates the cert in $CertStoreLocation as well as in $CertificationAuthorityStoreLocation,
+    # So, have to set the FriendlyName explicity as it won't get propagated automatically.
+    # We're interesting in setting it as we use it in the ".\scripts\remove_certs_from_stores.ps1" script to cleaup.
+    # So, if it is not set, then it won't get cleaned up.
+    # So, the following will set it in Cert:\LocalMachine\CA and Cert:\CurrentUser\CA stores.
+    $certInStore = Get-ChildItem -Path $CertificationAuthorityStoreLocation `
+                | Where-Object { $_.Thumbprint -eq $cert.Thumbprint }
+    if ($certInStore) {
+        $certInStore.FriendlyName = $FriendlyName
+    } else {
+        Write-Host "Certificate not found in $CertificationAuthorityStoreLocation."
+    }
 
     # Step 5: Export the certificate to a PFX file
     $CertFile = Join-Path $CertPath $CertPfxExportFileName
