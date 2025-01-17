@@ -68,3 +68,16 @@ openssl s_client -connect localhost:8200 \
     -key ${CERTS_DIR}/end_entity/vault_agent/private_key.pem \
     | grep -E "handshake|Verification|Verify return code|CONNECTED"
 ```
+
+
+## **Import the .p12 File into the Browser**
+
+Once mTLS is enabled, accessing https://127.0.0.1:8200 (vault server) from browser will result in
+`ERR_BAD_SSL_CLIENT_AUTH_CERT` error. Follow the below steps to import the client certificate (.p12 or .pfx) file to fix
+the `ERR_BAD_SSL_CLIENT_AUTH_CERT` error.
+
+Chrome/Edge:
+
+Go to: `Settings → Privacy and Security → Security → Manage Certificates → Your Certificates → Manage imported
+certificates from Windows`.
+Import the agent_cert.p12 file, enter the export password, and complete the import.

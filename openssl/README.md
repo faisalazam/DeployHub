@@ -18,8 +18,10 @@ environment. It ensures that the certificates follow industry standards for TLS 
 ## **Usage**
 
 1. Clone the repository and navigate to the script directory.
-2. Configure the necessary parameters in `DeployHub/scripts/generate_certificate.sh` and `DeployHub/certs/config/*.cnf` files.
+2. Configure the necessary parameters in `DeployHub/scripts/generate_certificate.sh` and `DeployHub/certs/config/*.cnf`
+   files.
 3. Run the script:
+
 ```sh
 cd DeployHub/scripts
 ./generate_certificate.sh
@@ -51,6 +53,18 @@ cd DeployHub/scripts
 
 - Modify key size, passphrase, and expiration days in the script.
 - Update SANs in `certs/config/server.cnf` for your environment.
+
+## **Sharing .p12 Files with Private Keys**
+
+The industry standard involves:
+
+Generating a PKCS#12 (.p12) file that includes:
+The client certificate.
+The private key for that certificate.
+The certificate chain (including intermediate and root CA certificates if applicable).
+Securely sharing the .p12 file with the intended client systems or browsers.
+The .p12 format ensures that the private key, certificate, and chain are bundled in one file. The file is often
+protected with a strong password to ensure secure distribution.
 
 ## **Disclaimer**
 
