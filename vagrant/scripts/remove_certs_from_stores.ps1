@@ -3,9 +3,18 @@ param (
     [string]$FriendlyNamePattern
 )
 
-# Define certificate store locations
-$personalStoreLocation = "Cert:\LocalMachine\My"
-$trustedRootStoreLocation = "Cert:\LocalMachine\Root"
+$storeLocations = @(
+    "Cert:\LocalMachine\Root",
+    "Cert:\LocalMachine\My",
+    "Cert:\LocalMachine\CA",
+    "Cert:\LocalMachine\AuthRoot",
+    "Cert:\LocalMachine\Trust",
+    "Cert:\CurrentUser\Root",
+    "Cert:\CurrentUser\My",
+    "Cert:\CurrentUser\CA",
+    "Cert:\CurrentUser\AuthRoot",
+    "Cert:\CurrentUser\Trust"
+)
 
 function Write-Log {
     param (
@@ -23,7 +32,7 @@ function Remove-CertsByFriendlyName {
     )
 
     Write-Log -message "Removing certificates with FriendlyName matching '$friendlyNamePattern' " `
-        -logLevel "INFO" `
+        -logLevel "INFO"
 
     try {
         # Get all certificates from the store
@@ -31,8 +40,8 @@ function Remove-CertsByFriendlyName {
             $_.FriendlyName -like $friendlyNamePattern `
         }
 
-        if ($certs.Count -eq 0) {
-            Write-Log -message "No certificates found matching '$friendlyNamePattern' " `
+        if ($null -eq $certs -or $certs.Count -eq 0) {
+            Write-Log -message "No certificates found in '$storeLocation' matching '$friendlyNamePattern'" `
                 -logLevel "INFO"
             return
         }
@@ -40,7 +49,6 @@ function Remove-CertsByFriendlyName {
         foreach ($cert in $certs) {
             Write-Log -message "Removing certificate: $($cert.FriendlyName) " `
                 + "(Thumbprint: $($cert.Thumbprint)) from store $storeLocation..."
-            # Remove the certificate
             Remove-Item -Path $cert.PSPath -Force
             Write-Log -message "Certificate removed: $($cert.FriendlyName) " `
                 + "(Thumbprint: $($cert.Thumbprint))"
@@ -51,10 +59,7 @@ function Remove-CertsByFriendlyName {
     }
 }
 
-# Remove certificates from the 'My' store (Personal certificates)
-Remove-CertsByFriendlyName -storeLocation $personalStoreLocation `
-    -friendlyNamePattern $FriendlyNamePattern
-
-# Remove certificates from the 'Root' store (Trusted Root Certification Authorities)
-Remove-CertsByFriendlyName -storeLocation $trustedRootStoreLocation `
-    -friendlyNamePattern $FriendlyNamePattern
+foreach ($storeLocation in $storeLocations) {
+    Remove-CertsByFriendlyName -storeLocation $storeLocation `
+        -friendlyNamePattern $FriendlyNamePattern
+}
