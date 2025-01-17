@@ -8,12 +8,7 @@ $storeLocations = @(
     "Cert:\LocalMachine\My",
     "Cert:\LocalMachine\CA",
     "Cert:\LocalMachine\AuthRoot",
-    "Cert:\LocalMachine\Trust",
-    "Cert:\CurrentUser\Root",
-    "Cert:\CurrentUser\My",
-    "Cert:\CurrentUser\CA",
-    "Cert:\CurrentUser\AuthRoot",
-    "Cert:\CurrentUser\Trust"
+    "Cert:\LocalMachine\Trust"
 )
 
 function Write-Log {
