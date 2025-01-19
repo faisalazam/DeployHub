@@ -109,10 +109,16 @@ verify_cert_date_validity() {
   notBefore=$(openssl x509 -in "$CERT_FILE" -noout -startdate | cut -d= -f2)
   notAfter=$(openssl x509 -in "$CERT_FILE" -noout -enddate | cut -d= -f2)
 
-  # Convert the dates to Unix timestamps
-  notBeforeTimestamp=$(date -d "$notBefore" +%s)
-  notAfterTimestamp=$(date -d "$notAfter" +%s)
+  # Parse the dates to Unix timestamps in a container-compatible format
+  notBeforeTimestamp=$(date --date="$(echo "$notBefore" | sed 's/ GMT//')" +%s 2>/dev/null)
+  notAfterTimestamp=$(date --date="$(echo "$notAfter" | sed 's/ GMT//')" +%s 2>/dev/null)
   currentTimestamp=$(date +%s)
+
+  # Ensure valid conversion of timestamps
+  if [ -z "$notBeforeTimestamp" ] || [ -z "$notAfterTimestamp" ]; then
+    log "$CERT_FILE certificate date parsing failed" "ERROR"
+    exit 1
+  fi
 
   # Check if current date is within the validity period
   if [ "$currentTimestamp" -lt "$notBeforeTimestamp" ] || [ "$currentTimestamp" -gt "$notAfterTimestamp" ]; then
