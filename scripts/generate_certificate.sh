@@ -142,8 +142,8 @@ verify_root_certificate() {
   verify_cert_date_validity "$ROOT_CA_CERT"
 
   # Verify that the root certificate can validate itself
-  if ! openssl verify -CAfile "$ROOT_CA_CERT" "$ROOT_CA_CERT" >/dev/null 2>&1; then
-    log "Root certificate failed self-verification" "ERROR"
+  if ! output=$(openssl verify -CAfile "$ROOT_CA_CERT" "$ROOT_CA_CERT" 2>&1); then
+    log "Root certificate failed self-verification: $output" "ERROR"
     exit 1
   fi
   log "Root certificate validation successful"
@@ -158,12 +158,12 @@ generate_root_certificate() {
   create_dirs_and_files "root"
 
   log "Generate the root certificate"
-  if ! SIGNED_CERTS_DIR="" openssl req -x509 -newkey rsa:$RSA_KEY_SIZE \
+  if ! output=$(SIGNED_CERTS_DIR="" openssl req -x509 -newkey rsa:$RSA_KEY_SIZE \
           -out "$ROOT_CA_CERT" -outform PEM -days $ROOT_CERT_EXPIRY_DAYS \
           -keyout "$ROOT_CA_KEY" \
           -passout pass:$ROOT_PASSPHRASE \
-          -config "$CONFIG_DIR/root_ca.cnf" -quiet > /dev/null 2>&1; then
-    log "Failed to generate root certificate" "ERROR"
+          -config "$CONFIG_DIR/root_ca.cnf" 2>&1); then
+    log "Failed to generate root certificate: $output" "ERROR"
     exit 1
   fi
   verify_root_certificate
@@ -188,21 +188,21 @@ generate_intermediate_certificate() {
   fi
 
   log "Generate the intermediate certificate signing request (CSR)"
-  if ! SIGNED_CERTS_DIR="$INTERMEDIATE_DIR" openssl req -new \
+  if ! output=$(SIGNED_CERTS_DIR="$INTERMEDIATE_DIR" openssl req -new \
           -key "$INTERMEDIATE_CA_KEY" -out "$INTERMEDIATE_CA_CSR" \
           -passin pass:$INTERMEDIATE_PASSPHRASE \
-          -config "$CONFIG_DIR/intermediate.cnf" > /dev/null 2>&1; then
-    log "Failed to generate intermediate CSR" "ERROR"
+          -config "$CONFIG_DIR/intermediate.cnf" 2>&1); then
+    log "Failed to generate intermediate CSR: $output" "ERROR"
     exit 1
   fi
 
   log "Sign the intermediate certificate with the root certificate"
-  if ! SIGNED_CERTS_DIR="$INTERMEDIATE_DIR" openssl ca -in "$INTERMEDIATE_CA_CSR" \
+  if ! output=$(SIGNED_CERTS_DIR="$INTERMEDIATE_DIR" openssl ca -in "$INTERMEDIATE_CA_CSR" \
           -out "$INTERMEDIATE_CA_CERT" \
           -cert "$ROOT_CA_CERT" -keyfile "$ROOT_CA_KEY" \
           -passin pass:$ROOT_PASSPHRASE \
-          -config "$CONFIG_DIR/root_ca.cnf" -batch > /dev/null 2>&1; then
-    log "Failed to sign intermediate certificate with root CA" "ERROR"
+          -config "$CONFIG_DIR/root_ca.cnf" -batch 2>&1); then
+    log "Failed to sign intermediate certificate with root CA: $output" "ERROR"
     exit 1
   fi
 
@@ -223,13 +223,13 @@ generate_key_and_request() {
   TEMP_REQ="$SERVER_DIR/temp/tempreq.pem"
 
   log "Generate the key and request for $CERT_TYPE using $CONFIG_FILE"
-  if ! CN="$COMMON_NAME" openssl req \
+  if ! output=$(CN="$COMMON_NAME" openssl req \
           -newkey rsa:$RSA_KEY_SIZE \
           -keyout "$TEMP_KEY" -keyform PEM \
           -out "$TEMP_REQ" -outform PEM \
           -passout pass:$INTERMEDIATE_PASSPHRASE \
-          -config "$CONFIG_FILE" -quiet > /dev/null 2>&1; then
-      log "Failed to generate temporary key and certificate request for $CERT_TYPE" "ERROR"
+          -config "$CONFIG_FILE" -quiet 2>&1); then
+      log "Failed to generate temporary key and certificate request for $CERT_TYPE: $output" "ERROR"
       exit 1
   fi
   log "$CERT_TYPE temporary key and certificate request generated successfully"
@@ -258,13 +258,13 @@ sign_certificate_with_intermediate_ca() {
   SERVER_CERT="$SERVER_DIR/certificate.pem"
 
   log "Sign the certificate for $SERVER_DIR with intermediate CA"
-  if ! SIGNED_CERTS_DIR="$SERVER_DIR" openssl ca -in "$TEMP_REQ" \
+  if ! output=$(SIGNED_CERTS_DIR="$SERVER_DIR" openssl ca -in "$TEMP_REQ" \
           -out "$SERVER_CERT" \
           -cert "$INTERMEDIATE_CA_CERT" \
           -keyfile "$INTERMEDIATE_CA_KEY" \
           -passin pass:$INTERMEDIATE_PASSPHRASE \
-          -config "$CONFIG_DIR/intermediate_signing.cnf" -batch > /dev/null 2>&1; then
-    log "Failed to sign the certificate for $SERVER_DIR with intermediate CA" "ERROR"
+          -config "$CONFIG_DIR/intermediate_signing.cnf" -batch 2>&1); then
+    log "Failed to sign the certificate for $SERVER_DIR with intermediate CA: $output" "ERROR"
     exit 1
   fi
   log "$SERVER_DIR certificate signed successfully"
@@ -286,14 +286,14 @@ generate_mtls_client_certificate() {
   fi
 
   log "Generate the mTLS client certificate for $CLIENT"
-  if ! openssl pkcs12 -export \
+  if ! output=$(openssl pkcs12 -export \
            -in "$CLIENT_CERTS_DIR/certificate.pem" \
            -inkey "$CLIENT_CERTS_DIR/private_key.pem" \
            -out "$MTLS_CLIENT_FILE" \
            -name  "$MTLS_CLIENT_CERT_FRIENDLY_NAME" \
            -CAfile "$INTERMEDIATE_CA_CERT" \
-           -password pass:$CLIENT_CERT_PASSPHRASE > /dev/null 2>&1; then
-    log "Failed to generated the mTLS client certificate for $CLIENT" "ERROR"
+           -password pass:$CLIENT_CERT_PASSPHRASE 2>&1); then
+    log "Failed to generated the mTLS client certificate for $CLIENT: $output" "ERROR"
     exit 1
   fi
   log "mTLS client certificate generated successfully"
@@ -341,14 +341,14 @@ verify_certificate() {
 
   log "Verifying the $CERT_TYPE certificate at $CERT_PATH with $VERIFY_WITH"
   # Chain of trust verification
-  if ! openssl verify -CAfile "$VERIFY_WITH" "$CERT_PATH" > /dev/null 2>&1; then
-    log "$CERT_TYPE certificate verification failed" "ERROR"
+  if ! output=$(openssl verify -CAfile "$VERIFY_WITH" "$CERT_PATH" 2>&1); then
+    log "$CERT_TYPE certificate verification failed: $output" "ERROR"
     exit 1
   fi
 
   # Date validity check
-  if ! openssl x509 -in "$CERT_PATH" -noout -checkend 0 > /dev/null 2>&1; then
-    log "$CERT_TYPE certificate is expired or not yet valid" "ERROR"
+  if ! output=$(openssl x509 -in "$CERT_PATH" -noout -checkend 0 2>&1); then
+    log "$CERT_TYPE certificate is expired or not yet valid: $output" "ERROR"
     exit 1
   fi
   log "$CERT_TYPE certificate verification successful"
@@ -392,12 +392,12 @@ generate_crl() {
     fi
   fi
 
-  if ! SIGNED_CERTS_DIR="" openssl ca -gencrl -config "$CONFIG_FILE" \
+  if ! output=$(SIGNED_CERTS_DIR="" openssl ca -gencrl -config "$CONFIG_FILE" \
           -out "$CRL_FILE" \
           -cert "$CA_CERT" \
           -keyfile "$CA_KEY" \
-          -passin pass:"$PASSPHRASE" > /dev/null 2>&1; then
-    log "Failed to generate CRL for $CA_TYPE" "ERROR"
+          -passin pass:"$PASSPHRASE" 2>&1); then
+    log "Failed to generate CRL for $CA_TYPE: $output" "ERROR"
     exit 1
   fi
 
@@ -422,12 +422,12 @@ revoke_certificate() {
     return 0
   fi
 
-  if ! openssl ca -revoke "$CERT_FILE" \
+  if ! output=$(openssl ca -revoke "$CERT_FILE" \
         -config "$CONFIG_FILE" \
         -cert "$CA_CERT" \
         -keyfile "$CA_KEY" \
-        -passin pass:"$PASSPHRASE" > /dev/null 2>&1; then
-    log "Failed to revoke certificate $CERT_FILE for $CA_TYPE" "ERROR"
+        -passin pass:"$PASSPHRASE" 2>&1); then
+    log "Failed to revoke certificate $CERT_FILE for $CA_TYPE: $output" "ERROR"
     exit 1
   fi
 
