@@ -49,11 +49,6 @@ jobs:
       - name: Generate certificates
         run: sh ./scripts/generate_certificate.sh
 
-      - name: Dir listing
-        if: ${{ always() }}
-        run: |
-          ls -laRt ./certs
-
       - name: Check if docker compose is available before proceeding
         run: which docker-compose || { echo "docker compose is not installed or not in PATH"; exit 1; }
 
