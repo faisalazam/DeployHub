@@ -44,7 +44,7 @@ jobs:
           docker compose --version
 
       - name: OpenSSL Version
-        run: openssl -version
+        run: openssl version
 
       - name: Generate certificates
         run: sh ./scripts/generate_certificate.sh
