@@ -228,7 +228,7 @@ generate_key_and_request() {
           -keyout "$TEMP_KEY" -keyform PEM \
           -out "$TEMP_REQ" -outform PEM \
           -passout pass:$INTERMEDIATE_PASSPHRASE \
-          -config "$CONFIG_FILE" -quiet 2>&1); then
+          -config "$CONFIG_FILE" 2>&1); then
       log "Failed to generate temporary key and certificate request for $CERT_TYPE: $output" "ERROR"
       exit 1
   fi
