@@ -33,12 +33,6 @@
     state: latest
   become: true
 
-- name: Ensure Metricbeat is stopped before making changes
-  service:
-    name: metricbeat
-    state: stopped
-  become: true
-
 - name: Backup the existing Metricbeat configuration
   copy:
     src: "{{ METRICBEAT_YML_PATH }}"
@@ -52,11 +46,8 @@
     src: metricbeat.yml.j2
     dest: "{{ METRICBEAT_YML_PATH }}"
     mode: '0644'
+  notify: Restart Metricbeat
   become: true
 
-- name: Start Metricbeat service
-  service:
-    name: metricbeat
-    state: started
-    enabled: yes
-  become: true
+- name: Flush handlers to restart Metricbeat immediately if config changed
+  meta: flush_handlers

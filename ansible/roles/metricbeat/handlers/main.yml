@@ -3,4 +3,5 @@
   service:
     name: metricbeat
     state: restarted
+    enabled: yes
   become: true
