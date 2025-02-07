@@ -17,19 +17,14 @@
     key: https://packages.elastic.co/GPG-KEY-elasticsearch
   become: true
 
-- name: Create the Elastic repository file
-  copy:
-    content: |
-      [elastic-{{ metricbeat_version }}]
-      name=Elastic repository for {{ metricbeat_version }} packages
-      baseurl=https://artifacts.elastic.co/packages/{{ metricbeat_version }}/yum
-      gpgcheck=1
-      gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch
-      enabled=1
-      autorefresh=1
-      type=rpm-md
-    dest: /etc/yum.repos.d/elastic.repo
-    mode: '0644'
+- name: Add Elastic repository
+  yum_repository:
+    name: "elastic-{{ metricbeat_version }}"
+    description: "Elastic repository for {{ metricbeat_version }} packages"
+    baseurl: "https://artifacts.elastic.co/packages/{{ metricbeat_version }}/yum"
+    gpgcheck: yes
+    gpgkey: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
+    enabled: yes
   become: true
 
 - name: Install Metricbeat
