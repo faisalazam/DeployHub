@@ -1,0 +1,63 @@
+---
+- name: Gather OS Facts
+  setup:
+  become: true
+
+- name: Determine if OS is legacy
+  set_fact:
+    legacy_os: "{{ ansible_distribution_major_version | int < os_legacy_threshold }}"
+
+- name: Set Metricbeat version based on OS version
+  set_fact:
+    metricbeat_version: "{{ metricbeat_version_legacy if legacy_os else metricbeat_version_modern }}"
+
+- name: Import Elastic GPG key
+  rpm_key:
+    state: present
+    key: https://packages.elastic.co/GPG-KEY-elasticsearch
+  become: true
+
+- name: Create the Elastic repository file
+  copy:
+    content: |
+      [elastic-{{ metricbeat_version }}]
+      name=Elastic repository for {{ metricbeat_version }} packages
+      baseurl=https://artifacts.elastic.co/packages/{{ metricbeat_version }}/yum
+      gpgcheck=1
+      gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch
+      enabled=1
+      autorefresh=1
+      type=rpm-md
+    dest: /etc/yum.repos.d/elastic.repo
+    mode: '0644'
+  become: true
+
+- name: Install Metricbeat
+  yum:
+    name: metricbeat
+    state: present
+  become: true
+
+- name: Ensure Metricbeat is stopped before making changes
+  service:
+    name: metricbeat
+    state: stopped
+  become: true
+
+- name: Backup the existing Metricbeat configuration
+  shell: cp "{{ METRICBEAT_YML_PATH }}" "{{ METRICBEAT_YML_PATH }}.old"
+  become: true
+
+- name: Update Metricbeat configuration (customized config)
+  template:
+    src: metricbeat.yml.j2
+    dest: "{{ METRICBEAT_YML_PATH }}"
+    mode: '0644'
+  become: true
+
+- name: Start Metricbeat service
+  service:
+    name: metricbeat
+    state: started
+    enabled: yes
+  become: true
