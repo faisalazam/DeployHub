@@ -30,7 +30,7 @@
 - name: Install Metricbeat
   yum:
     name: metricbeat
-    state: latest
+    state: present
   become: true
 
 - name: Backup the existing Metricbeat configuration
