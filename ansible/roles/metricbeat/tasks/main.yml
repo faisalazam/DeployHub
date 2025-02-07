@@ -45,7 +45,11 @@
   become: true
 
 - name: Backup the existing Metricbeat configuration
-  shell: cp "{{ METRICBEAT_YML_PATH }}" "{{ METRICBEAT_YML_PATH }}.old"
+  copy:
+    src: "{{ METRICBEAT_YML_PATH }}"
+    dest: "{{ METRICBEAT_YML_PATH }}.old"
+    remote_src: yes
+    mode: preserve
   become: true
 
 - name: Update Metricbeat configuration (customized config)
