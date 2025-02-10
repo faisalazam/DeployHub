@@ -1,0 +1,16 @@
+# Defaults have the **the lowest precedence** and can be overridden by extra vars, task vars,
+# role vars, and inventory group/host vars.
+
+metricbeat_env: ""
+kibana_space_id: ""
+metricbeat_tags: []
+
+cloud_id:
+cloud_auth_user:
+cloud_auth_password:
+
+# Elasticsearch output
+elasticsearch_host:
+elasticsearch_protocol:
+elasticsearch_password:
+elasticsearch_username:
