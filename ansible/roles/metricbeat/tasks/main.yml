@@ -35,8 +35,8 @@
 
 - name: Backup the existing Metricbeat configuration
   copy:
-    src: "{{ METRICBEAT_YML_PATH }}"
-    dest: "{{ METRICBEAT_YML_PATH }}.old"
+    src: "{{ metricbeat_yml_path }}"
+    dest: "{{ metricbeat_yml_path }}.old"
     remote_src: yes
     mode: preserve
   become: true
@@ -44,7 +44,7 @@
 - name: Update Metricbeat configuration (customized config)
   template:
     src: metricbeat.yml.j2
-    dest: "{{ METRICBEAT_YML_PATH }}"
+    dest: "{{ metricbeat_yml_path }}"
     mode: '0644'
   notify: Restart Metricbeat
   become: true

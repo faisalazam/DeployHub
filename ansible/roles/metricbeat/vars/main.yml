@@ -2,4 +2,4 @@ os_legacy_threshold: 7 # Int value
 metricbeat_version_legacy: "7.x"
 metricbeat_version_modern: "8.x"
 
-METRICBEAT_YML_PATH: "/etc/metricbeat/metricbeat.yml"
+metricbeat_yml_path: "/etc/metricbeat/metricbeat.yml"
