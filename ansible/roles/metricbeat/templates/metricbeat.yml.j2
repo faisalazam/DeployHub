@@ -35,13 +35,12 @@ setup.template.settings:
 
 # The tags of the shipper are included in their own field with each
 # transaction published.
-tags: ["tiab", "iab"]
+tags: {{ metricbeat_tags }}
 
 # Optional fields that you can specify to add additional information to the
 # output.
 fields:
-  env: tiab-iab
-
+  env: "{{ metricbeat_env }}"
 
 #============================== Dashboards =====================================
 # These settings control loading the sample dashboards to the Kibana index. Loading
@@ -70,7 +69,7 @@ setup.kibana:
   # Kibana Space ID
   # ID of the Kibana Space into which the dashboards should be loaded. By default,
   # the Default Space will be used.
-  space.id: "octane"
+  space.id: "{{ kibana_space_id }}"
 
 #============================= Elastic Cloud ==================================
 
@@ -90,11 +89,11 @@ setup.kibana:
 # The cloud.id setting overwrites the `output.elasticsearch.hosts` and
 # `setup.kibana.host` options.
 # You can find the `cloud.id` in the Elastic Cloud web UI.
-# cloud.id: "qaloggingmnfgrouplimited:YXAtc291dGhlYXN0LTIuYXdzLmZvdW5kLmlvJDk3NzI4NmI3ZmJiYTRmZWNiOWRmZjY3YjBjYmFiYmYzJGVhNjJkMGJlODM5ZDQ5ODliODdmZjljMzVmY2M0YWEz"
+# cloud.id: "{{ cloud_id }}"
 
 # The cloud.auth setting overwrites the `output.elasticsearch.username` and
 # `output.elasticsearch.password` settings. The format is `<user>:<pass>`.
-# cloud.auth: "logstash-writer:Pow@log3r"
+# cloud.auth: "{{ cloud_auth_user }}:{{ cloud_auth_password }}"
 
 #================================ Outputs =====================================
 
@@ -102,10 +101,10 @@ setup.kibana:
 
 #-------------------------- Elasticsearch output ------------------------------
 output.elasticsearch:
-  hosts: ["elastic.symbio.global:443"]
-  protocol: "https"
-  username: "taas_writer"
-  password: "8n!JkfYEQa"
+  hosts: ["{{ elasticsearch_host }}"]
+  protocol: "{{ elasticsearch_protocol }}"
+  username: "{{ elasticsearch_username }}"
+  password: "{{ elasticsearch_password }}"
 
 #----------------------------- Logstash output --------------------------------
 #output.logstash:
