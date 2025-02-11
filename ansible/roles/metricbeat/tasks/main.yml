@@ -14,7 +14,7 @@
 - name: Import Elastic GPG key
   rpm_key:
     state: present
-    key: https://packages.elastic.co/GPG-KEY-elasticsearch
+    key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
   become: true
 
 - name: Add Elastic repository
