@@ -1,7 +1,6 @@
 ---
 - name: Install and configure Metricbeat
-  hosts: linux_hosts
-  gather_facts: yes
+  hosts: metricbeat_hosts
 
   roles:
     - /ansible/roles/metricbeat
