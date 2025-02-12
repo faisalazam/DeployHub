@@ -17,7 +17,7 @@ metricbeat.config.modules:
   reload.enabled: true
 
   # Period on which files under path should be checked for changes
-  reload.period: 60s
+  reload.period: {{ reload_period}}
 
 #==================== Elasticsearch template setting ==========================
 
@@ -61,8 +61,8 @@ fields:
 setup.kibana:
 
   # Kibana Host
-  # In case you specify and additional path, the scheme is required: http://localhost:5601/path
   # Scheme and port can be left out and will be set to the default (http and 5601)
+  # In case you specify and additional path, the scheme is required: http://localhost:5601/path
   # IPv6 addresses should always be defined as: https://[2001:db8::1]:5601
   #host: "localhost:5601"
 
@@ -105,6 +105,9 @@ output.elasticsearch:
   protocol: "{{ elasticsearch_protocol }}"
   username: "{{ elasticsearch_username }}"
   password: "{{ elasticsearch_password }}"
+  ilm:
+    enabled: false
+    index: otp-logs
 
 #----------------------------- Logstash output --------------------------------
 #output.logstash:
@@ -139,10 +142,9 @@ logging.level: info
 
 logging.to_files: true
 logging.files:
-  #path: C:\apps\metricbeat\logs
-  path: /var/log/metricbeat
-  name: metricbeat.log
-  keepfiles: 2
+  path: {{ metricbeat_log_path }}
+  name: {{ metricbeat_log_name }}
+  keepfiles: {{ metricbeat_log_keepfiles }}
   permissions: 0644
 
 # At debug level, you can selectively enable logging only for some components.
