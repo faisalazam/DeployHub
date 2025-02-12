@@ -6,7 +6,6 @@ ansible_python_interpreter: /usr/bin/python3
 # If you have a private key as .ppk file, you need to convert it to OpenSSH format
 # before using it with Ansible.
 ansible_ssh_private_key_file: /root/.ssh/remote_servers_rsa_pri
-#ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
 
 ####################################   Metricbeat   ####################################
 reload_period: "10s"
@@ -19,7 +18,6 @@ metricbeat_tags: ["tiab", "iab"]
 elasticsearch_protocol: "https"
 elasticsearch_host: "elastic.test.symbio.global:443"
 
-#metricbeat_log_path: "D:\\apps\\Metricbeat\\logs"  # Default for Windows
-metricbeat_log_path: "/var/log/metricbeat"  # Uncomment for Linux
-metricbeat_log_name: "metricbeat.log"
 metricbeat_log_keepfiles: 1
+metricbeat_log_name: "metricbeat.log"
+metricbeat_log_path: "/var/log/metricbeat"
