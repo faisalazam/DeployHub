@@ -51,3 +51,21 @@
 
 - name: Flush handlers to restart Metricbeat immediately if config changed
   meta: flush_handlers
+
+- name: Verify Metricbeat connection to Elasticsearch
+  command: metricbeat test output
+  register: metricbeat_test_output
+  failed_when: false
+  changed_when: false
+  become: true
+
+- name: Fail if Metricbeat connection test fails
+  fail:
+    msg: |
+      Metricbeat failed to connect to Elasticsearch!
+      - Check Metricbeat logs and ensure the service is running.
+      - Verify that the configuration in metricbeat.yml is correct.
+      - Run manually: metricbeat test output
+      - If it's an authentication issue, check the credentials for user [{{ elasticsearch_username }}].
+      - For further debugging, try: curl -u {{ elasticsearch_username }}:'your_password' -X GET {{ elasticsearch_protocol }}://{{ elasticsearch_host }}
+  when: "'error' in metricbeat_test_output.stdout or 'FAIL' in metricbeat_test_output.stdout"
