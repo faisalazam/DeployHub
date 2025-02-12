@@ -1,6 +1,8 @@
 # Defaults have the **the lowest precedence** and can be overridden by extra vars, task vars,
 # role vars, and inventory group/host vars.
 
+reload_period: "60s"
+
 metricbeat_env: ""
 kibana_space_id: ""
 metricbeat_tags: []
@@ -14,3 +16,8 @@ elasticsearch_host:
 elasticsearch_protocol:
 elasticsearch_password:
 elasticsearch_username:
+
+#metricbeat_log_path: "D:\\apps\\Metricbeat\\logs"  # Default for Windows
+metricbeat_log_path: "/var/log/metricbeat"  # Uncomment for Linux
+metricbeat_log_name: "metricbeat.log"
+metricbeat_log_keepfiles: 1
