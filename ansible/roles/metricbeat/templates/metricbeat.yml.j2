@@ -105,9 +105,11 @@ output.elasticsearch:
   protocol: "{{ elasticsearch_protocol }}"
   username: "{{ elasticsearch_username }}"
   password: "{{ elasticsearch_password }}"
+{% if ENVIRONMENT != "prod" %}
   ilm:
     enabled: false
     index: otp-logs
+{% endif %}
 
 #----------------------------- Logstash output --------------------------------
 #output.logstash:
@@ -131,8 +133,10 @@ output.elasticsearch:
 processors:
   - add_host_metadata: ~
   - add_cloud_metadata: ~
+{% if ENVIRONMENT != "prod" %}
   - add_docker_metadata: ~
   - add_kubernetes_metadata: ~
+{% endif %}
 
 #================================ Logging =====================================
 
