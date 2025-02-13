@@ -34,7 +34,7 @@ def extract_ansible_lint_version(result):
 
 # Test for checking ansible version
 def test_ansible_version():
-    expected_version = "core 2.18.1"
+    expected_version = "core 2.18.2"
     check_version(["ansible", "--version"], expected_version)
 
 # Test for checking Python version

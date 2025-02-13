@@ -6,15 +6,8 @@ FROM ubuntu:24.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Define versions for dependencies
-ENV ANSIBLE_VERSION=11.0
-ENV ANSIBLE_CORE_VERSION=2.18.1
 ENV PYTHON_VERSION=3.12
 ENV PYTHON_PIP_VERSION=24.3.1
-ENV PYWINRM_VERSION=0.5.0
-ENV MOLECULE_VERSION=24.12.0
-ENV ANSIBLE_LINT_VERSION=v25.1.2
-ENV PYTEST_VERSION=8.3.4
-ENV PYTEST_TESTINFRA_VERSION=10.1.1
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     sshpass \
@@ -30,13 +23,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN python${PYTHON_VERSION} -m venv /opt/venv
 
 # Upgrade pip and install Ansible and required tools
+COPY docker/ansible_host/requirements.txt /opt/requirements.txt
 RUN /opt/venv/bin/python -m pip install --upgrade pip==${PYTHON_PIP_VERSION} && \
-    /opt/venv/bin/pip install ansible==${ANSIBLE_VERSION} "ansible-core==${ANSIBLE_CORE_VERSION}" \
-    pywinrm==${PYWINRM_VERSION} \
-    "molecule[docker]"==${MOLECULE_VERSION} \
-    ansible-lint==${ANSIBLE_LINT_VERSION} \
-    pytest==${PYTEST_VERSION} \
-    pytest-testinfra==${PYTEST_TESTINFRA_VERSION}
+    /opt/venv/bin/pip install --no-cache-dir -r /opt/requirements.txt
 
 # Verify the installed Ansible version
 RUN /opt/venv/bin/ansible --version
