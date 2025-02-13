@@ -6,6 +6,7 @@ services:
     build:
       context: ../..
       dockerfile: docker/ansible_host/Dockerfile
+#      dockerfile: docker/ansible_host/Dockerfile.old_ansible_and_python
     container_name: ansible
     image: ansible-automation:latest
     volumes:
