@@ -7,20 +7,23 @@ FROM ubuntu:20.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Define versions for dependencies
-ENV PYTHON_VERSION=3.8
-ENV ANSIBLE_VERSION=2.9
+ENV PYTHON_VERSION=3.10
+ENV ANSIBLE_MAX_VERSION=2.14
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    tzdata \
-    sshpass \
-    openssh-client \
-    git \
-    python${PYTHON_VERSION} \
-    python${PYTHON_VERSION}-venv \
-    python${PYTHON_VERSION}-dev \
-    python3-pip \
-    && rm -rf /var/lib/apt/lists/*
+        tzdata \
+        sshpass \
+        openssh-client \
+        git \
+        software-properties-common \
+    && add-apt-repository ppa:deadsnakes/ppa \
+    && apt-get update && apt-get install -y --no-install-recommends \
+        python${PYTHON_VERSION} \
+        python${PYTHON_VERSION}-venv \
+        python${PYTHON_VERSION}-dev \
+        python3-pip \
+        && rm -rf /var/lib/apt/lists/*
 
 # Set timezone
 RUN ln -fs /usr/share/zoneinfo/Australia/Sydney /etc/localtime && \
@@ -31,7 +34,7 @@ RUN python${PYTHON_VERSION} -m venv /opt/venv
 
 # Upgrade pip and install Ansible (compatible with remote Python 3.6)
 RUN /opt/venv/bin/python -m pip install --upgrade pip setuptools wheel \
-    && /opt/venv/bin/pip install ansible==${ANSIBLE_VERSION}
+    && /opt/venv/bin/pip install --index-url https://pypi.org/simple "ansible-core<2.14"
 
 # Set the virtual environment as default
 ENV PATH="/opt/venv/bin:$PATH"
