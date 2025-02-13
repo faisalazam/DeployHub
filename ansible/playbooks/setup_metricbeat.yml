@@ -3,4 +3,4 @@
   hosts: metricbeat_hosts
 
   roles:
-    - /ansible/roles/metricbeat
+    - metricbeat

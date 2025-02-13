@@ -1,48 +1,48 @@
 ---
 - name: Gather OS Facts
-  setup:
+  ansible.builtin.setup:
   become: true
 
 - name: Determine if OS is legacy
-  set_fact:
-    legacy_os: "{{ ansible_distribution_major_version | int < os_legacy_threshold }}"
+  ansible.builtin.set_fact:
+    legacy_os: "{{ ansible_distribution_major_version | int < metricbeat_os_legacy_threshold }}"
 
 - name: Set Metricbeat version based on OS version
-  set_fact:
+  ansible.builtin.set_fact:
     metricbeat_version: "{{ metricbeat_version_legacy if legacy_os else metricbeat_version_modern }}"
 
 - name: Import Elastic GPG key
-  rpm_key:
+  ansible.builtin.rpm_key:
     state: present
     key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
   become: true
 
 - name: Add Elastic repository
-  yum_repository:
+  ansible.builtin.yum_repository:
     name: "elastic-{{ metricbeat_version }}"
     description: "Elastic repository for {{ metricbeat_version }} packages"
     baseurl: "https://artifacts.elastic.co/packages/{{ metricbeat_version }}/yum"
-    gpgcheck: yes
+    gpgcheck: true
     gpgkey: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
-    enabled: yes
+    enabled: true
   become: true
 
 - name: Install Metricbeat
-  yum:
+  ansible.builtin.dnf:
     name: metricbeat
     state: present
   become: true
 
 - name: Backup the existing Metricbeat configuration
-  copy:
+  ansible.builtin.copy:
     src: "{{ metricbeat_yml_path }}"
     dest: "{{ metricbeat_yml_path }}.old"
-    remote_src: yes
+    remote_src: true
     mode: preserve
   become: true
 
 - name: Update Metricbeat configuration (customized config)
-  template:
+  ansible.builtin.template:
     src: metricbeat.yml.j2
     dest: "{{ metricbeat_yml_path }}"
     mode: '0644'
@@ -50,22 +50,23 @@
   become: true
 
 - name: Flush handlers to restart Metricbeat immediately if config changed
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers
 
 - name: Verify Metricbeat connection to Elasticsearch
-  command: metricbeat test output
+  ansible.builtin.command: metricbeat test output
   register: metricbeat_test_output
   failed_when: false
   changed_when: false
   become: true
 
 - name: Fail if Metricbeat connection test fails
-  fail:
+  ansible.builtin.fail:
     msg: |
       Metricbeat failed to connect to Elasticsearch!
       - Check Metricbeat logs and ensure the service is running.
       - Verify that the configuration in metricbeat.yml is correct.
       - Run manually: metricbeat test output
-      - If it's an authentication issue, check the credentials for user [{{ elasticsearch_username }}].
-      - For further debugging, try: curl -u {{ elasticsearch_username }}:'your_password' -X GET {{ elasticsearch_protocol }}://{{ elasticsearch_host }}
+      - If it's an authentication issue, check the credentials for user [{{ metricbeat_elasticsearch_username }}].
+      - For further debugging, try: curl -u {{ metricbeat_elasticsearch_username }}:'your_password'
+        -X GET {{ metricbeat_elasticsearch_protocol }}://{{ metricbeat_elasticsearch_host }}
   when: "'error' in metricbeat_test_output.stdout or 'FAIL' in metricbeat_test_output.stdout"

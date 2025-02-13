@@ -1,4 +1,4 @@
-os_legacy_threshold: 7 # Int value
+metricbeat_os_legacy_threshold: 7 # Int value
 metricbeat_version_legacy: "7.x"
 metricbeat_version_modern: "8.x"
 

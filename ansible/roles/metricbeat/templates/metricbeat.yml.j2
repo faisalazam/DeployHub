@@ -17,7 +17,7 @@ metricbeat.config.modules:
   reload.enabled: true
 
   # Period on which files under path should be checked for changes
-  reload.period: {{ reload_period}}
+  reload.period: {{ metricbeat_reload_period}}
 
 #==================== Elasticsearch template setting ==========================
 
@@ -69,7 +69,7 @@ setup.kibana:
   # Kibana Space ID
   # ID of the Kibana Space into which the dashboards should be loaded. By default,
   # the Default Space will be used.
-  space.id: "{{ kibana_space_id }}"
+  space.id: "{{ metricbeat_kibana_space_id }}"
 
 #============================= Elastic Cloud ==================================
 
@@ -89,11 +89,11 @@ setup.kibana:
 # The cloud.id setting overwrites the `output.elasticsearch.hosts` and
 # `setup.kibana.host` options.
 # You can find the `cloud.id` in the Elastic Cloud web UI.
-# cloud.id: "{{ cloud_id }}"
+# cloud.id: "{{ metricbeat_cloud_id }}"
 
 # The cloud.auth setting overwrites the `output.elasticsearch.username` and
 # `output.elasticsearch.password` settings. The format is `<user>:<pass>`.
-# cloud.auth: "{{ cloud_auth_user }}:{{ cloud_auth_password }}"
+# cloud.auth: "{{ metricbeat_cloud_auth_user }}:{{ metricbeat_cloud_auth_password }}"
 
 #================================ Outputs =====================================
 
@@ -101,10 +101,10 @@ setup.kibana:
 
 #-------------------------- Elasticsearch output ------------------------------
 output.elasticsearch:
-  hosts: ["{{ elasticsearch_host }}"]
-  protocol: "{{ elasticsearch_protocol }}"
-  username: "{{ elasticsearch_username }}"
-  password: "{{ elasticsearch_password }}"
+  hosts: ["{{ metricbeat_elasticsearch_host }}"]
+  protocol: "{{ metricbeat_elasticsearch_protocol }}"
+  username: "{{ metricbeat_elasticsearch_username }}"
+  password: "{{ metricbeat_elasticsearch_password }}"
 {% if ENVIRONMENT != "prod" %}
   ilm:
     enabled: false

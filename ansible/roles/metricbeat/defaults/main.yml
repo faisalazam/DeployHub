@@ -1,23 +1,23 @@
 # Defaults have the **the lowest precedence** and can be overridden by extra vars, task vars,
 # role vars, and inventory group/host vars.
 
-reload_period: "60s"
+metricbeat_reload_period: "60s"
 
 metricbeat_env: ""
-kibana_space_id: ""
+metricbeat_kibana_space_id: ""
 metricbeat_tags: []
 
-cloud_id:
-cloud_auth_user:
-cloud_auth_password:
+metricbeat_cloud_id:
+metricbeat_cloud_auth_user:
+metricbeat_cloud_auth_password:
 
 # Elasticsearch output
-elasticsearch_host:
-elasticsearch_protocol:
-elasticsearch_password:
-elasticsearch_username:
+metricbeat_elasticsearch_host:
+metricbeat_elasticsearch_protocol:
+metricbeat_elasticsearch_password:
+metricbeat_elasticsearch_username:
 
-#metricbeat_log_path: "D:\\apps\\Metricbeat\\logs"  # Default for Windows
+# metricbeat_log_path: "D:\\apps\\Metricbeat\\logs"  # Default for Windows
 metricbeat_log_path: "/var/log/metricbeat"  # Uncomment for Linux
 metricbeat_log_name: "metricbeat.log"
 metricbeat_log_keepfiles: 1
