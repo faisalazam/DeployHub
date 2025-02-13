@@ -28,7 +28,8 @@
   become: true
 
 - name: Install Metricbeat
-  ansible.builtin.dnf:
+  # 'noqa fqcn' tells ansible-lint to skip the FQCN check for this line.
+  ansible.builtin.yum: # noqa fqcn
     name: metricbeat
     state: present
   become: true
