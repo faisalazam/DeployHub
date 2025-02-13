@@ -1,6 +1,8 @@
 
 
 ```shell
+# NOTE: Run the DeployHub/scripts/generate_certificate.sh on the host first, to generate the certs
+
 COMPOSE_PROFILES=test ENVIRONMENT=local docker-compose up -d
 MSYS_NO_PATHCONV=1 docker exec -e RUN_WITH_CERTIFICATE=false -e ENVIRONMENT=local ansible sh /usr/local/bin/setup.sh
 MSYS_NO_PATHCONV=1 docker exec -e RUN_TESTS=true -e ENVIRONMENT=local ansible sh /usr/local/bin/run_tests.sh
