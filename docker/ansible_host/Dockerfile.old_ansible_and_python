@@ -1,0 +1,46 @@
+# Use official Ubuntu 20.04 as the base image
+# docker build -f ./Dockerfile.old_ansible_and_python -t ansible-automation ../..
+# This setup is compatible if the remote machine has old python like 3.6.x.
+FROM ubuntu:20.04
+
+# Set environment variable to prevent interactive prompts
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Define versions for dependencies
+ENV PYTHON_VERSION=3.8
+ENV ANSIBLE_VERSION=2.9
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    tzdata \
+    sshpass \
+    openssh-client \
+    git \
+    python${PYTHON_VERSION} \
+    python${PYTHON_VERSION}-venv \
+    python${PYTHON_VERSION}-dev \
+    python3-pip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set timezone
+RUN ln -fs /usr/share/zoneinfo/Australia/Sydney /etc/localtime && \
+    dpkg-reconfigure -f noninteractive tzdata
+
+# Create a virtual environment
+RUN python${PYTHON_VERSION} -m venv /opt/venv
+
+# Upgrade pip and install Ansible (compatible with remote Python 3.6)
+RUN /opt/venv/bin/python -m pip install --upgrade pip setuptools wheel \
+    && /opt/venv/bin/pip install ansible==${ANSIBLE_VERSION}
+
+# Set the virtual environment as default
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Set the default command to keep the container running
+CMD [ \
+    "/bin/sh", "-c", \
+    "python3 --version && \
+    ansible --version && \
+    ansible-playbook --version && \
+    tail -f /dev/null" \
+]
