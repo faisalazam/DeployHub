@@ -18,6 +18,6 @@ metricbeat_tags: ["tiab", "iab"]
 metricbeat_elasticsearch_protocol: "https"
 metricbeat_elasticsearch_host: "elastic.symbio.global:443"
 
-metricbeat_log_keepfiles: 1
+metricbeat_log_keepfiles: 2
 metricbeat_log_name: "metricbeat.log"
 metricbeat_log_path: "/var/log/metricbeat"
