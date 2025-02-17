@@ -17,8 +17,10 @@ metricbeat_elasticsearch_host:
 metricbeat_elasticsearch_protocol:
 metricbeat_elasticsearch_password:
 metricbeat_elasticsearch_username:
-
 # metricbeat_log_path: "D:\\apps\\Metricbeat\\logs"  # Default for Windows
+
 metricbeat_log_path: "/var/log/metricbeat"  # Uncomment for Linux
 metricbeat_log_name: "metricbeat.log"
 metricbeat_log_keepfiles: 1
+
+metricbeat_setup_docker: false

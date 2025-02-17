@@ -57,6 +57,7 @@
     mode: '0644'
   notify: Restart Metricbeat
   become: true
+  when: metricbeat_setup_docker | bool
 
 - name: Flush handlers to restart Metricbeat immediately if config changed
   ansible.builtin.meta: flush_handlers
