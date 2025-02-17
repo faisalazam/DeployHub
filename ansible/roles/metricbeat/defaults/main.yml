@@ -6,6 +6,7 @@ metricbeat_reload_period: "60s"
 metricbeat_env: ""
 metricbeat_kibana_space_id: ""
 metricbeat_tags: []
+metricbeat_server_name: "{{ inventory_hostname }}-metricbeat"
 
 metricbeat_cloud_id:
 metricbeat_cloud_auth_user:

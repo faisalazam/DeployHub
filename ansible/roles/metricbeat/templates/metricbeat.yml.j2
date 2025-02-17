@@ -30,8 +30,7 @@ setup.template.settings:
 
 # The name of the shipper that publishes the network data. It can be used to group
 # all the transactions sent by a single shipper in the web interface.
-#name: "octane-mintwso2db-metricbeat"
-#name: "octane-tmelb-metricbeat"
+name: {{ metricbeat_server_name }}
 
 # The tags of the shipper are included in their own field with each
 # transaction published.
@@ -105,11 +104,6 @@ output.elasticsearch:
   protocol: "{{ metricbeat_elasticsearch_protocol }}"
   username: "{{ metricbeat_elasticsearch_username }}"
   password: "{{ metricbeat_elasticsearch_password }}"
-{% if ENVIRONMENT != "prod" %}
-  ilm:
-    enabled: false
-    index: otp-logs
-{% endif %}
 
 #----------------------------- Logstash output --------------------------------
 #output.logstash:
