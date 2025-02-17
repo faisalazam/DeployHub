@@ -50,6 +50,14 @@
   notify: Restart Metricbeat
   become: true
 
+- name: Update Metricbeat Docker configuration (customized config)
+  ansible.builtin.template:
+    src: docker.yml.j2
+    dest: "{{ metricbeat_docker_yml_path }}"
+    mode: '0644'
+  notify: Restart Metricbeat
+  become: true
+
 - name: Flush handlers to restart Metricbeat immediately if config changed
   ansible.builtin.meta: flush_handlers
 

@@ -3,3 +3,4 @@ metricbeat_version_legacy: "7.x"
 metricbeat_version_modern: "8.x"
 
 metricbeat_yml_path: "/etc/metricbeat/metricbeat.yml"
+metricbeat_docker_yml_path: "/etc/metricbeat/modules.d/docker.yml"
