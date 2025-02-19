@@ -1,1 +1,8 @@
-# Placeholder for windows_hosts.yml
+ansible_port: 5985
+ansible_connection: winrm
+ansible_winrm_scheme: http
+ansible_user: 'ADD_YOUR_USERNAME_HERE'
+# TODO: Store me in Vault
+ansible_password: "ADD_YOUR_PASSWORD_HERE"
+ansible_winrm_transport: ntlm
+ansible_winrm_server_cert_validation: ignore

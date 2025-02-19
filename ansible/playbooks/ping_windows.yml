@@ -1,0 +1,11 @@
+---
+- name: Deploy to Windows host
+  hosts: windows_hosts
+
+  tasks:
+    - name: Print available hosts
+      ansible.builtin.debug:
+        msg: "Available hosts: {{ ansible_play_hosts }}"
+
+    - name: Ping the Windows machine
+      win_ping:
