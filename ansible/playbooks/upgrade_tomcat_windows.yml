@@ -1,0 +1,6 @@
+---
+- name: Upgrade Tomcat
+  hosts: windows_hosts
+
+  roles:
+    - upgrade_tomcat

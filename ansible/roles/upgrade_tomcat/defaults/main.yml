@@ -1,0 +1,7 @@
+# Defaults have the **the lowest precedence** and can be overridden by extra vars, task vars,
+# role vars, and inventory group/host vars.
+
+upgrade_tomcat_tomcatInstallationDrive: "C:"
+upgrade_tomcat_utility_src_path: /usr/local/bin
+upgrade_tomcat_zip_filename: apache-tomcat-9.0.98-windows-x64.zip
+upgrade_tomcat_utility_destination_path: C:\tomcat-upgrade-utility

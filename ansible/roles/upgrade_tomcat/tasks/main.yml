@@ -1,0 +1,34 @@
+---
+- name: Gather OS Facts
+  ansible.builtin.setup:
+  become: true
+
+- name: Delete destination directory if exists
+  ansible.windows.win_file:
+    path: "{{ upgrade_tomcat_utility_destination_path }}"
+    state: absent
+
+- name: Copy all PowerShell scripts
+  ansible.windows.win_copy:
+    src: "{{ item }}"
+    dest: "{{ upgrade_tomcat_utility_destination_path }}\\"
+  with_fileglob:
+    - "{{ upgrade_tomcat_utility_src_path }}/*.ps1"
+
+- name: Copy Tomcat ZIP
+  ansible.windows.win_copy:
+    src: "{{ upgrade_tomcat_utility_src_path }}/{{ upgrade_tomcat_zip_filename }}"
+    dest: "{{ upgrade_tomcat_utility_destination_path }}\\"
+
+#- name: Extract Tomcat ZIP file
+#  community.windows.win_unzip:
+#    src: "{{ upgrade_tomcat_utility_destination_path }}\\{{ upgrade_tomcat_zip_filename }}"
+#    dest: "{{ upgrade_tomcat_utility_destination_path }}\\tomcat"
+#    remote_src: yes
+
+- name: Run the PowerShell script
+  ansible.windows.win_shell: |
+    cd "{{ upgrade_tomcat_utility_destination_path }}"
+    powershell.exe -ExecutionPolicy Bypass -File "prepare_tomcat_upgrade.ps1" `
+      -tomcatInstallationDrive {{ upgrade_tomcat_tomcatInstallationDrive }} `
+      -tomcatZipPath ".\\{{ upgrade_tomcat_zip_filename }}"
