@@ -3,6 +3,20 @@
   ansible.builtin.setup:
   become: true
 
+- name: Find matching APM agent JAR files
+  ansible.windows.win_find:
+    paths: "{{ prepare_tomcat_upgrade_tomcat_installation_drive }}\\tomcat\\srva\\lib\\elastic"
+    patterns: elastic-apm-agent-*.jar
+  register: found_files
+
+- name: Fail if there is more than one matching file
+  ansible.builtin.fail:
+    msg: >-
+      Multiple elastic-apm-agent-*.jar files found:
+      {{ found_files.files | map(attribute='path') | list }}.
+      Please delete the ones that are not required and keep only one.
+  when: found_files.matched | int > 1
+
 - name: Delete destination directory if exists
   ansible.windows.win_file:
     path: "{{ prepare_tomcat_upgrade_utility_destination_path }}"
