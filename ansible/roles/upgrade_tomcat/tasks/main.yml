@@ -8,16 +8,14 @@
     path: "{{ upgrade_tomcat_utility_destination_path }}"
     state: absent
 
-- name: Copy all PowerShell scripts
+- name: Copy scripts
   ansible.windows.win_copy:
-    src: "{{ item }}"
+    src: "{{ upgrade_tomcat_utility_scripts_path }}/"
     dest: "{{ upgrade_tomcat_utility_destination_path }}\\"
-  with_fileglob:
-    - "{{ upgrade_tomcat_utility_src_path }}/*.ps1"
 
 - name: Copy Tomcat ZIP
   ansible.windows.win_copy:
-    src: "{{ upgrade_tomcat_utility_src_path }}/{{ upgrade_tomcat_zip_filename }}"
+    src: "{{ upgrade_tomcat_utility_downloads_path }}/{{ upgrade_tomcat_zip_filename }}"
     dest: "{{ upgrade_tomcat_utility_destination_path }}\\"
 
 #- name: Extract Tomcat ZIP file

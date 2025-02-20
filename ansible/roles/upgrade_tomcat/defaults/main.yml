@@ -4,4 +4,5 @@
 upgrade_tomcat_tomcatInstallationDrive: "C:"
 upgrade_tomcat_zip_filename: apache-tomcat-9.0.98-windows-x64.zip
 upgrade_tomcat_utility_destination_path: C:\tomcat-upgrade-utility
-upgrade_tomcat_utility_src_path: /ansible/roles/upgrade_tomcat/scripts
+upgrade_tomcat_utility_scripts_path: /ansible/roles/upgrade_tomcat/scripts
+upgrade_tomcat_utility_downloads_path: /ansible/roles/upgrade_tomcat/downloads
