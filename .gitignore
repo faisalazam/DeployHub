@@ -12,7 +12,7 @@
 *.retry
 *.yml~
 *.ansible-lint
-/ansible/roles/upgrade_tomcat/downloads/
+/ansible/roles/prepare_tomcat_upgrade/downloads/
 
 # Ignore Docker-related files
 .docker/

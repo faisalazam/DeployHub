@@ -3,4 +3,4 @@
   hosts: tomcat_windows_hosts
 
   roles:
-    - upgrade_tomcat
+    - prepare_tomcat_upgrade
