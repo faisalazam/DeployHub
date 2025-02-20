@@ -48,12 +48,32 @@
     path: "{{ upgrade_tomcat_utility_destination_path }}\\logs"
     state: directory
 
+- name: Define log file path
+  set_fact:
+    upgrade_tomcat_utility_log_path: "{{ upgrade_tomcat_utility_destination_path }}\\logs\\{{ ansible_hostname }}.log"
+
 - name: Run the PowerShell script and log output
   ansible.windows.win_shell: |
     powershell.exe -ExecutionPolicy Bypass -File "prepare_tomcat_upgrade.ps1" `
       -upgradedServiceName "{{ upgraded_service_name }}" `
       -tomcatZipPath "{{ upgrade_tomcat_zip_filename }}" `
       -tomcatInstallationDrive "{{ upgrade_tomcat_tomcatInstallationDrive }}" `
-      *> "logs\\{{ ansible_hostname }}.log" 2>&1
+      *> "{{ upgrade_tomcat_utility_log_path }}" 2>&1
   args:
     chdir: "{{ upgrade_tomcat_utility_destination_path }}"
+
+- name: Scan log file for WARN or ERROR messages
+  ansible.windows.win_shell: |
+    Select-String -Path "{{ upgrade_tomcat_utility_log_path }}" -Pattern "WARN|ERROR"
+  register: log_check
+  changed_when: false
+
+- name: Display warning if the log contains WARN messages
+  debug:
+    msg: "⚠️ WARNING detected in logs: {{ upgrade_tomcat_utility_log_path }}. Please review."
+  when: '"WARN" in log_check.stdout'
+
+- name: Fail the playbook if ERROR is found in the log
+  fail:
+    msg: "❌ ERROR found in logs: {{ upgrade_tomcat_utility_log_path }}. Playbook execution stopped!"
+  when: '"ERROR" in log_check.stdout'
