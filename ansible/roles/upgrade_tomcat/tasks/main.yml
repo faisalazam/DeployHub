@@ -43,10 +43,17 @@
   set_fact:
     upgraded_service_name: "TOMCAT_{{ extracted_version }}_{{ tomcat_architecture }}_SRVA"
 
-- name: Run the PowerShell script
+- name: Ensure logs directory exists
+  ansible.windows.win_file:
+    path: "{{ upgrade_tomcat_utility_destination_path }}\\logs"
+    state: directory
+
+- name: Run the PowerShell script and log output
   ansible.windows.win_shell: |
-    cd "{{ upgrade_tomcat_utility_destination_path }}"
     powershell.exe -ExecutionPolicy Bypass -File "prepare_tomcat_upgrade.ps1" `
       -upgradedServiceName "{{ upgraded_service_name }}" `
-      -tomcatZipPath ".\\{{ upgrade_tomcat_zip_filename }}" `
-      -tomcatInstallationDrive {{ upgrade_tomcat_tomcatInstallationDrive }}
+      -tomcatZipPath "{{ upgrade_tomcat_zip_filename }}" `
+      -tomcatInstallationDrive "{{ upgrade_tomcat_tomcatInstallationDrive }}" `
+      *> "logs\\{{ ansible_hostname }}.log" 2>&1
+  args:
+    chdir: "{{ upgrade_tomcat_utility_destination_path }}"
