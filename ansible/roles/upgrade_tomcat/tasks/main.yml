@@ -26,9 +26,29 @@
 #    dest: "{{ upgrade_tomcat_utility_destination_path }}\\tomcat"
 #    remote_src: yes
 
+- name: Extract Tomcat version from filename
+  set_fact:
+    extracted_version: "{{ upgrade_tomcat_zip_filename | regex_search('(\\d+(\\.\\d+)+)') | replace('.', '_') }}"
+
+- name: Determine Tomcat architecture
+  set_fact:
+    tomcat_architecture: >-
+      {%- if 'x86' in upgrade_tomcat_zip_filename -%}
+      32
+      {%- elif 'x64' in upgrade_tomcat_zip_filename -%}
+      64
+      {%- else -%}
+      UNKNOWN
+      {%- endif -%}
+
+- name: Construct the version-specific Upgraded Service Name
+  set_fact:
+    upgraded_service_name: "TOMCAT_{{ extracted_version }}_{{ tomcat_architecture }}_SRVA"
+
 - name: Run the PowerShell script
   ansible.windows.win_shell: |
     cd "{{ upgrade_tomcat_utility_destination_path }}"
     powershell.exe -ExecutionPolicy Bypass -File "prepare_tomcat_upgrade.ps1" `
-      -tomcatInstallationDrive {{ upgrade_tomcat_tomcatInstallationDrive }} `
-      -tomcatZipPath ".\\{{ upgrade_tomcat_zip_filename }}"
+      -upgradedServiceName "{{ upgraded_service_name }}" `
+      -tomcatZipPath ".\\{{ upgrade_tomcat_zip_filename }}" `
+      -tomcatInstallationDrive {{ upgrade_tomcat_tomcatInstallationDrive }}
