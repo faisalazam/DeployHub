@@ -8,4 +8,4 @@
         msg: "Available hosts: {{ ansible_play_hosts }}"
 
     - name: Ping the Windows machine
-      win_ping:
+      ansible.windows.win_ping:

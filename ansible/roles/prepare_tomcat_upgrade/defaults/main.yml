@@ -1,7 +1,7 @@
 # Defaults have the **the lowest precedence** and can be overridden by extra vars, task vars,
 # role vars, and inventory group/host vars.
 
-prepare_tomcat_upgrade_tomcatInstallationDrive: "C:"
+prepare_tomcat_upgrade_tomcat_installation_drive: "C:"
 prepare_tomcat_upgrade_zip_filename: apache-tomcat-9.0.98-windows-x64.zip
 prepare_tomcat_upgrade_utility_destination_path: C:\tomcat-upgrade-utility
 prepare_tomcat_upgrade_utility_scripts_path: /ansible/roles/prepare_tomcat_upgrade/scripts
