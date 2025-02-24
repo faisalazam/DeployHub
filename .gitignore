@@ -12,6 +12,7 @@
 *.retry
 *.yml~
 *.ansible-lint
+/ansible/vault_pass.txt
 /ansible/roles/prepare_tomcat_upgrade/downloads/
 
 # Ignore Docker-related files
