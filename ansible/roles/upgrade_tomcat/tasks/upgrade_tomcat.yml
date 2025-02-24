@@ -3,6 +3,10 @@
   ansible.builtin.setup:
   become: true
 
+- name: Extract Tomcat version from filename
+  ansible.builtin.set_fact:
+    extracted_version: "{{ upgrade_tomcat_zip_filename | regex_search('(\\d+(\\.\\d+)+)') | replace('.', '_') }}"
+
 - name: Determine Tomcat architecture
   ansible.builtin.set_fact:
     tomcat_architecture: >-
