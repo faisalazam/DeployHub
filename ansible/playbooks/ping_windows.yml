@@ -1,11 +1,17 @@
 ---
-- name: Deploy to Windows host
-  hosts: windows_hosts
+- name: Ping Windows and Linux hosts
+  hosts: all
+  gather_facts: yes  # Required to detect OS type
 
   tasks:
     - name: Print available hosts
       ansible.builtin.debug:
         msg: "Available hosts: {{ ansible_play_hosts }}"
 
-    - name: Ping the Windows machine
+    - name: Ping Windows hosts
       ansible.windows.win_ping:
+      when: ansible_os_family == "Windows"
+
+    - name: Ping Linux hosts
+      ansible.builtin.ping:
+      when: ansible_os_family != "Windows"
