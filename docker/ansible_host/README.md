@@ -24,6 +24,8 @@ ssh -i /root/.ssh/remote_servers_rsa_pri muhammad.faisal@192.168.181.20
 cat /etc/os-release
 cat /etc/centos-release
 
+. /opt/venv/bin/activate
+
 # host.hostname:"oau-tf-test-web1"
 
 # For sudo password, add --ask-become-pass
@@ -42,10 +44,40 @@ ansible all -i 192.168.181.20, -m setup -u muhammad.faisal -e ansible_ssh_privat
 ansible all -i 192.168.181.20, -m ping -u muhammad.faisal -e ansible_ssh_private_key_file=~/.ssh/remote_servers_rsa_pri -e 'ansible_python_interpreter=/usr/bin/python3'
 ansible all -i /ansible/inventory/"${ENVIRONMENT}"/hosts.yml -m ping -u muhammad.faisal -e ansible_ssh_private_key_file=~/.ssh/remote_servers_rsa_pri -e 'ansible_python_interpreter=/usr/bin/python3'
 
+
+ansible-vault encrypt /ansible/inventory/test/group_vars/metricbeat_hosts/vault.yml --vault-password-file /ansible/vault_pass.txt
+ansible-vault decrypt /ansible/inventory/test/group_vars/metricbeat_hosts/vault.yml --vault-password-file /ansible/vault_pass.txt
+
+ansible-vault encrypt /ansible/inventory/prod/group_vars/metricbeat_hosts/vault.yml --vault-password-file /ansible/vault_pass.txt
+ansible-vault decrypt /ansible/inventory/prod/group_vars/metricbeat_hosts/vault.yml --vault-password-file /ansible/vault_pass.txt
+
 ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook \
     -i /ansible/inventory/"${ENVIRONMENT}"/hosts.yml \
     /ansible/playbooks/setup_metricbeat.yml \
-    -e ENVIRONMENT="${ENVIRONMENT}"
+    -e ENVIRONMENT="${ENVIRONMENT}" \
+    --vault-password-file /ansible/vault_pass.txt
+#    --ask-vault-pass
+
+ansible-playbook \
+    -i /ansible/inventory/"${ENVIRONMENT}"/hosts.yml \
+    /ansible/playbooks/ping.yml \
+    -e ENVIRONMENT="${ENVIRONMENT}" \
+    --vault-password-file /ansible/vault_pass.txt
+#    --ask-vault-pass
+
+ansible-playbook \
+    -i /ansible/inventory/"${ENVIRONMENT}"/hosts.yml \
+    /ansible/playbooks/connectivity.yml \
+    -e ENVIRONMENT="${ENVIRONMENT}" \
+    --vault-password-file /ansible/vault_pass.txt
+#    --ask-vault-pass
+
+ansible-playbook \
+    -i /ansible/inventory/"${ENVIRONMENT}"/hosts.yml \
+    /ansible/playbooks/upgrade_tomcat_windows.yml \
+    -e ENVIRONMENT="${ENVIRONMENT}" \
+    --vault-password-file /ansible/vault_pass.txt
+#    --ask-vault-pass
 ```
 
 If your remote machines are not compatible with the latest ansible and python versions,
