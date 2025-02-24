@@ -1,0 +1,31 @@
+---
+- name: Test Connectivity to Windows and Linux hosts
+  hosts: all
+  gather_facts: yes  # Required to detect OS type
+
+  tasks:
+    - name: Print available hosts
+      ansible.builtin.debug:
+        msg: "Available hosts: {{ ansible_play_hosts }}"
+
+    - name: Check if WinRM is working (Windows hosts)
+      ansible.windows.win_shell: whoami
+      when: ansible_os_family == "Windows"
+      register: win_whoami
+      changed_when: false
+
+    - name: Debug Windows user
+      ansible.builtin.debug:
+        msg: "Connected as {{ win_whoami.stdout }}"
+      when: ansible_os_family == "Windows"
+
+    - name: Check if SSH is working (Linux hosts)
+      ansible.builtin.command: whoami
+      when: ansible_os_family != "Windows"
+      register: linux_whoami
+      changed_when: false
+
+    - name: Debug Linux user
+      ansible.builtin.debug:
+        msg: "Connected as {{ linux_whoami.stdout }}"
+      when: ansible_os_family != "Windows"
