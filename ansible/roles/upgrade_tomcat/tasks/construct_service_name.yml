@@ -1,0 +1,14 @@
+- name: Extract Tomcat version from filename
+  ansible.builtin.set_fact:
+    extracted_version: "{{ upgrade_tomcat_zip_filename | regex_search('(\\d+(\\.\\d+)+)') | replace('.', '_') }}"
+
+- name: Determine Tomcat architecture
+  ansible.builtin.set_fact:
+    tomcat_architecture: >-
+      {%- if 'x86' in upgrade_tomcat_zip_filename -%}32
+      {%- elif 'x64' in upgrade_tomcat_zip_filename -%}64
+      {%- else -%}UNKNOWN{%- endif -%}
+
+- name: Construct the version-specific Upgraded Service Name
+  ansible.builtin.set_fact:
+    upgraded_service_name: "TOMCAT_{{ extracted_version }}_{{ tomcat_architecture }}_SRVA"
