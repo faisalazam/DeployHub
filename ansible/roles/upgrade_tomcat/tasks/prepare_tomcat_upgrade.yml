@@ -5,7 +5,7 @@
 
 - name: Find matching APM agent JAR files
   ansible.windows.win_find:
-    paths: "{{ prepare_tomcat_upgrade_tomcat_installation_drive }}\\tomcat\\srva\\lib\\elastic"
+    paths: "{{ upgrade_tomcat_tomcat_installation_drive }}\\tomcat\\srva\\lib\\elastic"
     patterns: elastic-apm-agent-*.jar
   register: found_files
 
@@ -19,28 +19,28 @@
 
 - name: Delete destination directory if exists
   ansible.windows.win_file:
-    path: "{{ prepare_tomcat_upgrade_utility_destination_path }}"
+    path: "{{ upgrade_tomcat_utility_destination_path }}"
     state: absent
 
 - name: Copy scripts
   ansible.windows.win_copy:
-    src: "{{ prepare_tomcat_upgrade_utility_scripts_path }}/"
-    dest: "{{ prepare_tomcat_upgrade_utility_destination_path }}\\"
+    src: "{{ upgrade_tomcat_utility_scripts_path }}/"
+    dest: "{{ upgrade_tomcat_utility_destination_path }}\\"
 
 - name: Copy Tomcat ZIP
   ansible.windows.win_copy:
-    src: "{{ prepare_tomcat_upgrade_utility_downloads_path }}/{{ prepare_tomcat_upgrade_zip_filename }}"
-    dest: "{{ prepare_tomcat_upgrade_utility_destination_path }}\\"
+    src: "{{ upgrade_tomcat_utility_downloads_path }}/{{ upgrade_tomcat_zip_filename }}"
+    dest: "{{ upgrade_tomcat_utility_destination_path }}\\"
 
 - name: Extract Tomcat version from filename
   ansible.builtin.set_fact:
-    extracted_version: "{{ prepare_tomcat_upgrade_zip_filename | regex_search('(\\d+(\\.\\d+)+)') | replace('.', '_') }}"
+    extracted_version: "{{ upgrade_tomcat_zip_filename | regex_search('(\\d+(\\.\\d+)+)') | replace('.', '_') }}"
 
 - name: Determine Tomcat architecture
   ansible.builtin.set_fact:
     tomcat_architecture: >-
-      {%- if 'x86' in prepare_tomcat_upgrade_zip_filename -%}32
-      {%- elif 'x64' in prepare_tomcat_upgrade_zip_filename -%}64
+      {%- if 'x86' in upgrade_tomcat_zip_filename -%}32
+      {%- elif 'x64' in upgrade_tomcat_zip_filename -%}64
       {%- else -%}UNKNOWN{%- endif -%}
 
 - name: Construct the version-specific Upgraded Service Name
@@ -49,35 +49,35 @@
 
 - name: Ensure logs directory exists
   ansible.windows.win_file:
-    path: "{{ prepare_tomcat_upgrade_utility_destination_path }}\\logs"
+    path: "{{ upgrade_tomcat_utility_destination_path }}\\logs"
     state: directory
 
 - name: Define log file path
   ansible.builtin.set_fact:
-    prepare_tomcat_upgrade_utility_log_path: "{{ prepare_tomcat_upgrade_utility_destination_path }}\\logs\\{{ ansible_hostname }}.log"
+    upgrade_tomcat_utility_log_path: "{{ upgrade_tomcat_utility_destination_path }}\\logs\\{{ ansible_hostname }}.log"
 
 - name: Run the PowerShell script and log output
   ansible.windows.win_shell: |
     powershell.exe -ExecutionPolicy Bypass -File "prepare_tomcat_upgrade.ps1" `
       -upgradedServiceName "{{ upgraded_service_name }}" `
-      -tomcatZipPath "{{ prepare_tomcat_upgrade_zip_filename }}" `
-      -tomcatInstallationDrive "{{ prepare_tomcat_upgrade_tomcat_installation_drive }}" `
-      *> "{{ prepare_tomcat_upgrade_utility_log_path }}" 2>&1
+      -tomcatZipPath "{{ upgrade_tomcat_zip_filename }}" `
+      -tomcatInstallationDrive "{{ upgrade_tomcat_tomcat_installation_drive }}" `
+      *> "{{ upgrade_tomcat_utility_log_path }}" 2>&1
   args:
-    chdir: "{{ prepare_tomcat_upgrade_utility_destination_path }}"
+    chdir: "{{ upgrade_tomcat_utility_destination_path }}"
 
 - name: Scan log file for WARN or ERROR messages
   ansible.windows.win_shell: |
-    Select-String -Path "{{ prepare_tomcat_upgrade_utility_log_path }}" -Pattern "WARN|ERROR"
+    Select-String -Path "{{ upgrade_tomcat_utility_log_path }}" -Pattern "WARN|ERROR"
   register: log_check
   changed_when: false
 
 - name: Display warning if the log contains WARN messages
   ansible.builtin.debug:
-    msg: "⚠️ WARNING detected in logs: {{ prepare_tomcat_upgrade_utility_log_path }}. Please review."
+    msg: "⚠️ WARNING detected in logs: {{ upgrade_tomcat_utility_log_path }}. Please review."
   when: '"WARN" in log_check.stdout'
 
 - name: Fail the playbook if ERROR is found in the log
   ansible.builtin.fail:
-    msg: "❌ ERROR found in logs: {{ prepare_tomcat_upgrade_utility_log_path }}. Playbook execution stopped!"
+    msg: "❌ ERROR found in logs: {{ upgrade_tomcat_utility_log_path }}. Playbook execution stopped!"
   when: '"ERROR" in log_check.stdout'

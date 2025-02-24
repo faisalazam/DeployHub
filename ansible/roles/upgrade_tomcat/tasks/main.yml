@@ -1,7 +1,7 @@
 - name: Prepare Tomcat upgrade
   ansible.builtin.include_tasks: prepare_tomcat_upgrade.yml
-  when: prepare_tomcat_upgrade_upgrade_step == "prepare"
+  when: upgrade_tomcat_upgrade_step == "prepare"
 
 - name: Perform Tomcat upgrade
   ansible.builtin.include_tasks: upgrade_tomcat.yml
-  when: prepare_tomcat_upgrade_upgrade_step == "upgrade"
+  when: upgrade_tomcat_upgrade_step == "upgrade"

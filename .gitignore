@@ -13,7 +13,7 @@
 *.yml~
 *.ansible-lint
 /ansible/vault_pass.txt
-/ansible/roles/prepare_tomcat_upgrade/downloads/
+/ansible/roles/upgrade_tomcat/downloads/
 
 # Ignore Docker-related files
 .docker/

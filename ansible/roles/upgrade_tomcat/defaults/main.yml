@@ -1,23 +1,19 @@
 # Defaults have the **the lowest precedence** and can be overridden by extra vars, task vars,
 # role vars, and inventory group/host vars.
 
-prepare_tomcat_upgrade_upgrade_step: "prepare"
-prepare_tomcat_upgrade_tomcat_installation_drive: "C:"
-prepare_tomcat_upgrade_zip_filename: apache-tomcat-9.0.98-windows-x64.zip
-prepare_tomcat_upgrade_utility_destination_path: C:\tomcat-upgrade-utility
-prepare_tomcat_upgrade_utility_scripts_path: /ansible/roles/prepare_tomcat_upgrade/scripts
-prepare_tomcat_upgrade_utility_downloads_path: /ansible/roles/prepare_tomcat_upgrade/downloads
-
+upgrade_tomcat_upgrade_step: "prepare"
+upgrade_tomcat_tomcat_installation_drive: "C:"
+upgrade_tomcat_zip_filename: apache-tomcat-9.0.98-windows-x64.zip
 upgrade_tomcat_utility_destination_path: C:\tomcat-upgrade-utility
 upgrade_tomcat_utility_scripts_path: /ansible/roles/upgrade_tomcat/scripts
+upgrade_tomcat_utility_downloads_path: /ansible/roles/upgrade_tomcat/downloads
 
 upgrade_tomcat_service_to_uninstall:
 upgrade_tomcat_current_service_to_upgrade:
 
 upgrade_tomcat_max_memory_pool: "4096"
 upgrade_tomcat_initial_memory_pool: "256"
-upgrade_tomcat_tomcat_installation_drive: "C:"
-upgrade_tomcat_jvm_dll_path: "C:\java\jre8.0.412-x64zulu\bin\server\jvm.dll"
+upgrade_tomcat_jvm_dll_path: 'C:\java\jre8.0.412-x64zulu\bin\server\jvm.dll'
 
 upgrade_tomcat_log_on_username:
 upgrade_tomcat_log_on_password:

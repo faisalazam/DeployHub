@@ -76,7 +76,7 @@ ansible-playbook \
     -i /ansible/inventory/"${ENVIRONMENT}"/hosts.yml \
     /ansible/playbooks/upgrade_tomcat_windows.yml \
     -e ENVIRONMENT="${ENVIRONMENT}" \
-    -e prepare_tomcat_upgrade_upgrade_step="prepare" \
+    -e upgrade_tomcat_upgrade_step="prepare" \
     --vault-password-file /ansible/vault_pass.txt
 #    --ask-vault-pass
 
@@ -84,7 +84,7 @@ ansible-playbook \
     -i /ansible/inventory/"${ENVIRONMENT}"/hosts.yml \
     /ansible/playbooks/upgrade_tomcat_windows.yml \
     -e ENVIRONMENT="${ENVIRONMENT}" \
-    -e prepare_tomcat_upgrade_upgrade_step="upgrade" \
+    -e upgrade_tomcat_upgrade_step="upgrade" \
     --vault-password-file /ansible/vault_pass.txt
 #    --ask-vault-pass
 ```
