@@ -10,13 +10,15 @@ ansible_ssh_private_key_file: /root/.ssh/remote_servers_rsa_pri
 ####################################   Metricbeat   ####################################
 metricbeat_reload_period: "10s"
 
-metricbeat_kibana_space_id: "octane"
 metricbeat_env: "tiab-iab"
 metricbeat_tags: ["tiab", "iab"]
+metricbeat_kibana_space_id: "octane"
 
 # Elasticsearch output
 metricbeat_elasticsearch_protocol: "https"
+metricbeat_elasticsearch_username: "taas_writer"
 metricbeat_elasticsearch_host: "elastic.symbio.global:443"
+metricbeat_elasticsearch_password: "{{ vault_metricbeat_elasticsearch_password }}"
 
 metricbeat_log_keepfiles: 2
 metricbeat_log_name: "metricbeat.log"
