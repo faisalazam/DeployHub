@@ -19,6 +19,7 @@ param(
     [SecureString]$tomcatLogOnPassword
 )
 
+Write-Host "Current Directory: $(Get-Location)"
 Write-Host "upgradedServiceName: $upgradedServiceName"
 Write-Host "currentServiceToUpgrade: $currentServiceToUpgrade"
 Write-Host "tomcatInstallationDrive: $tomcatInstallationDrive"

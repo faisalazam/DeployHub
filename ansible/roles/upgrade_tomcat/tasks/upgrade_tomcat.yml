@@ -31,6 +31,8 @@
   ansible.windows.win_powershell:
     script: "{{ lookup('file', 'scripts/temp.ps1') }}"
     parameters: "{{ common_params }}"
+  args:
+    chdir: "{{ upgrade_tomcat_utility_destination_path }}"
   when: not upgrade_tomcat_setup_log_on_creds
   register: ps_output_without_creds
 
@@ -46,6 +48,8 @@
     sensitive_parameters:
       - name: tomcatLogOnPassword
         value: "{{ upgrade_tomcat_log_on_password }}"
+  args:
+    chdir: "{{ upgrade_tomcat_utility_destination_path }}"
   when: upgrade_tomcat_setup_log_on_creds
   register: ps_output_with_creds
 
