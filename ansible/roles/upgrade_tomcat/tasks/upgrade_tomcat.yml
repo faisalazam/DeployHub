@@ -62,18 +62,5 @@
       }}
     dest: "{{ upgrade_tomcat_utility_log_path }}"
 
-- name: Scan log file for WARN or ERROR messages
-  ansible.windows.win_shell: |
-    Select-String -Path "{{ upgrade_tomcat_utility_log_path }}" -Pattern "WARN|ERROR"
-  register: log_check
-  changed_when: false
-
-- name: Display warning if the log contains WARN messages
-  ansible.builtin.debug:
-    msg: "⚠️ WARNING detected in logs: {{ upgrade_tomcat_utility_log_path }}. Please review."
-  when: '"WARN" in log_check.stdout'
-
-- name: Fail the playbook if ERROR is found in the log
-  ansible.builtin.fail:
-    msg: "❌ ERROR found in logs: {{ upgrade_tomcat_utility_log_path }}. Playbook execution stopped!"
-  when: '"ERROR" in log_check.stdout'
+- name: Include tasks to check the logs
+  ansible.builtin.include_tasks: check_logs.yml
