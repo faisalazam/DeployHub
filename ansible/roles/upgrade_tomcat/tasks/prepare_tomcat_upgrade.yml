@@ -42,7 +42,7 @@
 
 - name: Define log file path
   ansible.builtin.set_fact:
-    upgrade_tomcat_utility_log_path: "{{ upgrade_tomcat_utility_destination_path }}\\logs\\{{ ansible_hostname }}.log"
+    upgrade_tomcat_utility_log_path: "{{ upgrade_tomcat_utility_destination_path }}\\logs\\{{ ansible_hostname }}_prep.log"
 
 - name: Run the PowerShell script and log output
   ansible.windows.win_shell: |
