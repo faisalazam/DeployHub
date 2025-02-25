@@ -92,6 +92,10 @@
 Enter-PSSession -ComputerName 127.0.0.1 -Port 55985 -Credential (New-Object System.Management.Automation.PSCredential ("vagrant", (ConvertTo-SecureString "vagrant" -AsPlainText -Force)))
 Enter-PSSession -ComputerName 127.0.0.1 -Port 55985 -Credential (New-Object System.Management.Automation.PSCredential ("ansible-agent", (ConvertTo-SecureString "ANS1BLE_P@sS!" -AsPlainText -Force)))
 
+Test-WsMan -ComputerName 192.168.182.13
+Invoke-Command -ComputerName 192.168.182.13 -ScriptBlock { hostname } -Credential (New-Object System.Management.Automation.PSCredential ("corp\Muhammad.Faisal", (ConvertTo-SecureString "r@cLLxmb8DcPUk" -AsPlainText -Force)))
+Enter-PSSession -ComputerName 192.168.182.13 -Port 55985 -Credential (New-Object System.Management.Automation.PSCredential ("corp\Muhammad.Faisal", (ConvertTo-SecureString "r@cLLxmb8DcPUk" -AsPlainText -Force)))
+
 ---
 
 ## **Network Utilities**
@@ -132,6 +136,52 @@ Test-WSMan -ComputerName 127.0.0.1 -Port 55986 -Authentication Default -UseSSL
 
 winrs -r:http://localhost:55985 -u:vagrant -p:vagrant echo 'hello world'
 winrs -r:https://localhost:55986 -u:vagrant -p:vagrant echo 'hello world'
+
+In order to connect and work on the actual remote machines, try the following if having connection issues
+(I recommend to do it from vagrant, as that can be easily disposed and spin up a new one):
+```shell
+Test-WsMan -ComputerName 192.168.182.13
+
+# Get the current TrustedHosts value
+$originalTrustedHosts = Get-Item WSMan:\localhost\Client\TrustedHosts
+Write-Output "Original TrustedHosts: $($originalTrustedHosts.Value)"
+
+# Invoke any command, e.g. hostname
+$credential = New-Object System.Management.Automation.PSCredential (
+    "corp\Muhammad.Faisal", 
+    (ConvertTo-SecureString "r@cLLxmb8DcPUk" -AsPlainText -Force)
+)
+Invoke-Command -ComputerName 192.168.182.13 -ScriptBlock { hostname } -Credential $credential
+Enter-PSSession -ComputerName 192.168.182.13 -Credential $credential -Authentication Negotiate
+
+# If command invocation fails, try adding the IP to TrustedHosts and then try the Invoke-Command again:
+Set-Item WSMan:\localhost\Client\TrustedHosts -Value "192.168.182.13" -Force
+
+# Enable unencrypted communication (if needed)
+Set-Item WSMan:\localhost\Service\AllowUnencrypted -Value $true
+
+# Restart WinRM service
+Restart-Service WinRM
+
+# Restore Original Settings (If Needed)
+
+# Restore TrustedHosts to its original value
+Set-Item WSMan:\localhost\Client\TrustedHosts -Value $originalTrustedHosts.Value -Force
+
+# Restore AllowUnencrypted to its original value
+Set-Item WSMan:\localhost\Service\AllowUnencrypted -Value $originalAllowUnencrypted.Value
+
+# Restart WinRM service
+Restart-Service WinRM
+```
+
+
+ANSIBLE_USER="corp\\Muhammad.Faisal"
+ANSIBLE_PASSWORD="r@cLLxmb8DcPUk"
+
+ansible -i 192.168.182.13, all -m win_ping -e "ansible_user=${ANSIBLE_USER} ansible_password=${ANSIBLE_PASSWORD} ansible_connection=winrm ansible_winrm_transport=ntlm"
+
+
 
 
 Get-ChildItem -Path Cert:\LocalMachine\My | Where-Object { $_.FriendlyName -like "FAISAL*" }
