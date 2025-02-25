@@ -1,7 +1,7 @@
 ---
 - name: Ping Windows and Linux hosts
   hosts: all
-  gather_facts: yes  # Required to detect OS type
+  gather_facts: true  # Required to detect OS type
 
   tasks:
     - name: Print available hosts

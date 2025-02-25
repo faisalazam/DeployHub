@@ -16,7 +16,7 @@
     upgrade_tomcat_utility_log_path: "{{ upgrade_tomcat_utility_destination_path }}\\logs\\{{ ansible_hostname }}_upgrade.log"
 
 - name: Set common parameters for the PowerShell script
-  set_fact:
+  ansible.builtin.set_fact:
     common_params:
       jvmDLLPath: "{{ upgrade_tomcat_jvm_dll_path }}"
       maxMemoryPool: "{{ upgrade_tomcat_max_memory_pool }}"
@@ -50,7 +50,7 @@
   register: ps_output_with_creds
 
 - name: Set ps_output to the result of the executed task
-  set_fact:
+  ansible.builtin.set_fact:
     ps_output: "{{ (ps_output_with_creds if upgrade_tomcat_setup_log_on_creds else ps_output_without_creds) }}"
 
 - name: Write PowerShell output (host_out and host_err) to log file

@@ -18,4 +18,3 @@ upgrade_tomcat_jvm_dll_path: 'C:\java\jre8.0.412-x64zulu\bin\server\jvm.dll'
 upgrade_tomcat_log_on_username:
 upgrade_tomcat_log_on_password:
 upgrade_tomcat_setup_log_on_creds: false
-

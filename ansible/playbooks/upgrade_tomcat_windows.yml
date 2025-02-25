@@ -1,7 +1,7 @@
 ---
 - name: Upgrade Tomcat
   hosts: tomcat_windows_hosts
-  gather_facts: no
+  gather_facts: false
 
   roles:
     - upgrade_tomcat
