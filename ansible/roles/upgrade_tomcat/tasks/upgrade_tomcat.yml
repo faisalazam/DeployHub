@@ -30,7 +30,7 @@
 
 - name: Execute PowerShell script without logon credentials
   ansible.windows.win_powershell:
-    script: "{{ lookup('file', 'scripts/temp.ps1') }}"
+    script: "{{ lookup('file', 'scripts/upgrade_tomcat.ps1') }}"
     parameters: "{{ common_params }}"
   args:
     chdir: "{{ upgrade_tomcat_utility_destination_path }}"
@@ -40,7 +40,7 @@
 
 - name: Execute PowerShell script with logon credentials
   ansible.windows.win_powershell:
-    script: "{{ lookup('file', 'scripts/temp.ps1') }}"
+    script: "{{ lookup('file', 'scripts/upgrade_tomcat.ps1') }}"
     parameters: >-
       {{
         common_params | combine({
