@@ -37,6 +37,8 @@
   when: not upgrade_tomcat_setup_log_on_creds
   register: ps_output_without_creds
   become: true
+  become_method: runas
+  become_user: Administrator
 
 - name: Execute PowerShell script with logon credentials
   ansible.windows.win_powershell:
@@ -62,7 +64,7 @@
   ansible.builtin.set_fact:
     ps_output: "{{ (ps_output_with_creds if upgrade_tomcat_setup_log_on_creds else ps_output_without_creds) }}"
 
-- name: Write PowerShell output (host_out and host_err) to log file
+- name: Write PowerShell output to log file
   ansible.windows.win_copy:
     content: >-
       {{
@@ -71,8 +73,6 @@
       }}
     dest: "{{ upgrade_tomcat_utility_log_path }}"
   become: true
-  become_method: runas
-  become_user: Administrator
 
 - name: Include tasks to check the logs
   ansible.builtin.include_tasks: check_logs.yml
