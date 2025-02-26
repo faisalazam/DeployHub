@@ -375,12 +375,13 @@ try {
         Write-Log "Step $((++$stepCounter)): Closing the File Explorer process to release folder lock."
         Stop-Process -Name explorer -Force -ErrorAction SilentlyContinue
 
-        Write-Log "Step $((++$stepCounter)): Closing the Services (i.e. mmc.exe if running) to release folder lock."
-        Stop-Process -Name mmc -Force -ErrorAction SilentlyContinue
-
         Write-Log "Step $((++$stepCounter)): Test that the '$currentSrvaDir' folder is accessible."
         if (-not (Test-DirectoryAccessibility -directoryPath "$currentSrvaDir")) {
             Write-Log "Directory is not accessible, skipping folder management steps." "ERROR"
+            Write-Log "The folder is more likely locked by some process."
+            Write-Log "File Explorer and Services (services.msc) frequently cause folder ("tomcat/srva") lock issue."
+            Write-Log "So, its better to close other applications on the remote to avoid folder lock issues before running playbooks."
+            Write-Log "You can try `.\handle.exe D:\tomcat\srva` the cmd after copying the handle.exe file to remote machine to see which process is locking the folder."
             throw "Directory not accessible"
         }
 
