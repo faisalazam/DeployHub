@@ -1,3 +1,12 @@
+- name: Write PowerShell output (host_out and host_err) to log file
+  ansible.windows.win_copy:
+    content: >-
+      {{
+        ((ps_output.host_out | default('')) ~ (ps_output.host_err | default('')))
+        | regex_replace('\r\n', '\n')
+      }}
+    dest: "{{ upgrade_tomcat_utility_log_path }}"
+
 - name: Scan log file for WARN or ERROR messages
   ansible.windows.win_shell: |
     Select-String -Path "{{ upgrade_tomcat_utility_log_path }}" -Pattern "WARN|ERROR"

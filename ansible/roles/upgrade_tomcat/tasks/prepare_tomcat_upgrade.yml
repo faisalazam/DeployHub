@@ -44,14 +44,17 @@
     upgrade_tomcat_utility_log_path: "{{ upgrade_tomcat_utility_destination_path }}\\logs\\{{ ansible_hostname }}_prep.log"
 
 - name: Run the PowerShell script and log output
-  ansible.windows.win_shell: |
-    powershell.exe -ExecutionPolicy Bypass -File "prepare_tomcat_upgrade.ps1" `
-      -upgradedServiceName "{{ upgraded_service_name }}" `
-      -tomcatZipPath "{{ upgrade_tomcat_zip_filename }}" `
-      -tomcatInstallationDrive "{{ upgrade_tomcat_tomcat_installation_drive }}" `
-      *> "{{ upgrade_tomcat_utility_log_path }}" 2>&1
+  ansible.windows.win_powershell:
+    script: "{{ lookup('file', 'scripts/prepare_tomcat_upgrade.ps1') }}"
+    parameters:
+      upgradedServiceName: "{{ upgrade_tomcat_upgraded_service_name }}"
+      tomcatZipPath: "{{ upgrade_tomcat_zip_filename }}"
+      tomcatInstallationDrive: "{{ upgrade_tomcat_tomcat_installation_drive }}"
   args:
     chdir: "{{ upgrade_tomcat_utility_destination_path }}"
+  register: ps_output
 
 - name: Include tasks to check the logs
   ansible.builtin.include_tasks: check_logs.yml
+  vars:
+    ps_output: "{{ ps_output }}"

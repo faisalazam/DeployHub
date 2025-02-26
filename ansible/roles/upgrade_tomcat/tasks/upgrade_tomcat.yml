@@ -56,14 +56,7 @@
   ansible.builtin.set_fact:
     ps_output: "{{ (ps_output_with_creds if upgrade_tomcat_setup_log_on_creds else ps_output_without_creds) }}"
 
-- name: Write PowerShell output to log file
-  ansible.windows.win_copy:
-    content: >-
-      {{
-        ((ps_output.host_out | default('')) ~ (ps_output.host_err | default('')))
-        | regex_replace('\r\n', '\n')
-      }}
-    dest: "{{ upgrade_tomcat_utility_log_path }}"
-
 - name: Include tasks to check the logs
   ansible.builtin.include_tasks: check_logs.yml
+  vars:
+    ps_output: "{{ ps_output }}"
