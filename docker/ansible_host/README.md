@@ -44,6 +44,8 @@ ansible all -i 192.168.181.20, -m setup -u muhammad.faisal -e ansible_ssh_privat
 ansible all -i 192.168.181.20, -m ping -u muhammad.faisal -e ansible_ssh_private_key_file=~/.ssh/remote_servers_rsa_pri -e 'ansible_python_interpreter=/usr/bin/python3'
 ansible all -i /ansible/inventory/"${ENVIRONMENT}"/hosts.yml -m ping -u muhammad.faisal -e ansible_ssh_private_key_file=~/.ssh/remote_servers_rsa_pri -e 'ansible_python_interpreter=/usr/bin/python3'
 
+ansible-vault encrypt /ansible/inventory/dev/group_vars/tomcat_windows_hosts/vault.yml --vault-password-file /ansible/vault_pass.txt
+ansible-vault decrypt /ansible/inventory/dev/group_vars/tomcat_windows_hosts/vault.yml --vault-password-file /ansible/vault_pass.txt
 
 ansible-vault encrypt /ansible/inventory/test/group_vars/metricbeat_hosts/vault.yml --vault-password-file /ansible/vault_pass.txt
 ansible-vault decrypt /ansible/inventory/test/group_vars/metricbeat_hosts/vault.yml --vault-password-file /ansible/vault_pass.txt
@@ -72,19 +74,29 @@ ansible-playbook \
     --vault-password-file /ansible/vault_pass.txt
 #    --ask-vault-pass
 
+
+# Better to close other applications on the remote to avoid folder lock issues before running playbooks.
+# File Explorer and Services (services.msc) frequently cause folder ("tomcat/srva") lock issue.
 ansible-playbook \
     -i /ansible/inventory/"${ENVIRONMENT}"/hosts.yml \
     /ansible/playbooks/upgrade_tomcat_windows.yml \
     -e ENVIRONMENT="${ENVIRONMENT}" \
     -e upgrade_tomcat_upgrade_step="prepare" \
+    -e upgrade_tomcat_zip_filename="apache-tomcat-9.0.98-windows-x64.zip" \
     --vault-password-file /ansible/vault_pass.txt
 #    --ask-vault-pass
 
+
+# Better to close other applications on the remote to avoid folder lock issues before running playbooks.
+# File Explorer and Services (services.msc) frequently cause folder ("tomcat/srva") lock issue.
 ansible-playbook \
     -i /ansible/inventory/"${ENVIRONMENT}"/hosts.yml \
     /ansible/playbooks/upgrade_tomcat_windows.yml \
     -e ENVIRONMENT="${ENVIRONMENT}" \
     -e upgrade_tomcat_upgrade_step="upgrade" \
+    -e upgrade_tomcat_service_to_uninstall="" \
+    -e upgrade_tomcat_current_service_to_upgrade="TOMCAT964_SRVA" \
+    -e upgrade_tomcat_zip_filename="apache-tomcat-9.0.98-windows-x64.zip" \
     --vault-password-file /ansible/vault_pass.txt
 #    --ask-vault-pass
 ```
