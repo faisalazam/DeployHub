@@ -6,5 +6,5 @@
   ansible.builtin.include_tasks: tomcat_upgrade_tasks.yml
   vars:
     log_file_postfix: upgrade
-    powershell_script_runner_file: upgrade_tomcat.yml
+    powershell_script_runner_file: upgrade_script_runner.yml
   when: upgrade_tomcat_upgrade_step == "upgrade"
