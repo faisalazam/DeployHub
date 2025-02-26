@@ -372,8 +372,11 @@ try {
 
     Write-Log "Starting folder management steps..."
     try {
-        Write-Log "Step $((++$stepCounter)): Closing the File Explorer process"
+        Write-Log "Step $((++$stepCounter)): Closing the File Explorer process to release folder lock."
         Stop-Process -Name explorer -Force -ErrorAction SilentlyContinue
+
+        Write-Log "Step $((++$stepCounter)): Closing the Services (i.e. mmc.exe if running) to release folder lock."
+        Stop-Process -Name mmc -Force -ErrorAction SilentlyContinue
 
         Write-Log "Step $((++$stepCounter)): Test that the '$currentSrvaDir' folder is accessible."
         if (-not (Test-DirectoryAccessibility -directoryPath "$currentSrvaDir")) {
