@@ -55,6 +55,6 @@
   register: ps_output
 
 - name: Include tasks to check the logs
-  ansible.builtin.include_tasks: check_logs.yml
+  ansible.builtin.include_tasks: save_and_analyze_logs.yml
   vars:
     ps_output: "{{ ps_output }}"
