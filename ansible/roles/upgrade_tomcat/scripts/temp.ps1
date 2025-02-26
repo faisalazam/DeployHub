@@ -30,3 +30,9 @@ Write-Host "tomcatLogOnUsername: $tomcatLogOnUsername"
 Write-Host "maxMemoryPool: $maxMemoryPool"
 Write-Host "initialMemoryPool: $initialMemoryPool"
 Write-Host "tomcatLogOnPassword: $tomcatLogOnPassword"
+
+if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
+    Write-Host "Shell is not run as Administrator..."
+} else {
+    Write-Host "Shell is running as Administrator..."
+}

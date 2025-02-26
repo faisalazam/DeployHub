@@ -10,6 +10,7 @@
   ansible.windows.win_file:
     path: "{{ upgrade_tomcat_utility_destination_path }}\\logs"
     state: directory
+  become: true
 
 - name: Define log file path
   ansible.builtin.set_fact:
@@ -35,6 +36,7 @@
     chdir: "{{ upgrade_tomcat_utility_destination_path }}"
   when: not upgrade_tomcat_setup_log_on_creds
   register: ps_output_without_creds
+  become: true
 
 - name: Execute PowerShell script with logon credentials
   ansible.windows.win_powershell:
@@ -52,6 +54,9 @@
     chdir: "{{ upgrade_tomcat_utility_destination_path }}"
   when: upgrade_tomcat_setup_log_on_creds
   register: ps_output_with_creds
+  become: true
+  become_method: runas
+  become_user: Administrator
 
 - name: Set ps_output to the result of the executed task
   ansible.builtin.set_fact:
@@ -65,6 +70,9 @@
         | regex_replace('\r\n', '\n')
       }}
     dest: "{{ upgrade_tomcat_utility_log_path }}"
+  become: true
+  become_method: runas
+  become_user: Administrator
 
 - name: Include tasks to check the logs
   ansible.builtin.include_tasks: check_logs.yml

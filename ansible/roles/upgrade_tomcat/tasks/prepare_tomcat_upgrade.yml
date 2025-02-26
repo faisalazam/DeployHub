@@ -8,6 +8,7 @@
     paths: "{{ upgrade_tomcat_tomcat_installation_drive }}\\tomcat\\srva\\lib\\elastic"
     patterns: elastic-apm-agent-*.jar
   register: found_files
+  become: true
 
 - name: Fail if there is more than one matching file
   ansible.builtin.fail:
@@ -21,16 +22,19 @@
   ansible.windows.win_file:
     path: "{{ upgrade_tomcat_utility_destination_path }}"
     state: absent
+  become: true
 
 - name: Copy scripts
   ansible.windows.win_copy:
     src: "{{ upgrade_tomcat_utility_scripts_path }}/"
     dest: "{{ upgrade_tomcat_utility_destination_path }}\\"
+  become: true
 
 - name: Copy Tomcat ZIP
   ansible.windows.win_copy:
     src: "{{ upgrade_tomcat_utility_downloads_path }}/{{ upgrade_tomcat_zip_filename }}"
     dest: "{{ upgrade_tomcat_utility_destination_path }}\\"
+  become: true
 
 - name: Include tasks to construct the Tomcat service name
   ansible.builtin.include_tasks: construct_service_name.yml
@@ -39,6 +43,7 @@
   ansible.windows.win_file:
     path: "{{ upgrade_tomcat_utility_destination_path }}\\logs"
     state: directory
+  become: true
 
 - name: Define log file path
   ansible.builtin.set_fact:
@@ -53,6 +58,9 @@
       *> "{{ upgrade_tomcat_utility_log_path }}" 2>&1
   args:
     chdir: "{{ upgrade_tomcat_utility_destination_path }}"
+  become: true
+  become_method: runas
+  become_user: Administrator
 
 - name: Include tasks to check the logs
   ansible.builtin.include_tasks: check_logs.yml
