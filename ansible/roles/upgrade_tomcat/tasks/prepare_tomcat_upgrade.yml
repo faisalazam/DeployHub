@@ -18,7 +18,7 @@
     path: "{{ upgrade_tomcat_utility_destination_path }}"
     state: absent
 
-- name: Copy scripts
+- name: Copy scripts (Optional as the ansible is running scripts from Ansible Host)
   ansible.windows.win_copy:
     src: "{{ upgrade_tomcat_utility_scripts_path }}/"
     dest: "{{ upgrade_tomcat_utility_destination_path }}\\"
