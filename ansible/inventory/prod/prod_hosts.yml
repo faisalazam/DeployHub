@@ -43,3 +43,49 @@ all:
           ansible_host: 192.168.173.30
         oau-tf-prod-witness:
           ansible_host: 202.93.102.146
+
+    tomcat_windows_hosts:
+      hosts:
+        reporting2:
+          ansible_host: 192.168.173.146
+          upgrade_tomcat_setup_log_on_creds: true
+          upgrade_tomcat_log_on_username: "service_tomcat-rpt@octaneau.internal"
+          upgrade_tomcat_log_on_password: "{{ vault_service_tomcat_rpt_password }}"
+
+        web_service1:
+          ansible_host: 192.168.173.151
+          upgrade_tomcat_setup_log_on_creds: true
+          upgrade_tomcat_log_on_username: "service_tomcat-wsrv@octaneau.internal"
+          upgrade_tomcat_log_on_password: "{{ vault_service_tomcat_wsrv_password }}"
+
+        web_service2:
+          ansible_host: 192.168.173.152
+          upgrade_tomcat_setup_log_on_creds: true
+          upgrade_tomcat_log_on_username: "service_tomcat-web@octaneau.internal"
+          upgrade_tomcat_log_on_password: "{{ vault_service_tomcat_web_password }}"
+
+        web_app1:
+          ansible_host: 192.168.173.149
+          upgrade_tomcat_setup_log_on_creds: true
+          upgrade_tomcat_log_on_username: "service_tomcat-web@octaneau.internal"
+          upgrade_tomcat_log_on_password: "{{ vault_service_tomcat_web_password }}"
+
+        web_app2:
+          ansible_host: 192.168.173.150
+          upgrade_tomcat_setup_log_on_creds: true
+          upgrade_tomcat_log_on_username: "service_tomcat-web@octaneau.internal"
+          upgrade_tomcat_log_on_password: "{{ vault_service_tomcat_web_password }}"
+
+        reporting1:
+          ansible_host: 192.168.173.145
+          upgrade_tomcat_setup_log_on_creds: false
+
+        LOLIG:
+          ansible_host: 192.168.173.144
+          upgrade_tomcat_setup_log_on_creds: false
+
+        billrun:
+          ansible_host: 192.168.173.142
+          upgrade_tomcat_setup_log_on_creds: false
+          upgrade_tomcat_max_memory_pool: "1024"
+          upgrade_tomcat_jvm_dll_path: 'C:\java\jre8.0.382-win_i686\bin\client\jvm.dll'

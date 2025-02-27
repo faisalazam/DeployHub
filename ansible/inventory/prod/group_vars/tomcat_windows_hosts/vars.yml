@@ -1,0 +1,13 @@
+ansible_port: 5985
+ansible_connection: winrm
+ansible_winrm_scheme: http
+ansible_winrm_transport: ntlm
+ansible_user: 'corp\Muhammad.Faisal'
+ansible_password: "{{ vault_ansible_password }}"
+ansible_winrm_server_cert_validation: ignore
+
+# The following are required to be able to use `become: true` in playbooks/roles,
+# because the Windows does not support become (sudo/elevation) the same way as Linux.
+ansible_become: yes
+ansible_become_method: runas
+ansible_become_user: 'corp\Muhammad.Faisal'
