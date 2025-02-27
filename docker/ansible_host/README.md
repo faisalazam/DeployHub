@@ -34,8 +34,11 @@ ansible all -i 192.168.181.20, -m ping -u muhammad.faisal --private-key /root/.s
 
 ENVIRONMENT="test"
 
+# NOTE: For linux servers, use shell whereas for windows servers, use win_shell while running these adhoc commands.
 ANSIBLE_HOST_KEY_CHECKING=False ansible all -i /ansible/inventory/"${ENVIRONMENT}"/hosts.yml -m ping
-ansible all -i /ansible/inventory/"${ENVIRONMENT}"/hosts.yml -m shell -a "hostname"
+ansible all -i /ansible/inventory/"${ENVIRONMENT}"/hosts.yml -m shell -a "hostname" --vault-password-file /ansible/vault_pass.txt
+ansible all -i /ansible/inventory/"${ENVIRONMENT}"/hosts.yml -m win_shell -a "hostname"
+ansible all -i /ansible/inventory/dev/tomcat_windows_hosts.yml -m win_shell -a "echo hello" --vault-password-file /ansible/vault_pass.txt
 ansible all -i /ansible/inventory/"${ENVIRONMENT}"/hosts.yml -m shell -a "echo hello" -vvv
 ansible all -i /ansible/inventory/"${ENVIRONMENT}"/hosts.yml -m command -a "whoami" --become -u root -vvv
 
