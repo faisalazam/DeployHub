@@ -81,7 +81,7 @@ ansible-playbook \
 # Better to close other applications on the remote to avoid folder lock issues before running playbooks.
 # File Explorer and Services (services.msc) frequently cause folder ("tomcat/srva") lock issue.
 ansible-playbook \
-    -i /ansible/inventory/"${ENVIRONMENT}"/hosts.yml \
+    -i /ansible/inventory/"${ENVIRONMENT}"/tomcat_windows_hosts.yml \
     /ansible/playbooks/upgrade_tomcat_windows.yml \
     -e ENVIRONMENT="${ENVIRONMENT}" \
     -e upgrade_tomcat_upgrade_step="prepare" \
@@ -93,7 +93,7 @@ ansible-playbook \
 # Better to close other applications on the remote to avoid folder lock issues before running playbooks.
 # File Explorer and Services (services.msc) frequently cause folder ("tomcat/srva") lock issue.
 ansible-playbook \
-    -i /ansible/inventory/"${ENVIRONMENT}"/hosts.yml \
+    -i /ansible/inventory/"${ENVIRONMENT}"/tomcat_windows_hosts.yml \
     /ansible/playbooks/upgrade_tomcat_windows.yml \
     -e ENVIRONMENT="${ENVIRONMENT}" \
     -e upgrade_tomcat_upgrade_step="upgrade" \
