@@ -1,7 +1,7 @@
 # NOTE: Intentionally using a different name for the prod hosts inventory file.
 # This is just one of the safety nets to avoid running some playbook on prod inventory
 # mistakenly and unintentionally. When the yml name is different, that would mean that
-# user has to intentionally specify the prod_hosts.yml file name when running the playbooks.
+# user has to intentionally specify the prod_metricbeat_hosts.yml file name when running the playbooks.
 all:
 
   children:

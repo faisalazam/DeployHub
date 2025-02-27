@@ -57,7 +57,7 @@ ansible-vault encrypt /ansible/inventory/prod/group_vars/metricbeat_hosts/vault.
 ansible-vault decrypt /ansible/inventory/prod/group_vars/metricbeat_hosts/vault.yml --vault-password-file /ansible/vault_pass.txt
 
 ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook \
-    -i /ansible/inventory/"${ENVIRONMENT}"/hosts.yml \
+    -i /ansible/inventory/"${ENVIRONMENT}"/metricbeat_hosts.yml \
     /ansible/playbooks/setup_metricbeat.yml \
     -e ENVIRONMENT="${ENVIRONMENT}" \
     --vault-password-file /ansible/vault_pass.txt
