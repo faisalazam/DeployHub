@@ -41,9 +41,6 @@ COPY docker/ansible_host/scripts/install_cert.sh /usr/local/bin/install_cert.sh
 # Make sure the script are executable
 RUN chmod +x /usr/local/bin/install_cert.sh
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=10s CMD ansible --version || exit 1
-
 # Set the default command to keep the container running
 CMD [ \
     "/bin/sh", "-c", \
