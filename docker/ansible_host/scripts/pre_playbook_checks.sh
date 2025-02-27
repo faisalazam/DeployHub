@@ -1,8 +1,5 @@
 #!/bin/sh
 
-# Activate the virtual environment to ensures that the ansible, ansible-lint, and pytest commands are available
-. /opt/venv/bin/activate
-
 # Environment variables
 ENVIRONMENT=${ENVIRONMENT:-"local"}
 COMPOSE_PROFILES=${COMPOSE_PROFILES:-"default"}

@@ -1,8 +1,5 @@
 #!/bin/sh
 
-# Activate the virtual environment
-. /opt/venv/bin/activate
-
 # Display environment info
 python3 --version
 pip show pywinrm

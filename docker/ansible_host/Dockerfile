@@ -22,13 +22,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Create a virtual environment
 RUN python${PYTHON_VERSION} -m venv /opt/venv
 
+# Ensure the virtual environment is automatically used in all shell sessions
+ENV PATH="/opt/venv/bin:$PATH"
+
 # Upgrade pip and install Ansible and required tools
 COPY docker/ansible_host/requirements.txt /opt/requirements.txt
-RUN /opt/venv/bin/python -m pip install --upgrade pip==${PYTHON_PIP_VERSION} && \
-    /opt/venv/bin/pip install --no-cache-dir -r /opt/requirements.txt
+RUN python -m pip install --upgrade pip==${PYTHON_PIP_VERSION} && \
+    pip install --no-cache-dir -r /opt/requirements.txt
 
 # Verify the installed Ansible version
-RUN /opt/venv/bin/ansible --version
+RUN ansible --version
 
 # Reset DEBIAN_FRONTEND to its default
 ENV DEBIAN_FRONTEND=
@@ -38,14 +41,13 @@ WORKDIR /ansible
 
 COPY docker/ansible_host/scripts/install_cert.sh /usr/local/bin/install_cert.sh
 
-# Make sure the script are executable
+# Make sure the script is executable
 RUN chmod +x /usr/local/bin/install_cert.sh
 
 # Set the default command to keep the container running
 CMD [ \
     "/bin/sh", "-c", \
-    ". /opt/venv/bin/activate && \
-    python3 --version && \
+    "python3 --version && \
     pip show pywinrm && \
     pip show molecule && \
     molecule --version && \

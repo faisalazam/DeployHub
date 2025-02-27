@@ -47,6 +47,9 @@ ansible all -i /ansible/inventory/"${ENVIRONMENT}"/hosts.yml -m ping -u muhammad
 ansible-vault encrypt /ansible/inventory/dev/group_vars/tomcat_windows_hosts/vault.yml --vault-password-file /ansible/vault_pass.txt
 ansible-vault decrypt /ansible/inventory/dev/group_vars/tomcat_windows_hosts/vault.yml --vault-password-file /ansible/vault_pass.txt
 
+ansible-vault encrypt /ansible/inventory/prod/group_vars/tomcat_windows_hosts/vault.yml --vault-password-file /ansible/vault_pass.txt
+ansible-vault decrypt /ansible/inventory/prod/group_vars/tomcat_windows_hosts/vault.yml --vault-password-file /ansible/vault_pass.txt
+
 ansible-vault encrypt /ansible/inventory/test/group_vars/metricbeat_hosts/vault.yml --vault-password-file /ansible/vault_pass.txt
 ansible-vault decrypt /ansible/inventory/test/group_vars/metricbeat_hosts/vault.yml --vault-password-file /ansible/vault_pass.txt
 

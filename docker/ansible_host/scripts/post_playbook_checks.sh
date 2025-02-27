@@ -1,8 +1,5 @@
 #!/bin/sh
 
-# Activate the virtual environment to ensures that the ansible, and pytest commands are available
-. /opt/venv/bin/activate
-
 # Navigate to the tests directory
 cd ../ansible/tests || {
     echo "Failed to change directory to tests folder."
