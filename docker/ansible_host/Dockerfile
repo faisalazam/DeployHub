@@ -7,7 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Define versions for dependencies
 ENV PYTHON_VERSION=3.12
-ENV PYTHON_PIP_VERSION=24.3.1
+ENV PYTHON_PIP_VERSION=25.0.1
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     sshpass \
@@ -18,6 +18,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python${PYTHON_VERSION}-venv && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+
+# Set timezone
+RUN ln -fs /usr/share/zoneinfo/Australia/Sydney /etc/localtime && \
+    dpkg-reconfigure -f noninteractive tzdata
 
 # Create a virtual environment
 RUN python${PYTHON_VERSION} -m venv /opt/venv
@@ -48,6 +52,7 @@ RUN chmod +x /usr/local/bin/install_cert.sh
 CMD [ \
     "/bin/sh", "-c", \
     "python3 --version && \
+    pip --version && \
     pip show pywinrm && \
     pip show molecule && \
     molecule --version && \

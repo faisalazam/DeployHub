@@ -44,7 +44,7 @@ def test_python_version():
 
 # Test for checking pip version
 def test_pip_version():
-    expected_version = "24.3.1"
+    expected_version = "25.0.1"
     check_version(["/opt/venv/bin/pip", "--version"], expected_version, extract_version)
 
 # Test for checking pywinrm version
