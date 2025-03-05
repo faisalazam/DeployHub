@@ -8,7 +8,7 @@ def remove_ansi_escape_codes(text):
     return re.sub(r'\x1b\[[0-9;]*m', '', text)
 
 # Helper function for checking version
-def check_version(command, expected_version, version_extractor=None):
+def check_version(command, expected_versions, version_extractor=None):
     """
     Generic function to check version of a command-line tool.
     """
@@ -16,8 +16,14 @@ def check_version(command, expected_version, version_extractor=None):
         result = subprocess.check_output(command, stderr=subprocess.STDOUT).decode().strip()
         if version_extractor:
             result = version_extractor(result)
-        if expected_version not in result:
-            pytest.fail(f"Expected version {expected_version}, but got {result}")
+
+        # If expected_versions is a list, check if any of the expected versions match
+        if isinstance(expected_versions, list):
+            if not any(version in result for version in expected_versions):
+                pytest.fail(f"Expected one of the versions {expected_versions}, but got {result}")
+        else:
+            if expected_versions not in result:
+                pytest.fail(f"Expected version {expected_versions}, but got {result}")
     except subprocess.CalledProcessError as e:
         pytest.fail(f"Failed to check version for command '{' '.join(command)}': {e.output.decode()}")
 
@@ -34,13 +40,13 @@ def extract_ansible_lint_version(result):
 
 # Test for checking ansible version
 def test_ansible_version():
-    expected_version = "core 2.18.2"
-    check_version(["ansible", "--version"], expected_version)
+    expected_versions = ["core 2.16.14", "core 2.18.3"]
+    check_version(["ansible", "--version"], expected_versions)
 
 # Test for checking Python version
 def test_python_version():
-    expected_version = "3.12.3"
-    check_version(["python3", "--version"], expected_version, extract_version)
+    expected_versions = ["3.10.16", "3.12.3"]
+    check_version(["python3", "--version"], expected_versions, extract_version)
 
 # Test for checking pip version
 def test_pip_version():
@@ -59,7 +65,7 @@ def test_molecule_version():
 
 # Test for checking ansible-lint version
 def test_ansible_lint_version():
-    expected_version = "25.1.2"
+    expected_version = "25.1.3"
     check_version(["ansible-lint", "--version"], expected_version, extract_ansible_lint_version)
 
 # Test for checking pytest version
