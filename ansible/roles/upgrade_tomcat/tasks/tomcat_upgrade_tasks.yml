@@ -12,7 +12,7 @@
 
 - name: Define log file path
   ansible.builtin.set_fact:
-    upgrade_tomcat_utility_log_path: "{{ upgrade_tomcat_utility_destination_path }}\\logs\\{{ ansible_hostname }}_{{ log_file_postfix}}.log"
+    upgrade_tomcat_utility_log_path: "{{ upgrade_tomcat_utility_destination_path }}\\logs\\{{ ansible_hostname }}_{{ log_file_postfix }}.log"
 
 - name: Include task to run PowerShell script
   ansible.builtin.include_tasks: "{{ powershell_script_runner_file }}"
