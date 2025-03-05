@@ -6,16 +6,23 @@ FROM ubuntu:24.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Define versions for dependencies
-ENV PYTHON_VERSION=3.12
+# Python 3.10 is compatible with Python versions like 2.7.x, 3.6.x, 3.9.x etc. on remote machines.
+ARG PYTHON_VERSION=3.10
 ENV PYTHON_PIP_VERSION=25.0.1
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    sshpass \
-    openssh-client \
-    git \
-    tzdata \
-    python${PYTHON_VERSION} \
-    python${PYTHON_VERSION}-venv && \
+RUN apt-get update && \
+    if [ "$PYTHON_VERSION" = "3.10" ]; then \
+        apt-get install -y --no-install-recommends software-properties-common && \
+        add-apt-repository ppa:deadsnakes/ppa && \
+        apt-get update; \
+    fi && \
+    apt-get install -y --no-install-recommends \
+        sshpass \
+        openssh-client \
+        git \
+        tzdata \
+        python${PYTHON_VERSION} \
+        python${PYTHON_VERSION}-venv && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -30,9 +37,9 @@ RUN python${PYTHON_VERSION} -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 # Upgrade pip and install Ansible and required tools
-COPY docker/ansible_host/requirements.txt /opt/requirements.txt
+COPY docker/ansible_host/python${PYTHON_VERSION}_requirements.txt /opt/python${PYTHON_VERSION}_requirements.txt
 RUN python -m pip install --upgrade pip==${PYTHON_PIP_VERSION} && \
-    pip install --no-cache-dir -r /opt/requirements.txt
+    pip install --no-cache-dir -r /opt/python${PYTHON_VERSION}_requirements.txt
 
 # Verify the installed Ansible version
 RUN ansible --version

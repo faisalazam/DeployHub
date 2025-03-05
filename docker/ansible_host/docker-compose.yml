@@ -1,14 +1,16 @@
 services:
   ansible:
     # To rebuild the image, run either of the two:
-    # DOCKERFILE=Dockerfile.old_ansible_and_python docker-compose up --build
-    # docker compose up --build
+    # PYTHON_VERSION=3.10 docker-compose up --build -d
+    # PYTHON_VERSION=3.12 docker-compose up --build -d
+    # docker compose up --build -d
     # docker build -f ./Dockerfile -t ansible-automation ../..
+    # docker build -f ./Dockerfile --build-arg PYTHON_VERSION=3.12 -t ansible-automation ../..
     build:
       context: ../..
-      dockerfile: docker/ansible_host/${DOCKERFILE:-Dockerfile}
-#      dockerfile: docker/ansible_host/Dockerfile
-#      dockerfile: docker/ansible_host/Dockerfile.old_ansible_and_python
+      args:
+        PYTHON_VERSION: ${PYTHON_VERSION:-3.10}
+      dockerfile: docker/ansible_host/Dockerfile
     container_name: ansible
     image: ansible-automation:latest
     volumes:

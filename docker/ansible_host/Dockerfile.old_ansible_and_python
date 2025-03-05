@@ -1,5 +1,7 @@
 # Use official Ubuntu 24.04 as the base image
-# docker build -f ./Dockerfile.old_ansible_and_python -t ansible-automation ../..
+# As this Dockerfile has been merged in the main Dockerfile, so it can be deleted...
+# docker build -f ./Dockerfile --build-arg PYTHON_VERSION=3.10 -t ansible-automation ../..
+# docker build -f ./Dockerfile --build-arg PYTHON_VERSION=3.12 -t ansible-automation ../..
 # This setup is compatible if the remote machine has old python like 2.7.x, 3.6.x, 3.9.x etc.
 FROM ubuntu:24.04
 
