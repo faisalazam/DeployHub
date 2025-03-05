@@ -11,6 +11,10 @@ ENV PYTHON_VERSION=3.10
 ENV PYWINRM_VERSION=0.5.0
 ENV ANSIBLE_MAX_VERSION=2.14
 ENV PYTHON_PIP_VERSION=25.0.1
+ENV MOLECULE_VERSION=24.2.1
+ENV ANSIBLE_LINT_VERSION=v24.7.0
+ENV PYTEST_VERSION=8.3.4
+ENV PYTEST_TESTINFRA_VERSION=10.1.1
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         sshpass \
@@ -38,7 +42,11 @@ ENV PATH="/opt/venv/bin:$PATH"
 # Upgrade pip and install Ansible (compatible with remote Python like 2.7.x, 3.6.x, 3.9.x etc.)
 RUN python -m pip install --upgrade pip==${PYTHON_PIP_VERSION} && \
     pip install --index-url https://pypi.org/simple "ansible-core<${ANSIBLE_MAX_VERSION}" \
-    pywinrm==${PYWINRM_VERSION}
+    pywinrm==${PYWINRM_VERSION} \
+    "molecule[docker]"==${MOLECULE_VERSION} \
+    ansible-lint==${ANSIBLE_LINT_VERSION} \
+    pytest==${PYTEST_VERSION} \
+    pytest-testinfra==${PYTEST_TESTINFRA_VERSION}
 
 # Verify the installed Ansible version
 RUN ansible --version
@@ -60,6 +68,9 @@ CMD [ \
     "python3 --version && \
     pip --version && \
     pip show pywinrm && \
+    pip show molecule && \
+    molecule --version && \
+    pytest --version && \
     ansible --version && \
     ansible-playbook --version && \
     tail -f /dev/null" \
