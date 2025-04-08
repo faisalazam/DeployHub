@@ -31,3 +31,4 @@ login_with_token "${SSH_MANAGER_ROLE_NAME}" "${VAULT_AGENT_ROLE_AUTH_DIR}" "vaul
 
 generate_and_store_keypair "ansible" "${SSH_KEYS_DIR_IN_VAULT}/ansible"
 generate_and_store_keypair "linux_explicit_ssh_keys_host" "${SSH_KEYS_DIR_IN_VAULT}/${ENVIRONMENT}/linux_explicit_ssh_keys_host"
+generate_and_store_keypair "oracle_linux_9_explicit_ssh_keys_host" "${SSH_KEYS_DIR_IN_VAULT}/${ENVIRONMENT}/oracle_linux_9_explicit_ssh_keys_host"
