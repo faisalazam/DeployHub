@@ -30,10 +30,18 @@
         state: directory
       become: true
 
-    - name: Install curl
+    - name: Install curl on Debian-based
       ansible.builtin.apt:
-        name: "curl"
+        name: curl
         state: present
+      when: ansible_os_family == "Debian"
+      become: true
+
+    - name: Install curl on RedHat-based
+      ansible.builtin.dnf:
+        name: curl
+        state: present
+      when: ansible_os_family == "RedHat"
       become: true
 
     - name: Print a message
