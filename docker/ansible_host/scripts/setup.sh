@@ -79,6 +79,23 @@ find /ansible -type d -exec chmod 755 {} \;
 # Set files to 644 (read, write for owner, read for others)
 find /ansible -type f -exec chmod 644 {} \;
 
-# Install required Ansible Galaxy roles
-ansible-galaxy install -r requirements.yml || { echo "Failed to install Ansible Galaxy roles"; exit 1; }
+# 📦 Install required Ansible Galaxy collections only if not already installed
+GALAXY_DIR="/ansible/.galaxy"
+GALAXY_COLLECTIONS_DIR="${GALAXY_DIR}/collections"
+if [ ! -d "${GALAXY_COLLECTIONS_DIR}" ] || [ -z "$(ls -A ${GALAXY_COLLECTIONS_DIR})" ]; then
+  echo "📦 Installing Ansible Galaxy collections..."
+  ansible-galaxy collection install -r /ansible/requirements.yml -p "${GALAXY_COLLECTIONS_DIR}" || { echo "❌ Failed to install Ansible Galaxy collections"; exit 1; }
+else
+  echo "✅ Ansible Galaxy collections already installed. Skipping."
+fi
 
+# 📦 Install required Ansible Galaxy roles only if not already installed
+GALAXY_ROLES_DIR="${GALAXY_DIR}/roles"
+if [ ! -d "${GALAXY_ROLES_DIR}" ] || [ -z "$(ls -A ${GALAXY_ROLES_DIR})" ]; then
+  echo "📦 Installing Ansible Galaxy roles..."
+  ansible-galaxy install -r /ansible/requirements.yml -p "${GALAXY_ROLES_DIR}" || { echo "❌ Failed to install Ansible Galaxy roles"; exit 1; }
+else
+  echo "✅ Ansible Galaxy roles already installed. Skipping."
+fi
+
+echo "🎉 Setup complete!"
