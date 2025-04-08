@@ -18,6 +18,26 @@ chmod 700 /root/.ssh
 chmod 600 /root/.ssh/id_rsa
 chown root:root /root/.ssh/id_rsa
 
+# Function to add a host key to known_hosts
+add_ssh_key_to_known_hosts() {
+  hostname="$1"  # Hostname or IP address
+  key_file="$2"  # Path to the public key file
+  known_hosts_file="$3"  # Path to the known_hosts file
+
+  # Extract key type and value
+  key_type=$(awk '{print $1}' "$key_file")
+  key_value=$(awk '{print $2}' "$key_file")
+
+  # Create a temporary file to hold the entry
+  temp_file=$(mktemp)
+  echo "$hostname $key_type $key_value" > "$temp_file"
+
+  # Hash the temporary file
+  ssh-keygen -H -f "$temp_file" 2>/dev/null
+  cat "$temp_file" >> "$known_hosts_file"
+  rm -f "$temp_file"
+}
+
 if [ "${RESET_HOSTS_FILE}" = "true" ]; then
   # Path to known_hosts
   KNOWN_HOSTS_FILE="/root/.ssh/known_hosts"
@@ -37,22 +57,9 @@ if [ "${RESET_HOSTS_FILE}" = "true" ]; then
   ssh-keyscan -H linux_ssh_pass_host >> "$KNOWN_HOSTS_FILE"
   ssh-keyscan -H linux_implicit_ssh_keys_host >> "$KNOWN_HOSTS_FILE"
 
-  # Configure linux_explicit_ssh_keys_host to use the externally generated keypair
-  hostname="linux_explicit_ssh_keys_host"  # Replace with the actual hostname or IP
-  key_file="/root/.ssh/linux_explicit_ssh_keys_host.pub"
-
-  # Extract key type and value
-  key_type=$(awk '{print $1}' "$key_file")
-  key_value=$(awk '{print $2}' "$key_file")
-
-  # Create a temporary file to hold the entry
-  temp_file=$(mktemp)
-  echo "$hostname $key_type $key_value" > "$temp_file"
-
-  # Hash the temporary file
-  ssh-keygen -H -f "$temp_file" 2>/dev/null
-  cat "$temp_file" >> "$KNOWN_HOSTS_FILE"
-  rm -f "$temp_file"
+  # Configure the hosts to use the externally generated keypair
+  add_ssh_key_to_known_hosts "linux_explicit_ssh_keys_host" "${DECRYPTED_KEY_DIR}/linux_explicit_ssh_keys_host.pub" "$KNOWN_HOSTS_FILE"
+  add_ssh_key_to_known_hosts "oracle_linux_9_explicit_ssh_keys_host" "${DECRYPTED_KEY_DIR}/oracle_linux_9_explicit_ssh_keys_host.pub" "$KNOWN_HOSTS_FILE"
 fi
 
 # Install custom certificate if needed
