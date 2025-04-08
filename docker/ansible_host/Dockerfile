@@ -21,10 +21,15 @@ RUN apt-get update && \
         openssh-client \
         git \
         tzdata \
+        bash \
         python${PYTHON_VERSION} \
         python${PYTHON_VERSION}-venv && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+
+# Set /bin/sh to point to /bin/bash to ensure bash features (like arrow keys) work in interactive sessions
+# It'll permanently enable the use of arrow keys from terminal
+RUN ln -sf /bin/bash /bin/sh
 
 # Set timezone
 RUN ln -fs /usr/share/zoneinfo/Australia/Sydney /etc/localtime && \
