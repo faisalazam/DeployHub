@@ -36,9 +36,9 @@ ENVIRONMENT="test"
 
 # NOTE: For linux servers, use shell whereas for windows servers, use win_shell while running these adhoc commands.
 ANSIBLE_HOST_KEY_CHECKING=False ansible all -i /ansible/inventory/"${ENVIRONMENT}"/hosts.yml -m ping
-ansible all -i /ansible/inventory/"${ENVIRONMENT}"/hosts.yml -m shell -a "hostname" --vault-password-file /ansible/vault_pass.txt
+ansible all -i /ansible/inventory/"${ENVIRONMENT}"/hosts.yml -m shell -a "hostname" --vault-password-file /ansible/.vault/vault_pass.txt
 ansible all -i /ansible/inventory/"${ENVIRONMENT}"/hosts.yml -m win_shell -a "hostname"
-ansible all -i /ansible/inventory/dev/tomcat_windows_hosts.yml -m win_shell -a "echo hello" --vault-password-file /ansible/vault_pass.txt
+ansible all -i /ansible/inventory/dev/tomcat_windows_hosts.yml -m win_shell -a "echo hello" --vault-password-file /ansible/.vault/vault_pass.txt
 ansible all -i /ansible/inventory/"${ENVIRONMENT}"/hosts.yml -m shell -a "echo hello" -vvv
 ansible all -i /ansible/inventory/"${ENVIRONMENT}"/hosts.yml -m command -a "whoami" --become -u root -vvv
 
@@ -47,37 +47,37 @@ ansible all -i 192.168.181.20, -m setup -u muhammad.faisal -e ansible_ssh_privat
 ansible all -i 192.168.181.20, -m ping -u muhammad.faisal -e ansible_ssh_private_key_file=~/.ssh/remote_servers_rsa_pri -e 'ansible_python_interpreter=/usr/bin/python3'
 ansible all -i /ansible/inventory/"${ENVIRONMENT}"/hosts.yml -m ping -u muhammad.faisal -e ansible_ssh_private_key_file=~/.ssh/remote_servers_rsa_pri -e 'ansible_python_interpreter=/usr/bin/python3'
 
-ansible-vault encrypt /ansible/inventory/dev/group_vars/tomcat_windows_hosts/vault.yml --vault-password-file /ansible/vault_pass.txt
-ansible-vault decrypt /ansible/inventory/dev/group_vars/tomcat_windows_hosts/vault.yml --vault-password-file /ansible/vault_pass.txt
+ansible-vault encrypt /ansible/inventory/dev/group_vars/tomcat_windows_hosts/vault.yml --vault-password-file /ansible/.vault/vault_pass.txt
+ansible-vault decrypt /ansible/inventory/dev/group_vars/tomcat_windows_hosts/vault.yml --vault-password-file /ansible/.vault/vault_pass.txt
 
-ansible-vault encrypt /ansible/inventory/prod/group_vars/tomcat_windows_hosts/vault.yml --vault-password-file /ansible/vault_pass.txt
-ansible-vault decrypt /ansible/inventory/prod/group_vars/tomcat_windows_hosts/vault.yml --vault-password-file /ansible/vault_pass.txt
+ansible-vault encrypt /ansible/inventory/prod/group_vars/tomcat_windows_hosts/vault.yml --vault-password-file /ansible/.vault/vault_pass.txt
+ansible-vault decrypt /ansible/inventory/prod/group_vars/tomcat_windows_hosts/vault.yml --vault-password-file /ansible/.vault/vault_pass.txt
 
-ansible-vault encrypt /ansible/inventory/test/group_vars/metricbeat_hosts/vault.yml --vault-password-file /ansible/vault_pass.txt
-ansible-vault decrypt /ansible/inventory/test/group_vars/metricbeat_hosts/vault.yml --vault-password-file /ansible/vault_pass.txt
+ansible-vault encrypt /ansible/inventory/test/group_vars/metricbeat_hosts/vault.yml --vault-password-file /ansible/.vault/vault_pass.txt
+ansible-vault decrypt /ansible/inventory/test/group_vars/metricbeat_hosts/vault.yml --vault-password-file /ansible/.vault/vault_pass.txt
 
-ansible-vault encrypt /ansible/inventory/prod/group_vars/metricbeat_hosts/vault.yml --vault-password-file /ansible/vault_pass.txt
-ansible-vault decrypt /ansible/inventory/prod/group_vars/metricbeat_hosts/vault.yml --vault-password-file /ansible/vault_pass.txt
+ansible-vault encrypt /ansible/inventory/prod/group_vars/metricbeat_hosts/vault.yml --vault-password-file /ansible/.vault/vault_pass.txt
+ansible-vault decrypt /ansible/inventory/prod/group_vars/metricbeat_hosts/vault.yml --vault-password-file /ansible/.vault/vault_pass.txt
 
 ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook \
     -i /ansible/inventory/"${ENVIRONMENT}"/metricbeat_hosts.yml \
     /ansible/playbooks/setup_metricbeat.yml \
     -e ENVIRONMENT="${ENVIRONMENT}" \
-    --vault-password-file /ansible/vault_pass.txt
+    --vault-password-file /ansible/.vault/vault_pass.txt
 #    --ask-vault-pass
 
 ansible-playbook \
     -i /ansible/inventory/"${ENVIRONMENT}"/hosts.yml \
     /ansible/playbooks/ping.yml \
     -e ENVIRONMENT="${ENVIRONMENT}" \
-    --vault-password-file /ansible/vault_pass.txt
+    --vault-password-file /ansible/.vault/vault_pass.txt
 #    --ask-vault-pass
 
 ansible-playbook \
     -i /ansible/inventory/"${ENVIRONMENT}"/hosts.yml \
     /ansible/playbooks/connectivity.yml \
     -e ENVIRONMENT="${ENVIRONMENT}" \
-    --vault-password-file /ansible/vault_pass.txt
+    --vault-password-file /ansible/.vault/vault_pass.txt
 #    --ask-vault-pass
 
 
@@ -89,7 +89,7 @@ ansible-playbook \
     -e ENVIRONMENT="${ENVIRONMENT}" \
     -e upgrade_tomcat_upgrade_step="prepare" \
     -e upgrade_tomcat_zip_filename="apache-tomcat-9.0.98-windows-x64.zip" \
-    --vault-password-file /ansible/vault_pass.txt
+    --vault-password-file /ansible/.vault/vault_pass.txt
 #    --ask-vault-pass
 
 
@@ -103,7 +103,7 @@ ansible-playbook \
     -e upgrade_tomcat_service_to_uninstall="" \
     -e upgrade_tomcat_current_service_to_upgrade="TOMCAT964_SRVA" \
     -e upgrade_tomcat_zip_filename="apache-tomcat-9.0.98-windows-x64.zip" \
-    --vault-password-file /ansible/vault_pass.txt
+    --vault-password-file /ansible/.vault/vault_pass.txt
 #    --ask-vault-pass
 ```
 
