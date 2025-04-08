@@ -58,8 +58,8 @@ if [ "${RESET_HOSTS_FILE}" = "true" ]; then
   ssh-keyscan -H linux_implicit_ssh_keys_host >> "$KNOWN_HOSTS_FILE"
 
   # Configure the hosts to use the externally generated keypair
-  add_ssh_key_to_known_hosts "linux_explicit_ssh_keys_host" "${DECRYPTED_KEY_DIR}/linux_explicit_ssh_keys_host.pub" "$KNOWN_HOSTS_FILE"
-  add_ssh_key_to_known_hosts "oracle_linux_9_explicit_ssh_keys_host" "${DECRYPTED_KEY_DIR}/oracle_linux_9_explicit_ssh_keys_host.pub" "$KNOWN_HOSTS_FILE"
+  add_ssh_key_to_known_hosts "linux_explicit_ssh_keys_host" "/root/.ssh/linux_explicit_ssh_keys_host.pub" "$KNOWN_HOSTS_FILE"
+  add_ssh_key_to_known_hosts "oracle_linux_9_explicit_ssh_keys_host" "/root/.ssh/oracle_linux_9_explicit_ssh_keys_host.pub" "$KNOWN_HOSTS_FILE"
 fi
 
 # Install custom certificate if needed
