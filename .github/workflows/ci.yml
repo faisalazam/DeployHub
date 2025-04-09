@@ -7,11 +7,10 @@ on:
       - stable
 
 env:
-  DOCKER_VERSION: 5:27.3.1
   PAGES_FOLDER: github-pages
   ANSIBLE_CONTAINER_NAME: ansible
-  DOCKER_COMPOSE_VERSION: 2.29.2
   DOCKER_COMPOSE_FILE: docker-compose.yml
+  DOCKER_VERSION: 5:28.0.1-1~ubuntu.24.04~noble
 
 jobs:
   build:
@@ -28,21 +27,14 @@ jobs:
         run: sh ./install_docker.sh
         working-directory: ./.github/workflows/scripts
 
-      - name: Install Docker Compose with specific version
-        run: |
-          sudo curl -L "https://github.com/docker/compose/releases/download/v${{ env.DOCKER_COMPOSE_VERSION }}/docker-compose-$(uname -s)-$(uname -m)" \
-            -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
-          docker compose --version
+      - name: Check if docker compose is available before proceeding
+        run: docker compose version || { echo "docker compose is not installed or not in PATH"; exit 1; }
 
       - name: OpenSSL Version
         run: openssl version
 
       - name: Generate certificates
         run: sh ./scripts/generate_certificate.sh
-
-      - name: Check if docker compose is available before proceeding
-        run: which docker-compose || { echo "docker compose is not installed or not in PATH"; exit 1; }
 
       - name: Start and setup the container
         id: docker-start
