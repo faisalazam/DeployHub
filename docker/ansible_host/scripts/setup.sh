@@ -79,14 +79,22 @@ find /ansible -type d -exec chmod 755 {} \;
 # Set files to 644 (read, write for owner, read for others)
 find /ansible -type f -exec chmod 644 {} \;
 
-# As the vault_password_file is configured in ansible.cfg for convenience, so it should exist regardless of whether
-# we actually need it or not (e.g. CI pipeline does not require Vault, hence no vault file is needed, but the build
-# will fail if the file does not exist due to the vault_password_file config in cfg file.).
-# we need to create an empty vault_pass.txt file to satisfy the configuration and avoid "file not found" errors.
-# But remember to add the vault password to this file if you actually need Vault.
-mkdir -p /ansible/.vault
-# touch won't overwrite an existing file, this approach won't introduce any unexpected side effects.
-touch /ansible/.vault/vault_pass.txt
+# As the vault_password_file is configured in ansible.cfg for convenience,
+# the file must exist regardless of whether Vault is actually used or not.
+# For example, in CI pipelines or local non-sensitive setups, we don't use Vault,
+# but the build will fail if this file is missing due to ansible.cfg config.
+#
+# Therefore, we create a placeholder vault_pass.txt file with a clearly invalid
+# value to avoid any confusion or accidental usage.
+#
+# IMPORTANT: If you do use Ansible Vault, replace this placeholder with the real password.
+#
+# DO NOT use this placeholder value in real environments where Vault is required.
+VAULT_PASS_FILE="/ansible/.vault/vault_pass.txt"
+if [ ! -f "${VAULT_PASS_FILE}" ]; then
+  mkdir -p "$(dirname "${VAULT_PASS_FILE}")"
+  echo "!!-PLACEHOLDER-NO-VAULT-IN-USE-!!" > "${VAULT_PASS_FILE}"
+fi
 
 # 📦 Install required Ansible Galaxy collections only if not already installed
 GALAXY_DIR="/ansible/.galaxy"
