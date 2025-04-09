@@ -18,7 +18,7 @@ services:
       - ../vault_agent/secrets/agent/ssh_keys/${ENVIRONMENT}/linux_explicit_ssh_keys_host/id_rsa:/etc/ssh/ssh_host_rsa_key
       - ../vault_agent/secrets/agent/ssh_keys/${ENVIRONMENT}/linux_explicit_ssh_keys_host/id_rsa.pub:/etc/ssh/ssh_host_rsa_key.pub
       - ./scripts/initialize_ssh_keys.sh:/usr/local/bin/initialize_ssh_keys.sh
-    command: [ "/bin/sh", "-c", "sh /usr/local/bin/initialize_ssh_keys.sh && /usr/sbin/sshd -D -d" ]
+    command: [ "/bin/sh", "-c", "sh /usr/local/bin/initialize_ssh_keys.sh && /usr/sbin/sshd -D" ]
     tty: true
     stdin_open: true
     networks:
