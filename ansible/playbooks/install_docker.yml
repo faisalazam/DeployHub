@@ -12,6 +12,13 @@
       ansible.builtin.include_role:
         name: geerlingguy.docker
       vars:
+        docker_edition: "ce"
+        docker_version: "28.0.4"
+        docker_packages:
+          - "docker-{{ docker_edition }}-{{ docker_version }}"
+          - "docker-{{ docker_edition }}-cli-{{ docker_version }}"
+          - "docker-{{ docker_edition }}-rootless-extras-{{ docker_version }}"
+        docker_packages_state: present
         docker_service_manage: true
         docker_users:
           - jenkins
