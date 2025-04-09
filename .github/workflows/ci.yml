@@ -58,14 +58,6 @@ jobs:
           COMPOSE_PROFILES=test ENVIRONMENT=local docker compose up -d
         working-directory: ./docker
 
-      # Create an empty vault_pass.txt file in CI environment
-      # The vault_password_file is configured in ansible.cfg, but since we don't require Vault in the CI pipeline,
-      # we need to create an empty vault_pass.txt file to satisfy the configuration and avoid "file not found" errors.
-      - name: Create empty vault_pass.txt file
-        run: |
-          mkdir -p /ansible/.vault
-          touch /ansible/.vault/vault_pass.txt
-
       - name: Setup environment
         run: |
           # As the certs directory is not committed to Git, so to set RUN_WITH_CERTIFICATE to true, 
