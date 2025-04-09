@@ -39,5 +39,4 @@ else
   exit 1
 fi
 
-echo "Starting SSH server..."
-exec "$SSHD_PATH" -D
+echo "SSH keys initialized successfully."
