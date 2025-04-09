@@ -24,14 +24,6 @@ jobs:
       - name: Set SITE_ROOT_URL Variable
         run: echo "SITE_ROOT_URL=https://${GITHUB_ACTOR}.github.io/${GITHUB_REPOSITORY#*/}" >> $GITHUB_ENV
 
-      - name: Cache Docker images
-        uses: actions/cache@v4
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-docker-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-docker-
-
       - name: Install Docker with specific version
         run: sh ./install_docker.sh
         working-directory: ./.github/workflows/scripts
