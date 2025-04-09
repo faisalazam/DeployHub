@@ -12,7 +12,6 @@ ROOT_USER="root"
 SSH_DIR="/etc/ssh"
 AUTHORIZED_KEYS="/root/.ssh/authorized_keys"
 SSH_HOST_RSA_KEY="$SSH_DIR/ssh_host_rsa_key"
-SSHD_PATH="/usr/sbin/sshd"
 
 # Copy the public key to the authorized_keys file explicitly if you're not mounting it through docker compose...
 #cp .ssh/id_rsa.pub /root/.ssh/authorized_keys
