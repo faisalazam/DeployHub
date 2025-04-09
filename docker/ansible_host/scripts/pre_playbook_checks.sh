@@ -33,7 +33,7 @@ check_connectivity() {
 # Run ansible-lint
 run_ansible_lint() {
     log "Running ansible-lint..."
-    ansible-lint /ansible/playbooks/*.yml || error "ansible-lint failed."
+    ansible-lint /ansible/playbooks/*.yml --exclude /ansible/.galaxy || error "ansible-lint failed."
 }
 
 # Run ansible-playbook syntax check
