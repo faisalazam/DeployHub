@@ -2,6 +2,6 @@ ansible==11.3.0
 ansible-core==2.18.3
 pywinrm==0.5.0
 molecule[docker]==24.12.0
-ansible-lint==v25.1.3
+ansible-lint==v25.2.1
 pytest==8.3.4
 pytest-testinfra==10.1.1

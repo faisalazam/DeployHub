@@ -65,7 +65,7 @@ def test_molecule_version():
 
 # Test for checking ansible-lint version
 def test_ansible_lint_version():
-    expected_version = "25.1.3"
+    expected_version = "25.2.1"
     check_version(["ansible-lint", "--version"], expected_version, extract_ansible_lint_version)
 
 # Test for checking pytest version
