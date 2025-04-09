@@ -1,6 +1,6 @@
 - name: Install Docker on Oracle Linux 9
   hosts: jenkins_hosts
-  become: yes
+  become: true
 
   tasks:
     - name: Ensure jenkins user exists
@@ -8,30 +8,10 @@
         name: jenkins
         shell: /bin/bash
 
-    - name: Check for systemd availability on the target host
-      stat:
-        path: /bin/systemd
-      register: systemd_check
-
     - name: Install Docker using geerlingguy.docker role
-      include_role:
+      ansible.builtin.include_role:
         name: geerlingguy.docker
       vars:
-        docker_service_manage: "{{ systemd_check.stat.exists == true }}"
+        docker_service_manage: true
         docker_users:
           - jenkins
-
-    - name: Start Docker daemon in non-systemd environment
-      shell: "nohup dockerd > /var/log/dockerd.log 2>&1 &"
-      args:
-        creates: /var/run/docker.sock
-      when: systemd_check.stat.exists == false
-      notify:
-        - Ensure Docker is running
-
-  handlers:
-    - name: Ensure Docker is running
-      shell: "nohup dockerd > /var/log/dockerd.log 2>&1 &"
-      args:
-        creates: /var/run/docker.sock
-      when: systemd_check.stat.exists == false
