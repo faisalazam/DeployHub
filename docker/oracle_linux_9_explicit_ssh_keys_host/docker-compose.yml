@@ -8,6 +8,7 @@ services:
       dockerfile: docker/oracle_linux_9_explicit_ssh_keys_host/Dockerfile
     container_name: oracle_linux_9_explicit_ssh_keys_host
     image: oracle_linux_9_ssh_keys_host:latest
+    privileged: true
     volumes:
       # If the following dir is missing, then start the vault_agent first to create the secrets dir contents
       - ../vault_agent/secrets/agent/ssh_keys/ansible/id_rsa.pub:/root/.ssh/authorized_keys
