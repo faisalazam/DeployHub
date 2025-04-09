@@ -24,7 +24,7 @@ echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] \
 # Step 4: Update package index again and install Docker using the Docker installation script
 echo "Updating package index and installing Docker..."
 sudo apt-get update
-curl -fsSL https://get.docker.com | VERSION=${DOCKER_VERSION} sh
+curl -fsSL https://get.docker.com | VERSION="${DOCKER_VERSION}" sh
 
 # Step 5: Verify Docker installation
 echo "Verifying Docker installation..."
