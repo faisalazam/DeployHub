@@ -14,10 +14,12 @@
       vars:
         docker_edition: "ce"
         docker_version: "28.0.4"
+        docker_compose_version: "2.34.0"
         docker_packages:
           - "docker-{{ docker_edition }}-{{ docker_version }}"
           - "docker-{{ docker_edition }}-cli-{{ docker_version }}"
           - "docker-{{ docker_edition }}-rootless-extras-{{ docker_version }}"
+          - "docker-compose-plugin-{{ docker_compose_version }}"
         docker_packages_state: present
         docker_service_manage: true
         docker_users:
