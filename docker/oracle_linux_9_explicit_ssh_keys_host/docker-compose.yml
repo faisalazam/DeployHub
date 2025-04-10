@@ -19,7 +19,7 @@ services:
       - ../vault_agent/secrets/agent/ssh_keys/${ENVIRONMENT}/oracle_linux_9_explicit_ssh_keys_host/id_rsa:/etc/ssh/ssh_host_rsa_key
       - ../vault_agent/secrets/agent/ssh_keys/${ENVIRONMENT}/oracle_linux_9_explicit_ssh_keys_host/id_rsa.pub:/etc/ssh/ssh_host_rsa_key.pub
       - ./scripts/initialize_ssh_keys.sh:/usr/local/bin/initialize_ssh_keys.sh
-    command: ["/bin/sh", "-c", "sh /usr/local/bin/initialize_ssh_keys.sh && /lib/systemd/systemd"]
+    command: [ "/bin/sh", "-c", "sh /usr/local/bin/initialize_ssh_keys.sh && /lib/systemd/systemd" ]
     tty: true
     stdin_open: true
     networks:
