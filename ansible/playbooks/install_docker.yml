@@ -10,8 +10,9 @@
 
     # Check if the overlay module exists in the system's kernel to determine if the overlay2 storage driver is available.
     - name: Check if overlay module exists in /lib/modules
-      ansible.builtin.stat:
-        path: "/lib/modules/{{ ansible_kernel }}/kernel/fs/overlayfs/overlay.ko"
+      ansible.builtin.find:
+        paths: "/lib/modules/{{ ansible_kernel }}/kernel/fs/overlayfs"
+        patterns: "overlay.ko*"
       register: overlay_module_stat
       ignore_errors: true
 
@@ -21,7 +22,7 @@
     # docker_daemon_options below.
     - name: Set storage driver dynamically based on overlay module availability
       ansible.builtin.set_fact:
-        docker_storage_driver: "{{ 'overlay2' if overlay_module_stat.stat.exists else 'fuse-overlayfs' }}"
+        docker_storage_driver: "{{ 'overlay2' if overlay_module_stat.matched > 0 else 'fuse-overlayfs' }}"
 
     - name: Install Docker using geerlingguy.docker role
       ansible.builtin.include_role:
