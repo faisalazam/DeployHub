@@ -23,6 +23,7 @@ RUN apt-get update && \
         tzdata \
         bash \
         less \
+        vim \
         python${PYTHON_VERSION} \
         python${PYTHON_VERSION}-venv && \
     apt-get clean && \
