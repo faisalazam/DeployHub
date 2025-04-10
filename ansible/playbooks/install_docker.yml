@@ -24,3 +24,9 @@
         docker_service_manage: true
         docker_users:
           - jenkins
+        docker_daemon_options:
+          storage-driver: "overlay2"
+          log-opts:
+            # Keep up to 5 log files, each max 50MB → so worst-case logs use ~250MB per container.
+            max-file: "5"
+            max-size: "50m"
