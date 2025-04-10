@@ -8,6 +8,21 @@
         name: jenkins
         shell: /bin/bash
 
+    # Check if the overlay module exists in the system's kernel to determine if the overlay2 storage driver is available.
+    - name: Check if overlay module exists in /lib/modules
+      ansible.builtin.stat:
+        path: "/lib/modules/{{ ansible_kernel }}/kernel/fs/overlayfs/overlay.ko"
+      register: overlay_module_stat
+      ignore_errors: true
+
+    # If the overlay module is found, use the overlay2 driver. If not, fall back to fuse-overlayfs as an alternative.
+    # This dynamic selection ensures compatibility across different environments, improving the portability of the playbook.
+    # If the docker daemon fails to start due to the unsupported storage driver, you can skip setting it in the
+    # docker_daemon_options below.
+    - name: Set storage driver dynamically based on overlay module availability
+      set_fact:
+        docker_storage_driver: "{{ 'overlay2' if overlay_module_stat.stat.exists else 'fuse-overlayfs' }}"
+
     - name: Install Docker using geerlingguy.docker role
       ansible.builtin.include_role:
         name: geerlingguy.docker
@@ -25,7 +40,8 @@
         docker_users:
           - jenkins
         docker_daemon_options:
-          storage-driver: "overlay2"
+          # If the docker daemon fails to start due to the unsupported storage driver, you can skip setting it
+          storage-driver: "{{ docker_storage_driver }}"
           log-opts:
             # Keep up to 5 log files, each max 50MB → so worst-case logs use ~250MB per container.
             max-file: "5"
