@@ -16,5 +16,5 @@ jenkins_server_started_test_handler: "Test Jenkins server is up and running"
 jenkins_registry_cert_days: 730
 jenkins_registry_cert_key_size: 4096
 jenkins_registry_cert_cn: "registry"
-jenkins_registry_cert_key_file: "certs/registry.key"
-jenkins_registry_cert_crt_file: "certs/registry.crt"
+jenkins_registry_cert_key_file: "{{ jenkins_registry_cert_dir }}/registry.key"
+jenkins_registry_cert_crt_file: "{{ jenkins_registry_cert_dir }}/registry.crt"
