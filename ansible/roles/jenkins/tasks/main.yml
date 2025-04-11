@@ -14,3 +14,23 @@
     update: yes   # <---- This ensures `git pull` happens if repo exists
     force: yes    # <---- Git is source of truth — no local changes allowed
   notify: Restart Jenkins
+
+- name: Ensure certs directory exists
+  ansible.builtin.file:
+    path: /opt/jenkins/docker/jenkins/certs
+    state: directory
+    mode: '0755'
+
+- name: Generate registry certificate
+  ansible.builtin.command: >
+    openssl req
+    -newkey rsa:4096 -nodes -sha256
+    -keyout certs/registry.key
+    -x509 -days 730
+    -out certs/registry.crt
+    -subj /CN=registry
+    -addext subjectAltName=DNS:registry
+  args:
+    chdir: /opt/jenkins/docker/jenkins
+    creates: /opt/jenkins/docker/jenkins/certs/registry.crt  # Idempotent check
+  notify: Restart Jenkins
