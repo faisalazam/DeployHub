@@ -1,1 +1,10 @@
-# Placeholder for linux_hosts.yml
+---
+- name: A placeholder task to make the lint happy
+  ansible.builtin.debug:
+    msg: "This is a placeholder for clean up tasks."
+- name: Install common packages on linux
+  ansible.builtin.package:
+    name:
+      - git
+    state: present
+  become: true

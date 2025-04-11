@@ -1,0 +1,6 @@
+---
+galaxy_info:
+  author: M. Faisal
+  description: Install common packages like git, curl, etc.
+
+dependencies: []

@@ -1,1 +1,11 @@
-# Placeholder for main.yml
+---
+- name: A placeholder task to make the lint happy
+  ansible.builtin.debug:
+    msg: "This is a placeholder for clean up tasks."
+- name: Include linux_hosts.yml for Linux
+  ansible.builtin.include_tasks: linux_hosts.yml
+  when: ansible_os_family != "Windows"
+
+- name: Include window_hosts.yml for Window
+  ansible.builtin.include_tasks: window_hosts.yml
+  when: ansible_os_family == "Windows"
