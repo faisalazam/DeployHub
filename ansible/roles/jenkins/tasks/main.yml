@@ -1,11 +1,15 @@
 ---
 
-# It removes /opt/jenkins only if .git does not exist inside → Safety first.
+- name: Check if /opt/jenkins/.git exists
+  ansible.builtin.stat:
+    path: /opt/jenkins/.git
+  register: jenkins_git_dir
+
 - name: Remove non-git directory if exists (protect idempotency)
   ansible.builtin.file:
     path: /opt/jenkins
     state: absent
-  when: lookup('ansible.builtin.file', '/opt/jenkins/.git', errors='ignore') is not defined
+  when: not jenkins_git_dir.stat.exists
 
 - name: Clone Jenkins deployment repository
   ansible.builtin.git:
