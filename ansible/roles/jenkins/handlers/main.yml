@@ -5,3 +5,9 @@
   args:
     chdir: /opt/jenkins/docker/jenkins
   become: true
+  notify: Test Jenkins server is up and running
+
+- name: Test Jenkins server is up and running
+  ansible.builtin.command: sh tests/test_jenkins.sh
+  args:
+    chdir: /opt/jenkins/docker/jenkins
