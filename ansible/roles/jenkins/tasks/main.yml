@@ -1,0 +1,9 @@
+---
+
+- name: Clone Jenkins deployment repository
+  ansible.builtin.git:
+    repo: 'https://github.com/faisalazam/JenkinsComposeStack.git'
+    dest: /opt/jenkins
+    update: yes   # <---- This ensures `git pull` happens if repo exists
+    force: yes    # <---- Git is source of truth — no local changes allowed
+  notify: Restart Jenkins

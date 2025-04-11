@@ -1,0 +1,6 @@
+---
+galaxy_info:
+  author: M. Faisal
+  description: Setup Jenkins server
+
+dependencies: []
