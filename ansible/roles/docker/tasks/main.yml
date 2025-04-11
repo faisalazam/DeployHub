@@ -19,7 +19,8 @@
 # docker_daemon_options below.
 - name: Set storage driver dynamically based on overlay module availability
   ansible.builtin.set_fact:
-    docker_storage_driver: "{{ 'overlay2' if overlay_module_stat.matched > 0 else 'fuse-overlayfs' }}"
+    docker_daemon_options: "{{ docker_daemon_options | combine({'storage-driver': 'overlay2'}) }}"
+  when: overlay_module_stat.matched > 0
 
 - name: Install Docker using geerlingguy.docker role
   ansible.builtin.include_role:

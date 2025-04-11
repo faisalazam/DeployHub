@@ -22,7 +22,7 @@ docker_users:
   - jenkins
 docker_daemon_options:
   # If the docker daemon fails to start due to the unsupported storage driver, you can skip setting it
-  storage-driver: "{{ docker_storage_driver }}"
+  storage-driver: "fuse-overlayfs"
   log-opts:
     # Keep up to 5 log files, each max 50MB → so worst-case logs use ~250MB per container.
     max-file: "5"
