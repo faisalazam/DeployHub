@@ -2,7 +2,18 @@
   hosts: jenkins_hosts
   become: true
 
+# To run the playbook:
+#
+# APPLICATION="iab"
+# ENVIRONMENT="prod"
+# ansible-playbook \
+#    -i "/ansible/inventory/${APPLICATION}/${ENVIRONMENT}/prod_jenkins_hosts.yml" \
+#    /ansible/playbooks/setup_jenkins.yml \
+#    -e ENVIRONMENT="${ENVIRONMENT}" \
+#    --vault-password-file /ansible/.vault/vault_pass.txt
+
   roles:
     - common
     - docker
     - metricbeat
+    - jenkins
