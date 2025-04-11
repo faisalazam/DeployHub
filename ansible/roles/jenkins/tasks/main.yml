@@ -31,7 +31,7 @@
   ansible.builtin.file:
     state: directory
     mode: "{{ jenkins_dir_mode }}"
-    path: "{{ jenkins_certs_dir }}"
+    path: "{{ jenkins_registry_cert_dir }}"
 
 - name: Generate registry certificate
   ansible.builtin.command: >
@@ -46,3 +46,13 @@
     chdir: "{{ jenkins_dest_dir }}/docker/jenkins"
     creates: "{{ jenkins_registry_cert_crt_file }}"
   notify: "{{ jenkins_restart_handler }}"
+
+#- name: Generate registry certificate
+#  ansible.builtin.command: >
+#    openssl req
+#    -newkey rsa:4096 -nodes -sha256
+#    -keyout certs/registry.key
+#    -x509 -days 730
+#    -out certs/registry.crt
+#    -subj /CN=registry
+#    -addext subjectAltName=DNS:registry

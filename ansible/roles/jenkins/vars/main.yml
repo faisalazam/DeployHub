@@ -7,5 +7,5 @@
 
 jenkins_dest_dir: "/opt/jenkins"
 jenkins_git_dir: "{{ jenkins_dest_dir }}/.git"
-jenkins_certs_dir: "{{ jenkins_dest_dir }}/docker/jenkins/certs"
+jenkins_registry_cert_dir: "{{ jenkins_dest_dir }}/docker/jenkins/certs"
 jenkins_repo_url: "https://github.com/faisalazam/JenkinsComposeStack.git"

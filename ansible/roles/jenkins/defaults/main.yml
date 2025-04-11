@@ -18,4 +18,3 @@ jenkins_registry_cert_key_size: 4096
 jenkins_registry_cert_cn: "registry"
 jenkins_registry_cert_key_file: "certs/registry.key"
 jenkins_registry_cert_crt_file: "certs/registry.crt"
-jenkins_registry_cert_dir: "{{ jenkins_dest_dir }}/docker/jenkins/certs"
