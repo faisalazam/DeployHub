@@ -1,7 +1,7 @@
 ---
 
 - name: "{{ jenkins_restart_handler }}"
-  ansible.builtin.command: docker compose up -d
+  ansible.builtin.command: docker compose up -d --remove-orphans
   args:
     chdir: /opt/jenkins/docker/jenkins
   become: true
