@@ -1,0 +1,21 @@
+---
+
+# contain variables that are meant to be overridden at different
+# levels (playbook, host, or group). These can have default values
+# that can be customized later.
+
+jenkins_dir_mode: '0755'
+jenkins_git_update: true # <---- This ensures `git pull` happens if repo exists
+jenkins_git_force: true  # <---- Git is source of truth — no local changes allowed
+
+################################### Handler Variables #############################
+jenkins_restart_handler: "Restart Jenkins"
+jenkins_server_started_test_handler: "Test Jenkins server is up and running"
+
+################################### Certificate Variables #########################
+jenkins_registry_cert_days: 730
+jenkins_registry_cert_key_size: 4096
+jenkins_registry_cert_cn: "registry"
+jenkins_registry_cert_key_file: "certs/registry.key"
+jenkins_registry_cert_crt_file: "certs/registry.crt"
+jenkins_registry_cert_dir: "{{ jenkins_dest_dir }}/docker/jenkins/certs"

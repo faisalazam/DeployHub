@@ -1,48 +1,48 @@
 ---
 
-- name: Check if /opt/jenkins/.git exists
+- name: Check if {{ jenkins_git_dir }} exists
   ansible.builtin.stat:
-    path: /opt/jenkins/.git
-  register: jenkins_git_dir
+    path: "{{ jenkins_git_dir }}"
+  register: jenkins_git_dir_stat
 
 - name: Remove non-git directory if exists (protect idempotency)
   ansible.builtin.file:
-    path: /opt/jenkins
     state: absent
-  when: not jenkins_git_dir.stat.exists
+    path: "{{ jenkins_dest_dir }}"
+  when: not jenkins_git_dir_stat.stat.exists
 
 - name: Clone Jenkins deployment repository
   ansible.builtin.git:
-    repo: 'https://github.com/faisalazam/JenkinsComposeStack.git'
-    dest: /opt/jenkins
-    update: yes   # <---- This ensures `git pull` happens if repo exists
-    force: yes    # <---- Git is source of truth — no local changes allowed
-  notify: Restart Jenkins
+    repo: "{{ jenkins_repo_url }}"
+    dest: "{{ jenkins_dest_dir }}"
+    force: "{{ jenkins_git_force }}"
+    update: "{{ jenkins_git_update }}"
+  notify: "{{ jenkins_restart_handler }}"
   register: git_clone_result
 
-- name: Set proper permissions on /opt/jenkins
+- name: Set proper permissions on {{ jenkins_dest_dir }}
   ansible.builtin.file:
-    path: /opt/jenkins
     state: directory
-    mode: '0755'
+    path: "{{ jenkins_dest_dir }}"
+    mode: "{{ jenkins_dir_mode }}"
   when: git_clone_result.changed
 
 - name: Ensure certs directory exists
   ansible.builtin.file:
-    path: /opt/jenkins/docker/jenkins/certs
     state: directory
-    mode: '0755'
+    mode: "{{ jenkins_dir_mode }}"
+    path: "{{ jenkins_certs_dir }}"
 
 - name: Generate registry certificate
   ansible.builtin.command: >
     openssl req
-    -newkey rsa:4096 -nodes -sha256
-    -keyout certs/registry.key
-    -x509 -days 730
-    -out certs/registry.crt
-    -subj /CN=registry
-    -addext subjectAltName=DNS:registry
+    -newkey rsa:{{ jenkins_registry_cert_key_size }} -nodes -sha256
+    -keyout {{ jenkins_registry_cert_key_file }}
+    -x509 -days {{ jenkins_registry_cert_days }}
+    -out {{ jenkins_registry_cert_crt_file }}
+    -subj /CN={{ jenkins_registry_cert_cn }}
+    -addext subjectAltName=DNS:{{ jenkins_registry_cert_cn }}
   args:
-    chdir: /opt/jenkins/docker/jenkins
-    creates: /opt/jenkins/docker/jenkins/certs/registry.crt  # Idempotent check
-  notify: Restart Jenkins
+    chdir: "{{ jenkins_dest_dir }}/docker/jenkins"
+    creates: "{{ jenkins_registry_cert_crt_file }}"
+  notify: "{{ jenkins_restart_handler }}"

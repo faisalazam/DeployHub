@@ -1,13 +1,13 @@
 ---
 
-- name: Restart Jenkins
+- name: "{{ jenkins_restart_handler }}"
   ansible.builtin.command: docker compose up -d
   args:
     chdir: /opt/jenkins/docker/jenkins
   become: true
-  notify: Test Jenkins server is up and running
+  notify: "{{ jenkins_server_started_test_handler }}"
 
-- name: Test Jenkins server is up and running
+- name: "{{ jenkins_server_started_test_handler }}"
   ansible.builtin.command: sh tests/test_jenkins.sh
   args:
     chdir: /opt/jenkins/docker/jenkins

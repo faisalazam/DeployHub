@@ -1,0 +1,11 @@
+---
+
+# This file contains variables that are more specific to the role
+# and not meant to be overridden easily. They can be used for things
+# like sensitive data, paths, or constants.
+# Path and repository-specific variables (generally shouldn't be overridden)
+
+jenkins_dest_dir: "/opt/jenkins"
+jenkins_git_dir: "{{ jenkins_dest_dir }}/.git"
+jenkins_certs_dir: "{{ jenkins_dest_dir }}/docker/jenkins/certs"
+jenkins_repo_url: "https://github.com/faisalazam/JenkinsComposeStack.git"
