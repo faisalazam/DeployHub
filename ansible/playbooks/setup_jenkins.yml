@@ -1,0 +1,7 @@
+- name: Prepare Jenkins Server
+  hosts: jenkins_hosts
+  become: true
+
+  roles:
+    - common
+    - docker
