@@ -18,6 +18,14 @@
     update: yes   # <---- This ensures `git pull` happens if repo exists
     force: yes    # <---- Git is source of truth — no local changes allowed
   notify: Restart Jenkins
+  register: git_clone_result
+
+- name: Set proper permissions on /opt/jenkins
+  ansible.builtin.file:
+    path: /opt/jenkins
+    state: directory
+    mode: '0755'
+  when: git_clone_result.changed
 
 - name: Ensure certs directory exists
   ansible.builtin.file:
